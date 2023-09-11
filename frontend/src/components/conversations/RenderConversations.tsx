@@ -363,7 +363,7 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
               <HiOutlineChatAlt2 size={40} />
             </div>
             <div className="mb-2 w-3/4 text-center text-lg font-bold">
-              Ask SEC Insights questions about the documents you&apos;ve
+              Ask WorkFlow_Agent questions about the documents you&apos;ve
               selected, such as:
             </div>
             <div className="m-auto flex w-full flex-wrap justify-center">
@@ -373,13 +373,13 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
                 }
                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
               >
-                Which company had the highest revenue?
+                Describe key risks to funding a loan to this group?
               </button>
               <button
                 onClick={() => setUserMessage("What are their main business focus areas?")}
                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
               >
-                What are their main business focus areas?
+                Draft a new proforma Investmen Memo for this company?
               </button>
               <button
                 onClick={() =>
@@ -387,7 +387,7 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
                 }
                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
               >
-                What are the biggest discussed risks?
+                Describe the ownership and incentive structure for the shareholders and directors?
               </button>
             </div>
           </div>

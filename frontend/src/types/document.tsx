@@ -1,8 +1,12 @@
 import { DocumentColorEnum } from "~/utils/colors";
 
 export enum DocumentType {
-  TenK = "Form 10K",
-  TenQ = "Form 10Q",
+  TenK = "Balance Sheet", 
+  TenQ = "Profit and Loss",
+  // IM = "Investment Memorandum",
+  // TenK = "Form 10K", 
+  // TenQ = "Form 10Q",
+  // TODO: need to change these in the database?
 }
 
 export type Ticker = {
