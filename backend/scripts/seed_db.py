@@ -43,7 +43,7 @@ async def async_seed_db(ciks: List[str] = DEFAULT_CIKS, filing_types: List[str] 
     print("Upserting records of pdf files into database")
     all_pdf_docs = [os.path.join(path, f) for f in os.listdir(path) if not f.startswith('.') and f.endswith('.pdf')]
     for filename in all_pdf_docs:
-        await upsert_document.upsert_single_document(path=path)
+        await upsert_document.upsert_single_document(url=filename)
 
     print("Seeding storage context")
     await seed_storage_context.async_main_seed_storage_context()

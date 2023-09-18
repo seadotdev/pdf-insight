@@ -6,13 +6,13 @@ from app.db.session import SessionLocal
 from app.api import crud
 
 
-async def upsert_single_document(path: str):
+async def upsert_single_document(url: str):
     """
     Upserts a single SEC document into the database using its URL.
     """
 
     metadata_map = {}
-    doc = Document(url=path, metadata_map=metadata_map)
+    doc = Document(url=url, metadata_map=metadata_map)
     async with SessionLocal() as db:
         document = await crud.upsert_document(db, doc)
         print(f"Upserted document. Database ID:\n{document.id}")

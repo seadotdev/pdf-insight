@@ -1,9 +1,8 @@
 import { DocumentColorEnum } from "~/utils/colors";
 
 export enum DocumentType {
-  BalanceSheet = "Balance Sheet", 
-  PnL = "Profit and Loss",
-  IM = "Investment Memorandum",
+  ANNUAL_REPORT = "Annual Report",
+  BALANCE_SHEET = "Balance Sheet"
 }
 
 export type Ticker = {

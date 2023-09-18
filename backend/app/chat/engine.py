@@ -82,16 +82,17 @@ def get_s3_fs() -> AsyncFileSystem:
 def fetch_and_read_document(document: DocumentSchema) -> List[LlamaIndexDocument]:
     logger.info('Reading documents and returning')
     # os.environ['TESSDATA_PREFIX'] = '/usr/share/tesseract-ocr/4.00/tessdata'
-    doc = fitz.open("data/01325869_aa_2023-04-28.pdf")
+
+    doc = fitz.open('data/01325869_aa_2023-04-28.pdf')
     pages = doc.pages()
     doc_content = ''
-    for page in pages:
+    for i, page in enumerate(pages):
         logger.info(f'reading page\n')    
         doc_content += page.get_text() + '\n'
         doc_content += page.get_textpage_ocr().extractText() + '\n'
 
     logger.info(f'Content: {doc_content}')
-    doc_list = [LlamaIndexDocument(doc_content, extra_info={DB_DOC_ID_KEY: str(document.id)})]
+    doc_list = [LlamaIndexDocument(text=doc_content, extra_info={DB_DOC_ID_KEY: str(document.id)})]
 
     return doc_list
 
@@ -264,7 +265,7 @@ async def get_chat_engine(
     api_query_engine_tools = [
         get_api_query_engine_tool(doc, service_context)
         for doc in conversation.documents
-        if DocumentMetadataKeysEnum.SEC_DOCUMENT in doc.metadata_map
+        if DocumentMetadataKeysEnum.ANNUAL_REPORT in doc.metadata_map
     ]
 
     quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
@@ -300,7 +301,7 @@ Any questions about company-related financials or other metrics should be asked 
 
     chat_llm = OpenAI(
         temperature=0,
-        model="gpt-3.5-turbo-0613",
+        model="gpt-4",
         streaming=True,
         api_key=settings.OPENAI_API_KEY,
         additional_kwargs={"api_key": settings.OPENAI_API_KEY},

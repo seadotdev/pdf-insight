@@ -162,3 +162,12 @@ cython_debug/
 storage/
 # created by localstack
 volume/
+
+# Visual Studio config
+.vscode
+
+# Anything to do with aws
+aws/*
+
+# Local filtesystem storage created by localstack
+s3fs

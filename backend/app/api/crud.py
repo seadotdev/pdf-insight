@@ -99,7 +99,7 @@ async def fetch_documents(
     elif ids is not None:
         stmt = stmt.where(Document.id.in_(ids))
     if url is not None:
-        stmt = stmt.where(Document.path == url)
+        stmt = stmt.where(Document.url == url)
     if limit is not None:
         stmt = stmt.limit(limit)
     result = await db.execute(stmt)
@@ -113,7 +113,7 @@ async def upsert_document(db: AsyncSession, document: schema.Document) -> schema
     """
     stmt = insert(Document).values(**document.dict(exclude_none=True))
     stmt = stmt.on_conflict_do_update(
-        index_elements=[Document.path],
+        index_elements=[Document.url],
         set_=document.dict(include={"metadata_map"}),
     )
     stmt = stmt.returning(Document)

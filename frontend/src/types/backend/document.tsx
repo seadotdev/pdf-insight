@@ -1,6 +1,6 @@
 export enum BackendDocumentType {
-  BalanceSheet = "Balance Sheet", 
-  PnL = "Profit and Loss",
+  ANNUAL_REPORT = "Annual Report",
+  BALANCE_SHEET = "Balance Sheet"
 }
 
 export interface BackendDocument {
