@@ -4,65 +4,16 @@ from typing import List, Optional
 import pdfkit
 from file_utils import filing_exists
 from fire import Fire
-from sec_edgar_downloader import Downloader
 from tqdm.contrib.itertools import product
 
-DEFAULT_OUTPUT_DIR = "data/"
+DEFAULT_SOURCE_DIR = "data/"
 # You can lookup the CIK for a company here: https://www.sec.gov/edgar/searchedgar/companysearch
-DEFAULT_CIKS = [
-    # AAPL
-    "320193",
-    # MSFT
-    "789019",
-    # AMZN
-    "0001018724",
-    # GOOGL
-    "1652044",
-    # META
-    "1326801",
-    # TSLA
-    "1318605",
-    # NVDA
-    "1045810",
-    # NFLX
-    "1065280",
-    # PYPL
-    "0001633917",
-    # PFE (Pfizer)
-    "78003",
-    # AZNCF (AstraZeneca)
-    "901832",
-    # LLY (Eli Lilly)
-    "59478",
-    # MRNA (Moderna)
-    "1682852",
-    # JNJ (Johnson & Johnson)
-    "200406",
-]
-DEFAULT_FILING_TYPES = [
-    "10-K",
-    "10-Q",
-]
-
-
-def _download_filing(
-    cik: str, filing_type: str, output_dir: str, amount=None, before=None, after=None
-):
-    dl = Downloader(output_dir)
-    dl.get(filing_type, cik, amount=amount, before=before, after=after)
+DEFAULT_CIKS = [ "Bott" ]
+DEFAULT_FILING_TYPES = [ "Something", "PnL"]
 
 
 def _convert_to_pdf(output_dir: str):
     """Converts all html files in a directory to pdf files."""
-
-    # NOTE: directory structure is assumed to be:
-    # output_dir
-    # ├── sec-edgar-filings
-    # │   ├── AAPL
-    # │   │   ├── 10-K
-    # │   │   │   ├── 0000320193-20-000096
-    # │   │   │   │   ├── filing-details.html
-    # │   │   │   │   ├── filing-details.pdf   <-- this is what we want
 
     data_dir = Path(output_dir) / "sec-edgar-filings"
     for cik_dir in data_dir.iterdir():
@@ -81,7 +32,7 @@ def _convert_to_pdf(output_dir: str):
 
 
 def main(
-    output_dir: str = DEFAULT_OUTPUT_DIR,
+    output_dir: str = DEFAULT_SOURCE_DIR,
     ciks: List[str] = DEFAULT_CIKS,
     file_types: List[str] = DEFAULT_FILING_TYPES,
     before: Optional[str] = None,
@@ -97,7 +48,7 @@ def main(
                 print(f"- Filing for {symbol} {file_type} already exists, skipping")
             else:
                 print(f"- Downloading filing for {symbol} {file_type}")
-                _download_filing(symbol, file_type, output_dir, amount, before, after)
+                # _download_filing(symbol, file_type, output_dir, amount, before, after)
         except Exception as e:
             print(
                 f"Error downloading filing for symbol={symbol} & file_type={file_type}: {e}"

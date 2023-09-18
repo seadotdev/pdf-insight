@@ -1,21 +1,15 @@
 import { DocumentType } from "~/types/document";
-import type { SecDocument } from "~/types/document";
+import type { Document } from "~/types/document";
 
 import type { SelectOption } from "~/types/selection";
 import { filterByTickerAndType } from "./documents";
 
 export const documentTypeOptions = [
-  { value: DocumentType.TenK, label: DocumentType.TenK },
-  { value: DocumentType.TenQ, label: DocumentType.TenQ },
+  { value: DocumentType.BalanceSheet, label: DocumentType.PnL },
+  { value: DocumentType.BalanceSheet, label: DocumentType.PnL },
 ] as SelectOption[];
 
-function documentToYearOption(document: SecDocument): SelectOption {
-  if (document.quarter) {
-    return {
-      value: document.id,
-      label: document.year + " Q" + document.quarter,
-    };
-  }
+function documentToYearOption(document: Document): SelectOption {
   return {
     value: document.id,
     label: document.year,
@@ -25,7 +19,7 @@ function documentToYearOption(document: SecDocument): SelectOption {
 export function getAvailableYears(
   ticker: string,
   type: DocumentType,
-  documents: SecDocument[]
+  documents: Document[]
 ): SelectOption[] {
   const docs = filterByTickerAndType(ticker, type, documents);
   const yearOptions: SelectOption[] = docs.map(documentToYearOption);

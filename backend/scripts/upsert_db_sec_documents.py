@@ -8,18 +8,17 @@ from stock_utils import get_stocks_by_symbol, Stock
 from fastapi.encoders import jsonable_encoder
 from app.models.db import Document
 from app.schema import (
-    SecDocumentMetadata,
+    DocumentMetadata,
     DocumentMetadataMap,
     DocumentMetadataKeysEnum,
-    SecDocumentTypeEnum,
+    DocumentTypeEnum,
     Document,
 )
 from app.db.session import SessionLocal
 from app.api import crud
 
-DEFAULT_URL_BASE = "https://dl94gqvzlh4k8.cloudfront.net"
+DEFAULT_URL_BASE = "http://localhost:8000/data"#"https://dl94gqvzlh4k8.cloudfront.net"
 DEFAULT_DOC_DIR = "data/"
-
 
 async def upsert_document(doc_dir: str, stock: Stock, filing: Filing, url_base: str):
     # construct a string for just the document's sub-path after the doc_dir
@@ -27,11 +26,11 @@ async def upsert_document(doc_dir: str, stock: Stock, filing: Filing, url_base: 
     doc_path = Path(filing.file_path).relative_to(doc_dir)
     url_path = url_base.rstrip("/") + "/" + str(doc_path).lstrip("/")
     doc_type = (
-        SecDocumentTypeEnum.TEN_K
+        DocumentTypeEnum.TEN_K
         if filing.filing_type == "10-K"
-        else SecDocumentTypeEnum.TEN_Q
+        else DocumentTypeEnum.TEN_Q
     )
-    sec_doc_metadata = SecDocumentMetadata(
+    sec_doc_metadata = DocumentMetadata(
         company_name=stock.name,
         company_ticker=stock.symbol,
         doc_type=doc_type,
@@ -44,7 +43,7 @@ async def upsert_document(doc_dir: str, stock: Stock, filing: Filing, url_base: 
         date_as_of_change=filing.date_as_of_change,
     )
     metadata_map: DocumentMetadataMap = {
-        DocumentMetadataKeysEnum.SEC_DOCUMENT: jsonable_encoder(
+        DocumentMetadataKeysEnum.DOCUMENT: jsonable_encoder(
             sec_doc_metadata.dict(exclude_none=True)
         )
     }
@@ -58,13 +57,10 @@ async def async_upsert_documents_from_filings(url_base: str, doc_dir: str):
     Upserts SEC documents into the database based on what has been downloaded to the filesystem.
     """
     filings = get_available_filings(doc_dir)
-    stocks_data = PyTickerSymbols()
-    stocks_dict = get_stocks_by_symbol(stocks_data.get_all_indices())
-    for filing in tqdm(filings, desc="Upserting docs from filings"):
+    for filing in tqdm(filings, desc="Upserting docs from directory"):
         if filing.symbol not in stocks_dict:
             print(f"Symbol {filing.symbol} not found in stocks_dict. Skipping.")
             continue
-        stock = stocks_dict[filing.symbol]
         await upsert_document(doc_dir, stock, filing, url_base)
 
 

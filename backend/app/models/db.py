@@ -44,7 +44,7 @@ class Document(Base):
     """
 
     # URL to the actual document (e.g. a PDF)
-    url = Column(String, nullable=False, unique=True)
+    path = Column(String, nullable=False, unique=True)
     metadata_map = Column(JSONB, nullable=True)
     conversations = relationship("ConversationDocument", back_populates="document")
 

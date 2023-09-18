@@ -1,20 +1,20 @@
-from typing import List
 import asyncio
-from tempfile import TemporaryDirectory
+import os
+import seed_storage_context
+import s3fs
+import upsert_document
 from pathlib import Path
 from fire import Fire
-import s3fs
 from app.core.config import settings
-import upsert_db_sec_documents
-import download_sec_pdf
-from download_sec_pdf import DEFAULT_CIKS, DEFAULT_FILING_TYPES
-import seed_storage_context
+from typing import List
+from download_sec_pdf import DEFAULT_CIKS, DEFAULT_FILING_TYPES, DEFAULT_SOURCE_DIR
 
 
 def copy_to_s3(dir_path: str, s3_bucket: str = settings.S3_ASSET_BUCKET_NAME):
     """
     Copy all files in dir_path to S3.
     """
+
     s3 = s3fs.S3FileSystem(
         key=settings.AWS_KEY,
         secret=settings.AWS_SECRET,
@@ -27,41 +27,37 @@ def copy_to_s3(dir_path: str, s3_bucket: str = settings.S3_ASSET_BUCKET_NAME):
     s3.put(dir_path, s3_bucket, recursive=True)
 
 
-async def async_seed_db(
-    ciks: List[str] = DEFAULT_CIKS, filing_types: List[str] = DEFAULT_FILING_TYPES
-):
-    with TemporaryDirectory() as temp_dir:
-        print("Downloading SEC filings")
-        download_sec_pdf.main(
-            output_dir=temp_dir,
-            ciks=ciks,
-            file_types=filing_types,
-        )
+async def async_seed_db(ciks: List[str] = DEFAULT_CIKS, filing_types: List[str] = DEFAULT_FILING_TYPES):
+    # with TemporaryDirectory() as temp_dir:
+    #     print("Downloading SEC filings")
+    #     download_sec_pdf.main(
+    #         output_dir=temp_dir,
+    #         ciks=ciks,
+    #         file_types=filing_types,
+    #     )
+    path = DEFAULT_SOURCE_DIR
 
-        print("Copying downloaded SEC filings to S3")
-        copy_to_s3(str(Path(temp_dir) / "sec-edgar-filings"))
+    print("Copying documents to S3")
+    copy_to_s3(path)
 
-        print("Upserting records of downloaded SEC filings into database")
-        await upsert_db_sec_documents.async_upsert_documents_from_filings(
-            url_base=settings.CDN_BASE_URL,
-            doc_dir=temp_dir,
-        )
+    print("Upserting records of pdf files into database")
+    all_pdf_docs = [os.path.join(path, f) for f in os.listdir(path) if not f.startswith('.') and f.endswith('.pdf')]
+    for filename in all_pdf_docs:
+        await upsert_document.upsert_single_document(path=path)
 
-        print("Seeding storage context")
-        await seed_storage_context.async_main_seed_storage_context()
-        print(
-            """
+    print("Seeding storage context")
+    await seed_storage_context.async_main_seed_storage_context()
+    print(
+        """
 Done! 🏁
-\t- SEC PDF documents uploaded to the S3 assets bucket ✅
+\t- PDF documents uploaded to the S3 assets bucket ✅
 \t- Documents database table has been populated ✅
 \t- Vector storage table has been seeded with embeddings ✅
-        """.strip()
-        )
+    """.strip()
+    )
 
 
-def seed_db(
-    ciks: List[str] = DEFAULT_CIKS, filing_types: List[str] = DEFAULT_FILING_TYPES
-):
+def seed_db(ciks: List[str] = DEFAULT_CIKS, filing_types: List[str] = DEFAULT_FILING_TYPES):
     asyncio.run(async_seed_db(ciks, filing_types))
 
 

@@ -99,7 +99,7 @@ async def fetch_documents(
     elif ids is not None:
         stmt = stmt.where(Document.id.in_(ids))
     if url is not None:
-        stmt = stmt.where(Document.url == url)
+        stmt = stmt.where(Document.path == url)
     if limit is not None:
         stmt = stmt.limit(limit)
     result = await db.execute(stmt)
@@ -107,19 +107,18 @@ async def fetch_documents(
     return [schema.Document.from_orm(doc) for doc in documents]
 
 
-async def upsert_document_by_url(
-    db: AsyncSession, document: schema.Document
-) -> schema.Document:
+async def upsert_document(db: AsyncSession, document: schema.Document) -> schema.Document:
     """
     Upsert a document
     """
     stmt = insert(Document).values(**document.dict(exclude_none=True))
     stmt = stmt.on_conflict_do_update(
-        index_elements=[Document.url],
+        index_elements=[Document.path],
         set_=document.dict(include={"metadata_map"}),
     )
     stmt = stmt.returning(Document)
     result = await db.execute(stmt)
     upserted_doc = schema.Document.from_orm(result.scalars().first())
     await db.commit()
+
     return upserted_doc

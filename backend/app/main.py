@@ -129,3 +129,6 @@ def start():
         reload=live_reload,
         workers=settings.UVICORN_WORKER_COUNT,
     )
+
+if __name__ == "__main__":
+    start()

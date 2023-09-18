@@ -1,3 +1,5 @@
+import fitz
+import os
 from typing import Dict, List, Optional
 import logging
 from pathlib import Path
@@ -11,12 +13,12 @@ from llama_index import (
     load_indices_from_storage,
 )
 from llama_index.vector_stores.types import VectorStore
-from tempfile import TemporaryDirectory
 import requests
 import nest_asyncio
 from datetime import timedelta
 from cachetools import cached, TTLCache
 from llama_index.readers.file.docs_reader import PDFReader
+from llama_index import SimpleDirectoryReader
 from llama_index.schema import Document as LlamaIndexDocument
 from llama_index.agent import OpenAIAgent
 from llama_index.llms import ChatMessage, OpenAI
@@ -41,7 +43,7 @@ from app.schema import (
     Document as DocumentSchema,
     Conversation as ConversationSchema,
     DocumentMetadataKeysEnum,
-    SecDocumentMetadata,
+    DocumentMetadata,
 )
 from app.models.db import MessageRoleEnum, MessageStatusEnum
 from app.chat.constants import (
@@ -56,6 +58,8 @@ from app.chat.pg_vector import get_vector_store_singleton
 from app.chat.qa_response_synth import get_custom_response_synth
 
 
+log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s" 
+logging.basicConfig(format = log_format, level = logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -71,47 +75,32 @@ def get_s3_fs() -> AsyncFileSystem:
     )
     if not (settings.RENDER or s3.exists(settings.S3_BUCKET_NAME)):
         s3.mkdir(settings.S3_BUCKET_NAME)
+
     return s3
 
 
-def fetch_and_read_document(
-    document: DocumentSchema,
-) -> List[LlamaIndexDocument]:
-    # Super hacky approach to get this to feature complete on time.
-    # TODO: Come up with better abstractions for this and the other methods in this module.
-    with TemporaryDirectory() as temp_dir:
-        temp_file_path = Path(temp_dir) / f"{str(document.id)}.pdf"
-        with open(temp_file_path, "wb") as temp_file:
-            with requests.get(document.url, stream=True) as r:
-                r.raise_for_status()
-                for chunk in r.iter_content(chunk_size=8192):
-                    temp_file.write(chunk)
-            temp_file.seek(0)
-            reader = PDFReader()
-            return reader.load_data(
-                temp_file_path, extra_info={DB_DOC_ID_KEY: str(document.id)}
-            )
+def fetch_and_read_document(document: DocumentSchema) -> List[LlamaIndexDocument]:
+    logger.info('Reading documents and returning')
+    # os.environ['TESSDATA_PREFIX'] = '/usr/share/tesseract-ocr/4.00/tessdata'
+    doc = fitz.open("data/01325869_aa_2023-04-28.pdf")
+    pages = doc.pages()
+    doc_content = ''
+    for page in pages:
+        logger.info(f'reading page\n')    
+        doc_content += page.get_text() + '\n'
+        doc_content += page.get_textpage_ocr().extractText() + '\n'
 
+    logger.info(f'Content: {doc_content}')
+    doc_list = [LlamaIndexDocument(doc_content, extra_info={DB_DOC_ID_KEY: str(document.id)})]
+
+    return doc_list
 
 def build_description_for_document(document: DocumentSchema) -> str:
-    if DocumentMetadataKeysEnum.SEC_DOCUMENT in document.metadata_map:
-        sec_metadata = SecDocumentMetadata.parse_obj(
-            document.metadata_map[DocumentMetadataKeysEnum.SEC_DOCUMENT]
-        )
-        time_period = (
-            f"{sec_metadata.year} Q{sec_metadata.quarter}"
-            if sec_metadata.quarter
-            else str(sec_metadata.year)
-        )
-        return f"A SEC {sec_metadata.doc_type.value} filing describing the financials of {sec_metadata.company_name} ({sec_metadata.company_ticker}) for the {time_period} time period."
     return "A document containing useful information that the user pre-selected to discuss with the assistant."
 
 
 def index_to_query_engine(doc_id: str, index: VectorStoreIndex) -> BaseQueryEngine:
-    filters = MetadataFilters(
-        filters=[ExactMatchFilter(key=DB_DOC_ID_KEY, value=doc_id)]
-    )
-    kwargs = {"similarity_top_k": 3, "filters": filters}
+    kwargs = {"similarity_top_k": 3}
     return index.as_query_engine(**kwargs)
 
 
@@ -122,7 +111,7 @@ def index_to_query_engine(doc_id: str, index: VectorStoreIndex) -> BaseQueryEngi
 def get_storage_context(
     persist_dir: str, vector_store: VectorStore, fs: Optional[AsyncFileSystem] = None
 ) -> StorageContext:
-    logger.info("Creating new storage context.")
+    logger.info("Fetching storage context.")
     return StorageContext.from_defaults(
         persist_dir=persist_dir, vector_store=vector_store, fs=fs
     )
@@ -140,25 +129,24 @@ async def build_doc_id_to_index_map(
         try:
             storage_context = get_storage_context(persist_dir, vector_store, fs=fs)
         except FileNotFoundError:
-            logger.info(
-                "Could not find storage context in S3. Creating new storage context."
-            )
-            storage_context = StorageContext.from_defaults(
-                vector_store=vector_store, fs=fs
-            )
+            logger.info("Could not find storage context in S3. Creating new storage context.")
+            storage_context = StorageContext.from_defaults(vector_store=vector_store, fs=fs)
             storage_context.persist(persist_dir=persist_dir, fs=fs)
+
         index_ids = [str(doc.id) for doc in documents]
         indices = load_indices_from_storage(
             storage_context,
             index_ids=index_ids,
             service_context=service_context,
         )
+        
         doc_id_to_index = dict(zip(index_ids, indices))
-        logger.debug("Loaded indices from storage.")
-    except ValueError:
-        logger.error(
-            "Failed to load indices from storage. Creating new indices.", exc_info=True
+        logger.info("Loaded indices from storage.")
+        storage_context = StorageContext.from_defaults(
+            persist_dir=persist_dir, vector_store=vector_store, fs=fs
         )
+    except ValueError:
+        logger.error("Failed to load indices from storage. Creating new indices.", exc_info=True)
         storage_context = StorageContext.from_defaults(
             persist_dir=persist_dir, vector_store=vector_store, fs=fs
         )
@@ -174,6 +162,7 @@ async def build_doc_id_to_index_map(
             index.set_index_id(str(doc.id))
             index.storage_context.persist(persist_dir=persist_dir, fs=fs)
             doc_id_to_index[str(doc.id)] = index
+
     return doc_id_to_index
 
 
@@ -212,7 +201,7 @@ def get_tool_service_context(
 ) -> ServiceContext:
     llm = OpenAI(
         temperature=0,
-        model="gpt-3.5-turbo-0613",
+        model="gpt-4",
         streaming=False,
         api_key=settings.OPENAI_API_KEY,
         additional_kwargs={"api_key": settings.OPENAI_API_KEY},

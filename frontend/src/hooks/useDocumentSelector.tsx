@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { GroupBase } from "react-select";
 import Select from "react-select/dist/declarations/src/Select";
-import { SecDocument, DocumentType, Ticker } from "~/types/document";
+import { Document, DocumentType, Ticker } from "~/types/document";
 import type { SelectOption } from "~/types/selection";
 import {
   findDocumentById,
@@ -19,15 +19,10 @@ import { backendClient } from "~/api/backend";
 export const MAX_NUMBER_OF_SELECTED_DOCUMENTS = 10;
 
 export const useDocumentSelector = () => {
-  const [availableDocuments, setAvailableDocuments] = useState<SecDocument[]>(
-    []
-  );
+  const [availableDocuments, setAvailableDocuments] = useState<Document[]>([]);
   const [availableTickers, setAvailableTickers] = useState<Ticker[]>([]);
   const availableDocumentTypes = documentTypeOptions;
-  const [availableYears, setAvailableYears] = useState<SelectOption[] | null>(
-    null
-  );
-
+  const [availableYears, setAvailableYears] = useState<SelectOption[] | null>(null);
   const sortedAvailableYears = sortSelectOptions(availableYears);
 
   useEffect(() => {
@@ -42,9 +37,7 @@ export const useDocumentSelector = () => {
     getDocuments().catch(() => console.error("could not fetch documents"));
   }, []);
 
-  const [selectedDocuments, setSelectedDocuments] = useLocalStorage<
-    SecDocument[]
-  >("selectedDocuments", []);
+  const [selectedDocuments, setSelectedDocuments] = useLocalStorage<Document[]>("selectedDocuments", []);
   const sortedSelectedDocuments = sortDocuments(selectedDocuments);
 
   const [selectedTicker, setSelectedTicker] = useState<Ticker | null>(null);

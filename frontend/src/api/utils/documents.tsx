@@ -1,32 +1,29 @@
 import { MAX_NUMBER_OF_SELECTED_DOCUMENTS } from "~/hooks/useDocumentSelector";
 import { BackendDocument, BackendDocumentType } from "~/types/backend/document";
-import { SecDocument, DocumentType } from "~/types/document";
+import { Document, DocumentType } from "~/types/document";
 import { documentColors } from "~/utils/colors";
 
 export const fromBackendDocumentToFrontend = (
   backendDocuments: BackendDocument[]
 ) => {
-  const frontendDocs: SecDocument[] = [];
+  const frontendDocs: Document[] = [];
   backendDocuments.map((backendDoc, index) => {
-    const backendDocType = backendDoc.metadata_map.sec_document.doc_type;
-    const frontendDocType =
-      backendDocType === BackendDocumentType.TenK
-        ? DocumentType.TenK
-        : DocumentType.TenQ;
+    const backendDocType = BackendDocumentType.BalanceSheet;
+    const frontendDocType = backendDocType === BackendDocumentType.BalanceSheet ? DocumentType.BalanceSheet : DocumentType.PnL;
 
-    // we have 10 colors for 10 documents
-    const colorIndex = index < 10 ? index : 0;
+    // we have 10 colors for 10 
+    const colorIndex = index < MAX_NUMBER_OF_SELECTED_DOCUMENTS ? index : 0;
     const payload = {
       id: backendDoc.id,
-      url: backendDoc.url,
-      ticker: backendDoc.metadata_map.sec_document.company_ticker,
-      fullName: backendDoc.metadata_map.sec_document.company_name,
-      year: String(backendDoc.metadata_map.sec_document.year),
+      url: `http://localhost:8000/api/${backendDoc.url}`,
+      year: "2022",
+      fullName: "Test Financial Data",
+      ticker: "test",
       docType: frontendDocType,
       color: documentColors[colorIndex],
-      quarter: backendDoc.metadata_map.sec_document.quarter || "",
-    } as SecDocument;
+    } as Document;
     frontendDocs.push(payload);
   });
+
   return frontendDocs;
 };

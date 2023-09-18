@@ -201,7 +201,7 @@ export const TitleAndDropdown = () => {
                   {doc.fullName}
                 </div>
                 <div className="w-24 text-left">
-                  {doc.year} {doc.quarter && `Q${doc.quarter}`}
+                  {doc.year}
                 </div>
                 <div>{doc.docType}</div>
                 <button

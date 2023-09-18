@@ -11,7 +11,7 @@ from polygon.rest.models import StockFinancial
 from app.schema import (
     Document as DocumentSchema,
     DocumentMetadataKeysEnum,
-    SecDocumentMetadata,
+    DocumentMetadata,
 )
 from llama_index.tools import FunctionTool, ToolMetadata, QueryEngineTool
 from llama_index.indices.service_context import ServiceContext
@@ -88,8 +88,8 @@ def get_tool_metadata_for_document(doc: DocumentSchema) -> ToolMetadata:
 
 
 def get_polygion_io_sec_tool(document: DocumentSchema) -> FunctionTool:
-    sec_metadata = SecDocumentMetadata.parse_obj(
-        document.metadata_map[DocumentMetadataKeysEnum.SEC_DOCUMENT]
+    sec_metadata = DocumentMetadata.parse_obj(
+        document.metadata_map[DocumentMetadataKeysEnum.DOCUMENT]
     )
     tool_metadata = get_tool_metadata_for_document(document)
 

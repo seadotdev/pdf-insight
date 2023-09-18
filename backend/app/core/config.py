@@ -167,4 +167,3 @@ class Settings(PreviewPrefixedSettings):
 
 
 settings = Settings()
-os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY

@@ -8,7 +8,7 @@ import { HiOutlineChatAlt2 } from "react-icons/hi";
 
 import { usePdfFocus } from "~/context/pdf";
 import { AiFillExclamationCircle, AiOutlineLink } from "react-icons/ai";
-import { SecDocument } from "~/types/document";
+import { Document } from "~/types/document";
 import { borderColors } from "~/utils/colors";
 import { formatDisplayDate } from "~/utils/timezone";
 
@@ -52,7 +52,7 @@ interface SubProcessDisplayProps {
   toggleOpen: () => void;
   messageId: string;
   showSpinner: boolean;
-  documents: SecDocument[];
+  documents: Document[];
 }
 
 type SubQuestionItem = {
@@ -237,7 +237,7 @@ const ErrorMessageDisplay = () => {
 
 interface AssistantDisplayProps {
   message: Message;
-  documents: SecDocument[];
+  documents: Document[];
 }
 const AssistantDisplay: React.FC<AssistantDisplayProps> = ({
   message,
@@ -301,7 +301,7 @@ const AssistantDisplay: React.FC<AssistantDisplayProps> = ({
 
 interface IRenderConversation {
   messages: Message[];
-  documents: SecDocument[];
+  documents: Document[];
   setUserMessage: (str: string) => void;
 }
 
