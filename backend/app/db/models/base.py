@@ -1,9 +1,32 @@
+# Import all the models, so that Base has them before being
+# imported by Alembic
+from sqlalchemy import Column, DateTime, UUID
+from sqlalchemy.sql import func
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy import Column, String, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, ENUM, JSONB
 from sqlalchemy.orm import relationship
 from enum import Enum
 from llama_index.callbacks.schema import CBEventType
-from app.models.base import Base
+
+
+@as_declarative()
+class Base:
+    """
+    Every table has these
+    """
+    id = Column(UUID, primary_key=True, index=True,
+                default=func.uuid_generate_v4())
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(),
+                        onupdate=func.now(), nullable=False)
+
+    __name__: str
+
+    # Generate __tablename__ automatically
+    @declared_attr
+    def __tablename__(cls) -> str:
+        return cls.__name__.lower()
 
 
 class MessageRoleEnum(str, Enum):
@@ -55,9 +78,7 @@ class Conversation(Base):
     """
 
     messages = relationship("Message", back_populates="conversation")
-    conversation_documents = relationship(
-        "ConversationDocument", back_populates="conversation"
-    )
+    conversation_documents = relationship("ConversationDocument", back_populates="conversation")
 
 
 class ConversationDocument(Base):
@@ -65,9 +86,7 @@ class ConversationDocument(Base):
     A many-to-many relationship between a conversation and a document
     """
 
-    conversation_id = Column(
-        UUID(as_uuid=True), ForeignKey("conversation.id"), index=True
-    )
+    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
     document_id = Column(UUID(as_uuid=True), ForeignKey("document.id"), index=True)
     conversation = relationship("Conversation", back_populates="conversation_documents")
     document = relationship("Document", back_populates="conversations")
@@ -78,9 +97,7 @@ class Message(Base):
     A message in a conversation
     """
 
-    conversation_id = Column(
-        UUID(as_uuid=True), ForeignKey("conversation.id"), index=True
-    )
+    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
     content = Column(String)
     role = Column(to_pg_enum(MessageRoleEnum))
     status = Column(to_pg_enum(MessageStatusEnum), default=MessageStatusEnum.PENDING)

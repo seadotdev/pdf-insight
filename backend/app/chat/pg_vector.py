@@ -57,6 +57,7 @@ async def get_vector_store_singleton() -> VectorStore:
     global singleton_instance
     if singleton_instance is not None:
         return singleton_instance
+    
     url = make_url(settings.DATABASE_URL)
     singleton_instance = CustomPGVectorStore.from_params(
         url.host,

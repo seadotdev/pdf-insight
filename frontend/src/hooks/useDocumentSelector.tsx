@@ -3,18 +3,10 @@ import { GroupBase } from "react-select";
 import Select from "react-select/dist/declarations/src/Select";
 import { Document, DocumentType, Ticker } from "~/types/document";
 import type { SelectOption } from "~/types/selection";
-import {
-  findDocumentById,
-  getAllTickers,
-  sortDocuments,
-  sortSelectOptions,
-} from "~/utils/documents";
-import {
-  documentTypeOptions,
-  getAvailableYears,
-} from "~/utils/landing-page-selection";
+import { findDocumentById, getAllTickers, sortDocuments, sortSelectOptions } from "~/utils/documents";
+import { documentTypeOptions, getAvailableYears } from "~/utils/landing-page-selection";
 import useLocalStorage from "./utils/useLocalStorage";
-import { backendClient } from "~/api/backend";
+import { backendClient } from "~/api/backendClient";
 
 export const MAX_NUMBER_OF_SELECTED_DOCUMENTS = 10;
 

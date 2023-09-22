@@ -9,7 +9,7 @@ from datetime import datetime
 from llama_index.schema import BaseNode, NodeWithScore
 from llama_index.callbacks.schema import EventPayload
 from llama_index.query_engine.sub_question_query_engine import SubQuestionAnswerPair
-from app.models.db import (
+from app.db.models.base import (
     MessageRoleEnum,
     MessageStatusEnum,
     MessageSubProcessSourceEnum,
@@ -24,7 +24,8 @@ def build_uuid_validator(*field_names: str):
 
 class Base(BaseModel):
     id: Optional[UUID] = Field(None, description="Unique identifier")
-    created_at: Optional[datetime] = Field(None, description="Creation datetime")
+    created_at: Optional[datetime] = Field(
+        None, description="Creation datetime")
     updated_at: Optional[datetime] = Field(None, description="Update datetime")
 
     class Config:
@@ -51,6 +52,8 @@ class Citation(BaseMetadataObject):
     @classmethod
     def from_node(cls, node_w_score: NodeWithScore) -> "Citation":
         node: BaseNode = node_w_score.node
+        print(node.source_node.metadata)
+        print("\n\n\n\n\n")
         page_number = int(node.source_node.metadata["page_label"])
         document_id = node.source_node.metadata[DB_DOC_ID_KEY]
         return cls(
@@ -71,9 +74,7 @@ class QuestionAnswerPair(BaseMetadataObject):
     citations: Optional[List[Citation]] = None
 
     @classmethod
-    def from_sub_question_answer_pair(
-        cls, sub_question_answer_pair: SubQuestionAnswerPair
-    ):
+    def from_sub_question_answer_pair(cls, sub_question_answer_pair: SubQuestionAnswerPair):
         if sub_question_answer_pair.sources is None:
             citations = None
         else:
@@ -119,43 +120,43 @@ class UserMessageCreate(BaseModel):
     content: str
 
 
-class DocumentMetadataKeysEnum(str, Enum):
-    """
-    Enum for the keys of the metadata map for a document
-    """
-
-    ANNUAL_REPORT = "Annual Report"
-
-
 class DocumentTypeEnum(str, Enum):
     """
-    Enum for the type of document
+    Enum for the type of document, used to 
     """
-
+    TEN_K = "10-K"
+    TEN_Q = "10-Q"
     ANNUAL_REPORT = "Annual Report"
-    BALANCE_SHEET = "Balance Sheet"
+    CONFIRMATION_STATEMENT = "Confirmation Statement"
 
 
 class DocumentMetadata(BaseModel):
     """
-    Metadata for a document
+    Metadata base class for any document
     """
 
     doc_type: DocumentTypeEnum
     year: int
-    quarter: Optional[int]
     name: Optional[str]
     period_of_report_date: Optional[datetime]
     filed_as_of_date: Optional[datetime]
     date_as_of_change: Optional[datetime]
 
+    @classmethod
+    def list_properties(self):
+        return ["doc_type", "year", "name", "period_of_report_date", "filed_as_of_date", "date_as_of_change"]
 
-DocumentMetadataMap = Dict[Union[DocumentMetadataKeysEnum, str], Any]
+
+class AccountsDocumentMetadata(DocumentMetadata):
+    """
+    Metadata for an accounts statement
+    """
+    placeholder: Optional[str]
 
 
 class Document(Base):
     url: str
-    metadata_map: Optional[DocumentMetadataMap] = None
+    metadata_map: Optional[DocumentMetadata] = None
 
 
 class Conversation(Base):

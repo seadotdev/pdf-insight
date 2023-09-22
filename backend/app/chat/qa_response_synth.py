@@ -3,8 +3,8 @@ from llama_index.response_synthesizers import BaseSynthesizer
 from llama_index.indices.service_context import ServiceContext
 from llama_index.prompts.prompts import RefinePrompt, QuestionAnswerPrompt
 from llama_index.prompts.prompt_type import PromptType
-from app.schema import Document as DocumentSchema
-from app.chat.utils import build_title_for_document
+from app.schemas.pydantic_schema import Document as DocumentSchema
+from app.chat.tools import build_title_for_document
 from llama_index.response_synthesizers.factory import get_response_synthesizer
 
 

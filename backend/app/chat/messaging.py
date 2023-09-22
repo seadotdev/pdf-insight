@@ -11,9 +11,9 @@ from llama_index.query_engine.sub_question_query_engine import SubQuestionAnswer
 from llama_index.agent.openai_agent import StreamingAgentChatResponse
 from pydantic import BaseModel
 
-from app import schema
-from app.schema import SubProcessMetadataKeysEnum, SubProcessMetadataMap
-from app.models.db import MessageSubProcessSourceEnum
+from app.schemas import pydantic_schema
+from app.schemas.pydantic_schema import SubProcessMetadataKeysEnum, SubProcessMetadataMap
+from app.db.models.base import MessageSubProcessSourceEnum
 from app.chat.engine import get_chat_engine
 
 logger = logging.getLogger(__name__)
@@ -31,10 +31,7 @@ class StreamedMessageSubProcess(BaseModel):
 
 
 class ChatCallbackHandler(BaseCallbackHandler):
-    def __init__(
-        self,
-        send_chan: MemoryObjectSendStream,
-    ):
+    def __init__(self, send_chan: MemoryObjectSendStream):
         """Initialize the base callback handler."""
         ignored_events = [CBEventType.CHUNKING, CBEventType.NODE_PARSING]
         super().__init__(ignored_events, ignored_events)
@@ -76,14 +73,10 @@ class ChatCallbackHandler(BaseCallbackHandler):
     ) -> SubProcessMetadataMap:
         metadata_map = {}
 
-        if (
-            event_type == CBEventType.SUB_QUESTION
-            and EventPayload.SUB_QUESTION in payload
-        ):
+        if (event_type == CBEventType.SUB_QUESTION and EventPayload.SUB_QUESTION in payload):
             sub_q: SubQuestionAnswerPair = payload[EventPayload.SUB_QUESTION]
-            metadata_map[
-                SubProcessMetadataKeysEnum.SUB_QUESTION.value
-            ] = schema.QuestionAnswerPair.from_sub_question_answer_pair(sub_q).dict()
+            metadata_map[SubProcessMetadataKeysEnum.SUB_QUESTION.value] = pydantic_schema.QuestionAnswerPair.from_sub_question_answer_pair(sub_q).dict()
+            
         return metadata_map
 
     async def async_on_event(
@@ -122,11 +115,9 @@ class ChatCallbackHandler(BaseCallbackHandler):
         """No-op."""
 
 
-async def handle_chat_message(
-    conversation: schema.Conversation,
-    user_message: schema.UserMessageCreate,
-    send_chan: MemoryObjectSendStream,
-) -> None:
+async def handle_chat_message(conversation: pydantic_schema.Conversation,  user_message: pydantic_schema.UserMessageCreate,
+                              send_chan: MemoryObjectSendStream,
+                              ) -> None:
     async with send_chan:
         chat_engine = await get_chat_engine(
             ChatCallbackHandler(send_chan), conversation

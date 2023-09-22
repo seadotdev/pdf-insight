@@ -5,23 +5,20 @@ import type { SelectOption } from "~/types/selection";
 import { filterByTickerAndType } from "./documents";
 
 export const documentTypeOptions = [
-  { value: DocumentType.BALANCE_SHEET, label: DocumentType.BALANCE_SHEET },
+  { value: DocumentType.CONFIRMATION_STATEMENT, label: DocumentType.CONFIRMATION_STATEMENT },
   { value: DocumentType.ANNUAL_REPORT, label: DocumentType.ANNUAL_REPORT },
 ] as SelectOption[];
 
 function documentToYearOption(document: Document): SelectOption {
   return {
     value: document.id,
-    label: document.year,
+    label: "2022",
   };
 }
 
-export function getAvailableYears(
-  ticker: string,
-  type: DocumentType,
-  documents: Document[]
-): SelectOption[] {
+export function getAvailableYears(ticker: string, type: DocumentType, documents: Document[]): SelectOption[] {
   const docs = filterByTickerAndType(ticker, type, documents);
-  const yearOptions: SelectOption[] = docs.map(documentToYearOption);
+  const yearOptions: SelectOption[] = documents.map(documentToYearOption);
+
   return yearOptions;
 }

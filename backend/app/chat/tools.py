@@ -1,5 +1,6 @@
-from typing import List, Iterator, cast
 import logging
+
+from typing import List, Iterator, cast
 
 # This is from the unofficial polygon.io client: https://polygon.readthedocs.io/
 from polygon.reference_apis import ReferenceClient
@@ -8,22 +9,32 @@ from polygon.reference_apis.reference_api import AsyncReferenceClient
 # This is from the official polygon.io client: https://polygon-api-client.readthedocs.io/
 from polygon.rest.models import StockFinancial
 
-from app.schema import (
+from app.schemas.pydantic_schema import (
     Document as DocumentSchema,
-    DocumentMetadataKeysEnum,
+    DocumentTypeEnum,
     DocumentMetadata,
 )
+from app.core.config import settings
+
 from llama_index.tools import FunctionTool, ToolMetadata, QueryEngineTool
 from llama_index.indices.service_context import ServiceContext
 from llama_index.agent import OpenAIAgent
-from app.core.config import settings
-from app.chat.utils import build_title_for_document
 
 
 logger = logging.getLogger(__name__)
 
 
-from typing import List
+def build_title_for_document(document: DocumentSchema) -> str:
+    # sec_metadata = DocumentMetadata.parse_obj(
+    #     document.metadata_map[DocumentMetadataKeysEnum.SEC_DOCUMENT]
+    # )
+    # time_period = (
+    #     f"{sec_metadata.year} Q{sec_metadata.quarter}"
+    #     if sec_metadata.quarter is not None
+    #     else str(sec_metadata.year)
+    # )
+    # return f"{sec_metadata.company_name} ({sec_metadata.company_ticker}) {sec_metadata.doc_type.value} ({time_period})"
+    return ("some metadata that i will fill later")
 
 
 def describe_financials(financials: StockFinancial) -> str:
@@ -34,8 +45,7 @@ def describe_financials(financials: StockFinancial) -> str:
     fiscal_period = financials.fiscal_period
 
     sentences.append(
-        f"For {company} in fiscal year {fiscal_year} covering the period {fiscal_period}:"
-    )
+        f"For {company} in fiscal year {fiscal_year} covering the period {fiscal_period}:")
 
     income_statement = financials.financials.income_statement
 
@@ -67,12 +77,14 @@ def describe_financials(financials: StockFinancial) -> str:
         operating_cash_flows = cash_flows.net_cash_flow
         if operating_cash_flows:
             operating_str = f"{operating_cash_flows.label}: {operating_cash_flows.value} {operating_cash_flows.unit}"
-            sentences.append(f"Net cash from operating activities was {operating_str}.")
+            sentences.append(
+                f"Net cash from operating activities was {operating_str}.")
 
         financing_cash_flows = cash_flows.net_cash_flow_from_financing_activities
         if financing_cash_flows:
             financing_str = f"{financing_cash_flows.label}: {financing_cash_flows.value} {financing_cash_flows.unit}"
-            sentences.append(f"Net cash from financing activities was {financing_str}.")
+            sentences.append(
+                f"Net cash from financing activities was {financing_str}.")
 
     return " ".join(sentences)
 
@@ -81,16 +93,12 @@ def get_tool_metadata_for_document(doc: DocumentSchema) -> ToolMetadata:
     doc_title = build_title_for_document(doc)
     name = f"extract_json_from_sec_document[{doc_title}]"
     description = f"Returns basic financial data extracted from the SEC filing document {doc_title}"
-    return ToolMetadata(
-        name=name,
-        description=description,
-    )
+
+    return ToolMetadata(name=name, description=description)
 
 
 def get_polygion_io_sec_tool(document: DocumentSchema) -> FunctionTool:
-    sec_metadata = DocumentMetadata.parse_obj(
-        document.metadata_map[DocumentMetadataKeysEnum.DOCUMENT]
-    )
+    sec_metadata = DocumentMetadata.parse_obj(document.metadata_map)
     tool_metadata = get_tool_metadata_for_document(document)
 
     async def extract_data_from_sec_document(*args, **kwargs) -> List[str]:
@@ -131,9 +139,7 @@ def get_polygion_io_sec_tool(document: DocumentSchema) -> FunctionTool:
             return ["No answer found."]
 
     def sync_func_placeholder(*args, **kwargs) -> None:
-        raise NotImplementedError(
-            "Sync function was called for document_id=" + str(document.id)
-        )
+        raise NotImplementedError("Sync function was called for document_id=" + str(document.id))
 
     return FunctionTool.from_defaults(
         fn=sync_func_placeholder,
@@ -142,9 +148,7 @@ def get_polygion_io_sec_tool(document: DocumentSchema) -> FunctionTool:
     )
 
 
-def get_api_query_engine_tool(
-    document: DocumentSchema, service_context: ServiceContext
-) -> QueryEngineTool:
+def get_api_query_engine_tool(document: DocumentSchema, service_context: ServiceContext) -> QueryEngineTool:
     polygon_io_tool = get_polygion_io_sec_tool(document)
     tool_metadata = get_tool_metadata_for_document(document)
     doc_title = build_title_for_document(document)
@@ -154,6 +158,7 @@ def get_api_query_engine_tool(
         callback_manager=service_context.callback_manager,
         system_prompt=f"You are an agent that is asked quantitative questions about a SEC filing named {doc_title} and you answer them by using your tools.",
     )
+
     return QueryEngineTool.from_defaults(
         query_engine=agent,
         name=tool_metadata.name,

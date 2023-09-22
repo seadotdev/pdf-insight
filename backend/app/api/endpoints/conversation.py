@@ -11,13 +11,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sse_starlette.sse import EventSourceResponse
 from app.api.deps import get_db
 from app.api import crud
-from app import schema
+from app.schemas import pydantic_schema
 from app.chat.messaging import (
     handle_chat_message,
     StreamedMessage,
     StreamedMessageSubProcess,
 )
-from app.models.db import (
+from app.db.models.base import (
     Message,
     MessageSubProcess,
     MessageRoleEnum,
@@ -32,9 +32,9 @@ logger = logging.getLogger(__name__)
 
 @router.post("/")
 async def create_conversation(
-    payload: schema.ConversationCreate,
+    payload: pydantic_schema.ConversationCreate,
     db: AsyncSession = Depends(get_db),
-) -> schema.Conversation:
+) -> pydantic_schema.Conversation:
     """
     Create a new conversation
     """
@@ -44,7 +44,7 @@ async def create_conversation(
 @router.get("/{conversation_id}")
 async def get_conversation(
     conversation_id: UUID, db: AsyncSession = Depends(get_db)
-) -> schema.Conversation:
+) -> pydantic_schema.Conversation:
     """
     Get a conversation by ID along with its messages and message subprocesses.
     """
@@ -147,7 +147,7 @@ async def message_conversation(
                             f"Unknown message object type: {type(message_obj)}"
                         )
                         continue
-                    yield schema.Message.from_orm(message).json()
+                    yield pydantic_schema.Message.from_orm(message).json()
                 await task
                 if task.exception():
                     raise ValueError(
@@ -172,7 +172,7 @@ async def test_message_conversation(
     conversation_id: UUID,
     user_message: str,
     db: AsyncSession = Depends(get_db),
-) -> schema.Message:
+) -> pydantic_schema.Message:
     """
     Test version of /message endpoint that returns a single message object instead of a SSE stream.
     """
@@ -183,6 +183,6 @@ async def test_message_conversation(
     async for message in response.body_iterator:
         final_message = message
     if final_message is not None:
-        return schema.Message.parse_raw(final_message)
+        return pydantic_schema.Message.parse_raw(final_message)
     else:
         raise HTTPException(status_code=500, detail="Internal server error")

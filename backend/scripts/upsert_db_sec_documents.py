@@ -6,11 +6,9 @@ from pytickersymbols import PyTickerSymbols
 from file_utils import get_available_filings, Filing
 from stock_utils import get_stocks_by_symbol, Stock
 from fastapi.encoders import jsonable_encoder
-from app.models.db import Document
-from app.schema import (
+from app.db.models.base import Document
+from backend.app.schemas.pydantic_schema import (
     DocumentMetadata,
-    DocumentMetadataMap,
-    DocumentMetadataKeysEnum,
     DocumentTypeEnum,
     Document,
 )
@@ -42,12 +40,7 @@ async def upsert_document(doc_dir: str, stock: Stock, filing: Filing, url_base: 
         filed_as_of_date=filing.filed_as_of_date,
         date_as_of_change=filing.date_as_of_change,
     )
-    metadata_map: DocumentMetadataMap = {
-        DocumentMetadataKeysEnum.DOCUMENT: jsonable_encoder(
-            sec_doc_metadata.dict(exclude_none=True)
-        )
-    }
-    doc = Document(url=str(url_path), metadata_map=metadata_map)
+    doc = Document(url=str(url_path), metadata_map=sec_doc_metadata)
     async with SessionLocal() as db:
         await crud.upsert_document_by_url(db, doc)
 

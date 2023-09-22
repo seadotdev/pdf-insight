@@ -1,11 +1,17 @@
-import fitz
-import os
-from typing import Dict, List, Optional
 import logging
+import s3fs
+import requests
+import fitz
+import nest_asyncio
+
+
+from datetime import timedelta
+from cachetools import cached, TTLCache
+from typing import Dict, List, Optional
 from pathlib import Path
 from datetime import datetime
-import s3fs
 from fsspec.asyn import AsyncFileSystem
+
 from llama_index import (
     ServiceContext,
     VectorStoreIndex,
@@ -13,12 +19,6 @@ from llama_index import (
     load_indices_from_storage,
 )
 from llama_index.vector_stores.types import VectorStore
-import requests
-import nest_asyncio
-from datetime import timedelta
-from cachetools import cached, TTLCache
-from llama_index.readers.file.docs_reader import PDFReader
-from llama_index import SimpleDirectoryReader
 from llama_index.schema import Document as LlamaIndexDocument
 from llama_index.agent import OpenAIAgent
 from llama_index.llms import ChatMessage, OpenAI
@@ -37,32 +37,27 @@ from llama_index.vector_stores.types import (
     ExactMatchFilter,
 )
 from llama_index.node_parser.simple import SimpleNodeParser
+
 from app.core.config import settings
-from app.schema import (
+from app.schemas.pydantic_schema import (
+    DocumentTypeEnum,
     Message as MessageSchema,
     Document as DocumentSchema,
     Conversation as ConversationSchema,
-    DocumentMetadataKeysEnum,
     DocumentMetadata,
 )
-from app.models.db import MessageRoleEnum, MessageStatusEnum
+from app.db.models.base import MessageRoleEnum, MessageStatusEnum
 from app.chat.constants import (
     DB_DOC_ID_KEY,
     SYSTEM_MESSAGE,
     NODE_PARSER_CHUNK_OVERLAP,
     NODE_PARSER_CHUNK_SIZE,
 )
-from app.chat.tools import get_api_query_engine_tool
-from app.chat.utils import build_title_for_document
+from app.chat.tools import get_api_query_engine_tool, build_title_for_document
 from app.chat.pg_vector import get_vector_store_singleton
 from app.chat.qa_response_synth import get_custom_response_synth
 
-
-log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s" 
-logging.basicConfig(format = log_format, level = logging.INFO)
 logger = logging.getLogger(__name__)
-
-
 logger.info("Applying nested asyncio patch")
 nest_asyncio.apply()
 
@@ -80,21 +75,37 @@ def get_s3_fs() -> AsyncFileSystem:
 
 
 def fetch_and_read_document(document: DocumentSchema) -> List[LlamaIndexDocument]:
-    logger.info('Reading documents and returning')
-    # os.environ['TESSDATA_PREFIX'] = '/usr/share/tesseract-ocr/4.00/tessdata'
+    """
+    Reading a document (in the Pydantic schema format, as retrieved from database)
+    and returning a LLaMA Index document
+    """
 
-    doc = fitz.open('data/01325869_aa_2023-04-28.pdf')
-    pages = doc.pages()
-    doc_content = ''
-    for i, page in enumerate(pages):
-        logger.info(f'reading page\n')    
-        doc_content += page.get_text() + '\n'
-        doc_content += page.get_textpage_ocr().extractText() + '\n'
+    doc = fitz.open(document.url)
+    extra_info = {
+        DB_DOC_ID_KEY: str(document.id),
+        "total_pages": len(doc),
+        "file_path": document.url,
+        "file_name": document.url
+    }
 
-    logger.info(f'Content: {doc_content}')
-    doc_list = [LlamaIndexDocument(text=doc_content, extra_info={DB_DOC_ID_KEY: str(document.id)})]
+    data = []
+    for page in doc:
+        # if there's no text, try ocr on the page
+        text = page.get_text().encode("utf-8")
+        if len(text) == 0:
+            text = page.get_textpage_ocr().extractText().encode("utf-8")
+            
+        data.append(LlamaIndexDocument(
+            text=text,
+            metadata = {},
+            extra_info=dict(
+                extra_info,
+                **{"source": f"{page.number + 1}", "page_label": page.number + 1,},
+            ),
+        ))
 
-    return doc_list
+    return data
+
 
 def build_description_for_document(document: DocumentSchema) -> str:
     return "A document containing useful information that the user pre-selected to discuss with the assistant."
@@ -105,32 +116,20 @@ def index_to_query_engine(doc_id: str, index: VectorStoreIndex) -> BaseQueryEngi
     return index.as_query_engine(**kwargs)
 
 
-@cached(
-    TTLCache(maxsize=10, ttl=timedelta(minutes=5).total_seconds()),
-    key=lambda *args, **kwargs: "global_storage_context",
-)
-def get_storage_context(
-    persist_dir: str, vector_store: VectorStore, fs: Optional[AsyncFileSystem] = None
-) -> StorageContext:
+@cached(TTLCache(maxsize=10, ttl=timedelta(minutes=5).total_seconds()), key=lambda *args, **kwargs: "global_storage_context")
+def get_storage_context(persist_dir: str, vector_store: VectorStore, fs: Optional[AsyncFileSystem] = None) -> StorageContext:
     logger.info("Fetching storage context.")
-    return StorageContext.from_defaults(
-        persist_dir=persist_dir, vector_store=vector_store, fs=fs
-    )
+    return StorageContext.from_defaults(persist_dir=persist_dir, vector_store=vector_store, fs=fs)
 
 
-async def build_doc_id_to_index_map(
-    service_context: ServiceContext,
-    documents: List[DocumentSchema],
-    fs: Optional[AsyncFileSystem] = None,
-) -> Dict[str, VectorStoreIndex]:
+async def build_doc_id_to_index_map(service_context: ServiceContext, documents: List[DocumentSchema], fs: Optional[AsyncFileSystem] = None) -> Dict[str, VectorStoreIndex]:
     persist_dir = f"{settings.S3_BUCKET_NAME}"
-
     vector_store = await get_vector_store_singleton()
     try:
         try:
             storage_context = get_storage_context(persist_dir, vector_store, fs=fs)
         except FileNotFoundError:
-            logger.info("Could not find storage context in S3. Creating new storage context.")
+            logger.error("Could not find storage context in S3. Creating new storage context.")
             storage_context = StorageContext.from_defaults(vector_store=vector_store, fs=fs)
             storage_context.persist(persist_dir=persist_dir, fs=fs)
 
@@ -140,17 +139,14 @@ async def build_doc_id_to_index_map(
             index_ids=index_ids,
             service_context=service_context,
         )
-        
+
         doc_id_to_index = dict(zip(index_ids, indices))
         logger.info("Loaded indices from storage.")
         storage_context = StorageContext.from_defaults(
-            persist_dir=persist_dir, vector_store=vector_store, fs=fs
-        )
+            persist_dir=persist_dir, vector_store=vector_store, fs=fs)
     except ValueError:
         logger.error("Failed to load indices from storage. Creating new indices.", exc_info=True)
-        storage_context = StorageContext.from_defaults(
-            persist_dir=persist_dir, vector_store=vector_store, fs=fs
-        )
+        storage_context = StorageContext.from_defaults(persist_dir=persist_dir, vector_store=vector_store, fs=fs)
         doc_id_to_index = {}
         for doc in documents:
             llama_index_docs = fetch_and_read_document(doc)
@@ -197,9 +193,7 @@ def get_chat_history(
     return chat_history
 
 
-def get_tool_service_context(
-    callback_handlers: List[BaseCallbackHandler],
-) -> ServiceContext:
+def get_tool_service_context(callback_handlers: List[BaseCallbackHandler]) -> ServiceContext:
     llm = OpenAI(
         temperature=0,
         model="gpt-4",
@@ -228,15 +222,10 @@ def get_tool_service_context(
     return service_context
 
 
-async def get_chat_engine(
-    callback_handler: BaseCallbackHandler,
-    conversation: ConversationSchema,
-) -> OpenAIAgent:
+async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: ConversationSchema) -> OpenAIAgent:
     service_context = get_tool_service_context([callback_handler])
     s3_fs = get_s3_fs()
-    doc_id_to_index = await build_doc_id_to_index_map(
-        service_context, conversation.documents, fs=s3_fs
-    )
+    doc_id_to_index = await build_doc_id_to_index_map(service_context, conversation.documents, fs=s3_fs)
     id_to_doc: Dict[str, DocumentSchema] = {
         str(doc.id): doc for doc in conversation.documents
     }
@@ -253,7 +242,6 @@ async def get_chat_engine(
     ]
 
     response_synth = get_custom_response_synth(service_context, conversation.documents)
-
     qualitative_question_engine = SubQuestionQueryEngine.from_defaults(
         query_engine_tools=vector_query_engine_tools,
         service_context=service_context,
@@ -262,11 +250,7 @@ async def get_chat_engine(
         use_async=True,
     )
 
-    api_query_engine_tools = [
-        get_api_query_engine_tool(doc, service_context)
-        for doc in conversation.documents
-        if DocumentMetadataKeysEnum.ANNUAL_REPORT in doc.metadata_map
-    ]
+    api_query_engine_tools = [get_api_query_engine_tool(doc, service_context) for doc in conversation.documents]
 
     quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
         query_engine_tools=api_query_engine_tools,
@@ -323,7 +307,8 @@ Any questions about company-related financials or other metrics should be asked 
         llm=chat_llm,
         chat_history=chat_history,
         verbose=settings.VERBOSE,
-        system_prompt=SYSTEM_MESSAGE.format(doc_titles=doc_titles, curr_date=curr_date),
+        system_prompt=SYSTEM_MESSAGE.format(
+            doc_titles=doc_titles, curr_date=curr_date),
         callback_manager=service_context.callback_manager,
         max_function_calls=3,
     )

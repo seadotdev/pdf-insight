@@ -7,7 +7,7 @@ import DisplayMultiplePdfs from "~/components/pdf-viewer/DisplayMultiplePdfs";
 import { backendUrl } from "src/config";
 import { MESSAGE_STATUS, Message } from "~/types/conversation";
 import useMessages from "~/hooks/useMessages";
-import { backendClient } from "~/api/backend";
+import { backendClient } from "~/api/backendClient";
 import { RenderConversations as RenderConversations } from "~/components/conversations/RenderConversations";
 import { BiArrowBack } from "react-icons/bi";
 import { Document } from "~/types/document";
@@ -76,7 +76,7 @@ export default function Conversation() {
     setUserMessage("");
 
     const messageEndpoint =
-      backendUrl + `api/conversation/${conversationId}/message`;
+      backendUrl + `conversation/${conversationId}/message`;
     const url = messageEndpoint + `?user_message=${encodeURI(userMessage)}`;
 
     const events = new EventSource(url);

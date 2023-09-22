@@ -121,6 +121,7 @@ def start():
         logger.debug("Migrations complete")
     else:
         logger.debug("Skipping migrations")
+        
     live_reload = not settings.RENDER
     uvicorn.run(
         "app.main:app",

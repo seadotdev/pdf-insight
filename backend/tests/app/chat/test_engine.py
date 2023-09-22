@@ -2,8 +2,8 @@ from typing import List, Tuple, Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 from llama_index.llms import ChatMessage
-from app.schema import Message
-from app.models.db import MessageStatusEnum, MessageRoleEnum
+from backend.app.schemas.pydantic_schema import Message
+from app.db.models.base import MessageStatusEnum, MessageRoleEnum
 from app.chat.engine import get_chat_history
 
 

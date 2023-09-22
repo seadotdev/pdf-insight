@@ -2,13 +2,13 @@ import React from "react";
 
 import type { NextPage } from "next";
 import { MarketingSection } from "~/components/landing-page/MarketingSection";
-import { TitleAndDropdown } from "~/components/landing-page/TitleAndDropdown";
+import { TitlePage } from "~/components/landing-page/TitlePage";
 
 const LandingPage: NextPage = () => {
   return (
     <>
-      <TitleAndDropdown />
-      <MarketingSection />
+      <TitlePage />
+      {/* <MarketingSection /> */}
     </>
   );
 };

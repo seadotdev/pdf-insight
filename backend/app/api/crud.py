@@ -1,19 +1,18 @@
 from typing import Optional, cast, Sequence, List
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.db import Conversation, Message, Document, ConversationDocument
-from app import schema
 from sqlalchemy import select, delete
 from sqlalchemy.dialects.postgresql import insert
+from app.db.models.base import Conversation, Message, Document, ConversationDocument
+from app.schemas import pydantic_schema
 
 
-async def fetch_conversation_with_messages(
-    db: AsyncSession, conversation_id: str
-) -> Optional[schema.Conversation]:
+async def fetch_conversation_with_messages(db: AsyncSession, conversation_id: str) -> Optional[pydantic_schema.Conversation]:
     """
     Fetch a conversation with its messages + messagesubprocesses
     return None if the conversation with the given id does not exist
     """
+
     # Eagerly load required relationships
     stmt = (
         select(Conversation)
@@ -35,13 +34,13 @@ async def fetch_conversation_with_messages(
                 convo_doc.document for convo_doc in conversation.conversation_documents
             ],
         }
-        return schema.Conversation(**convo_dict)
+        return pydantic_schema.Conversation(**convo_dict)
     return None
 
 
 async def create_conversation(
-    db: AsyncSession, convo_payload: schema.ConversationCreate
-) -> schema.Conversation:
+    db: AsyncSession, convo_payload: pydantic_schema.ConversationCreate
+) -> pydantic_schema.Conversation:
     conversation = Conversation()
     convo_doc_db_objects = [
         ConversationDocument(document_id=doc_id, conversation=conversation)
@@ -63,7 +62,7 @@ async def delete_conversation(db: AsyncSession, conversation_id: str) -> bool:
 
 async def fetch_message_with_sub_processes(
     db: AsyncSession, message_id: str
-) -> Optional[schema.Message]:
+) -> Optional[pydantic_schema.Message]:
     """
     Fetch a message with its sub processes
     return None if the message with the given id does not exist
@@ -77,7 +76,7 @@ async def fetch_message_with_sub_processes(
     result = await db.execute(stmt)  # execute the statement
     message = result.scalars().first()  # get the first result
     if message is not None:
-        return schema.Message.from_orm(message)
+        return pydantic_schema.Message.from_orm(message)
     return None
 
 
@@ -87,7 +86,7 @@ async def fetch_documents(
     ids: Optional[List[str]] = None,
     url: Optional[str] = None,
     limit: Optional[int] = None,
-) -> Optional[Sequence[schema.Document]]:
+) -> Optional[Sequence[pydantic_schema.Document]]:
     """
     Fetch a document by its url or id
     """
@@ -104,10 +103,11 @@ async def fetch_documents(
         stmt = stmt.limit(limit)
     result = await db.execute(stmt)
     documents = result.scalars().all()
-    return [schema.Document.from_orm(doc) for doc in documents]
+    
+    return [pydantic_schema.Document.from_orm(doc) for doc in documents]
 
 
-async def upsert_document(db: AsyncSession, document: schema.Document) -> schema.Document:
+async def upsert_document(db: AsyncSession, document: pydantic_schema.Document) -> pydantic_schema.Document:
     """
     Upsert a document
     """
@@ -118,7 +118,7 @@ async def upsert_document(db: AsyncSession, document: schema.Document) -> schema
     )
     stmt = stmt.returning(Document)
     result = await db.execute(stmt)
-    upserted_doc = schema.Document.from_orm(result.scalars().first())
+    upserted_doc = pydantic_schema.Document.from_orm(result.scalars().first())
     await db.commit()
 
     return upserted_doc

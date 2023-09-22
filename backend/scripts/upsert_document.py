@@ -1,18 +1,17 @@
 import asyncio
 
 from fire import Fire
-from app.schema import Document
+from backend.app.schemas.pydantic_schema import Document, DocumentMetadata
 from app.db.session import SessionLocal
 from app.api import crud
 
 
-async def upsert_single_document(url: str):
+async def upsert_single_document(url: str, metadata : DocumentMetadata):
     """
-    Upserts a single SEC document into the database using its URL.
+    Upserts a single document into the database using its URL.
     """
 
-    metadata_map = {}
-    doc = Document(url=url, metadata_map=metadata_map)
+    doc = Document(url=url)
     async with SessionLocal() as db:
         document = await crud.upsert_document(db, doc)
         print(f"Upserted document. Database ID:\n{document.id}")

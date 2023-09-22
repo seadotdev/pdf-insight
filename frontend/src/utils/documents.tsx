@@ -1,5 +1,7 @@
-import type { Document, Ticker, DocumentType } from "~/types/document";
+import { MAX_NUMBER_OF_SELECTED_DOCUMENTS } from "~/hooks/useDocumentSelector";
+import { Document, Ticker, DocumentType, BackendDocument } from "~/types/document";
 import { SelectOption } from "~/types/selection";
+import { documentColors } from "~/utils/colors";
 
 export function getAllTickers(documents: Document[]): Ticker[] {
   const result: Ticker[] = [];
@@ -57,3 +59,25 @@ export function sortSelectOptions(
 
   return options.sort((a, b) => parseInt(a.label) - parseInt(b.label));
 }
+
+export const fromBackendDocumentToFrontend = (backendDocuments: BackendDocument[]) => {
+  const frontendDocs: Document[] = [];
+  backendDocuments.map((backendDoc, index) => {
+    // we have 10 colors for 10 
+    const colorIndex = index < MAX_NUMBER_OF_SELECTED_DOCUMENTS ? index : 0;
+
+    // fill this with metadata from the backend doc  
+    const payload = {
+      id: backendDoc.id,
+      url: `http://localhost:8000/api/${backendDoc.url}`,
+      year: "2022", // change this once we have some metadata
+      fullName: `${backendDoc.url}`,
+      ticker: `${backendDoc.id}`,
+      docType: backendDoc.docType,
+      color: documentColors[colorIndex],
+    } as Document;
+    frontendDocs.push(payload);
+  });
+
+  return frontendDocs;
+};
