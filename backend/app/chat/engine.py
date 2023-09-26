@@ -13,11 +13,14 @@ from datetime import datetime
 from fsspec.asyn import AsyncFileSystem
 
 from llama_index import (
+    QuestionAnswerPrompt,
+    RefinePrompt,
     ServiceContext,
     VectorStoreIndex,
     StorageContext,
     load_indices_from_storage,
 )
+from llama_index.prompts.prompt_type import PromptType
 from llama_index.vector_stores.types import VectorStore
 from llama_index.schema import Document as LlamaIndexDocument
 from llama_index.agent import OpenAIAgent
@@ -32,6 +35,18 @@ from llama_index.callbacks.base import BaseCallbackHandler, CallbackManager
 from llama_index.tools import QueryEngineTool, ToolMetadata
 from llama_index.query_engine import SubQuestionQueryEngine
 from llama_index.indices.query.base import BaseQueryEngine
+from llama_index import (
+    LLMPredictor,
+    ServiceContext,
+    StorageContext,
+    KnowledgeGraphIndex,
+)
+from llama_index.llms import OpenAI
+from llama_index.query_engine import RetrieverQueryEngine
+from llama_index.retrievers import KnowledgeGraphRAGRetriever
+from llama_index import get_response_synthesizer, load_index_from_storage
+from llama_index.graph_stores import KuzuGraphStore
+from llama_index.indices.query.schema import QueryBundle
 from llama_index.vector_stores.types import (
     MetadataFilters,
     ExactMatchFilter,
@@ -94,13 +109,13 @@ def fetch_and_read_document(document: DocumentSchema) -> List[LlamaIndexDocument
         text = page.get_text().encode("utf-8")
         if len(text) == 0:
             text = page.get_textpage_ocr().extractText().encode("utf-8")
-            
+
         data.append(LlamaIndexDocument(
             text=text,
-            metadata = {},
+            metadata={},
             extra_info=dict(
                 extra_info,
-                **{"source": f"{page.number + 1}", "page_label": page.number + 1,},
+                **{"source": f"{page.number + 1}", "page_label": page.number + 1, },
             ),
         ))
 
@@ -127,10 +142,13 @@ async def build_doc_id_to_index_map(service_context: ServiceContext, documents: 
     vector_store = await get_vector_store_singleton()
     try:
         try:
-            storage_context = get_storage_context(persist_dir, vector_store, fs=fs)
+            storage_context = get_storage_context(
+                persist_dir, vector_store, fs=fs)
         except FileNotFoundError:
-            logger.error("Could not find storage context in S3. Creating new storage context.")
-            storage_context = StorageContext.from_defaults(vector_store=vector_store, fs=fs)
+            logger.error(
+                "Could not find storage context in S3. Creating new storage context.")
+            storage_context = StorageContext.from_defaults(
+                vector_store=vector_store, fs=fs)
             storage_context.persist(persist_dir=persist_dir, fs=fs)
 
         index_ids = [str(doc.id) for doc in documents]
@@ -145,8 +163,10 @@ async def build_doc_id_to_index_map(service_context: ServiceContext, documents: 
         storage_context = StorageContext.from_defaults(
             persist_dir=persist_dir, vector_store=vector_store, fs=fs)
     except ValueError:
-        logger.error("Failed to load indices from storage. Creating new indices.", exc_info=True)
-        storage_context = StorageContext.from_defaults(persist_dir=persist_dir, vector_store=vector_store, fs=fs)
+        logger.error(
+            "Failed to load indices from storage. Creating new indices.", exc_info=True)
+        storage_context = StorageContext.from_defaults(
+            persist_dir=persist_dir, vector_store=vector_store, fs=fs)
         doc_id_to_index = {}
         for doc in documents:
             llama_index_docs = fetch_and_read_document(doc)
@@ -225,40 +245,142 @@ def get_tool_service_context(callback_handlers: List[BaseCallbackHandler]) -> Se
 async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: ConversationSchema) -> OpenAIAgent:
     service_context = get_tool_service_context([callback_handler])
     s3_fs = get_s3_fs()
-    doc_id_to_index = await build_doc_id_to_index_map(service_context, conversation.documents, fs=s3_fs)
-    id_to_doc: Dict[str, DocumentSchema] = {
-        str(doc.id): doc for doc in conversation.documents
-    }
 
-    vector_query_engine_tools = [
-        QueryEngineTool(
-            query_engine=index_to_query_engine(doc_id, index),
-            metadata=ToolMetadata(
-                name=doc_id,
-                description=build_description_for_document(id_to_doc[doc_id]),
-            ),
+    # hacky way to use the knowledge graph
+    if (len(conversation.documents) == 0):
+        response_synthesizer = get_response_synthesizer(
+            response_mode="tree_summarize")
+        
+        persist_dir = f"{settings.S3_BUCKET_NAME}"
+        storage_context = StorageContext.from_defaults(
+            fs=s3_fs, persist_dir=persist_dir)
+        
+        kg_index = load_index_from_storage(
+            storage_context=storage_context,
+            service_context=service_context,
+            max_triplets_per_chunk=15,
+            verbose=True,
         )
-        for doc_id, index in doc_id_to_index.items()
-    ]
 
-    response_synth = get_custom_response_synth(service_context, conversation.documents)
-    qualitative_question_engine = SubQuestionQueryEngine.from_defaults(
-        query_engine_tools=vector_query_engine_tools,
-        service_context=service_context,
-        response_synthesizer=response_synth,
-        verbose=settings.VERBOSE,
-        use_async=True,
-    )
+        graph_retriever = kg_index.as_retriever(
+            include_text=False,
+            embedding_mode="hybrid",
+            similarity_top_k=5,
+            graph_store_query_depth=2
+        )
 
-    api_query_engine_tools = [get_api_query_engine_tool(doc, service_context) for doc in conversation.documents]
+        graph_query_engine = RetrieverQueryEngine.from_args(
+            graph_retriever,
+            service_context=service_context,
+            response_synthesizer=response_synthesizer
+        )
 
-    quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
-        query_engine_tools=api_query_engine_tools,
-        service_context=service_context,
-        response_synthesizer=response_synth,
-        verbose=settings.VERBOSE,
-        use_async=True,
-    )
+        query_engine_tools = [
+            QueryEngineTool(
+                query_engine=graph_query_engine,
+                metadata=ToolMetadata(
+                    name="Knowledge Graph", description="KG metadata")
+            )
+        ]
+
+        qualitative_question_engine = SubQuestionQueryEngine.from_defaults(
+            query_engine_tools=query_engine_tools,
+            service_context=service_context,
+            response_synthesizer=response_synth,
+            verbose=settings.VERBOSE,
+            use_async=True,
+        )
+
+        quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
+            query_engine_tools=query_engine_tools,
+            service_context=service_context,
+            response_synthesizer=response_synth,
+            verbose=settings.VERBOSE,
+            use_async=True,
+        )
+
+        refine_template_str = f"""
+A user has selected a set of SEC filing documents and has asked a question about them. \
+The SEC documents have the following titles:
+{doc_titles}
+The original query is as follows: {{query_str}}
+We have provided an existing answer: {{existing_answer}}
+We have the opportunity to refine the existing answer \
+(only if needed) with some more context below.
+------------
+{{context_msg}}
+------------
+Given the new context, refine the original answer to better \
+answer the query. \
+If the context isn't useful, return the original answer.
+Refined Answer:
+""".strip()
+        refine_prompt = RefinePrompt(
+            template=refine_template_str,
+            prompt_type=PromptType.REFINE,
+        )
+
+        qa_template_str = f"""
+A user has a question about them. \
+Context information is below.
+---------------------
+{{context_str}}
+---------------------
+Given the context information and not prior knowledge, \
+answer the query.
+Query: {{query_str}}
+Answer:
+""".strip()
+        qa_prompt = QuestionAnswerPrompt(
+            template=qa_template_str,
+            prompt_type=PromptType.QUESTION_ANSWER,
+        )
+
+        response_synth = get_response_synthesizer(
+            service_context,
+            refine_template=refine_prompt,
+            text_qa_template=qa_prompt,
+            structured_answer_filtering=True,
+        )
+    else:
+        doc_id_to_index = await build_doc_id_to_index_map(service_context, conversation.documents, fs=s3_fs)
+        id_to_doc: Dict[str, DocumentSchema] = {
+            str(doc.id): doc for doc in conversation.documents
+        }
+
+        query_engine_tools = [
+            QueryEngineTool(
+                query_engine=index_to_query_engine(doc_id, index),
+                metadata=ToolMetadata(
+                    name=doc_id,
+                    description=build_description_for_document(
+                        id_to_doc[doc_id]),
+                ),
+            )
+            for doc_id, index in doc_id_to_index.items()
+        ]
+
+        response_synth = get_custom_response_synth(
+            service_context, conversation.documents)
+
+        qualitative_question_engine = SubQuestionQueryEngine.from_defaults(
+            query_engine_tools=query_engine_tools,
+            service_context=service_context,
+            response_synthesizer=response_synth,
+            verbose=settings.VERBOSE,
+            use_async=True,
+        )
+
+        api_query_engine_tools = [get_api_query_engine_tool(
+            doc, service_context) for doc in conversation.documents]
+
+        quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
+            query_engine_tools=api_query_engine_tools,
+            service_context=service_context,
+            response_synthesizer=response_synth,
+            verbose=settings.VERBOSE,
+            use_async=True,
+        )
 
     top_level_sub_tools = [
         QueryEngineTool(
@@ -299,7 +421,7 @@ Any questions about company-related financials or other metrics should be asked 
             "- " + build_title_for_document(doc) for doc in conversation.documents
         )
     else:
-        doc_titles = "No documents selected."
+        doc_titles = "No documents selected. Using Knowledge Graph"
 
     curr_date = datetime.utcnow().strftime("%Y-%m-%d")
     chat_engine = OpenAIAgent.from_tools(

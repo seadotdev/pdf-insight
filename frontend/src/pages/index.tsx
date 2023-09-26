@@ -5,11 +5,12 @@ import { MarketingSection } from "~/components/landing-page/MarketingSection";
 import { TitlePage } from "~/components/landing-page/TitlePage";
 
 const LandingPage: NextPage = () => {
-  return (
-    <>
-      <TitlePage />
-      {/* <MarketingSection /> */}
-    </>
-  );
+    return (
+        <>
+            <TitlePage />
+            {/* <MarketingSection /> */}
+        </>
+    );
 };
+
 export default LandingPage;

@@ -31,10 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/")
-async def create_conversation(
-    payload: pydantic_schema.ConversationCreate,
-    db: AsyncSession = Depends(get_db),
-) -> pydantic_schema.Conversation:
+async def create_conversation(payload: pydantic_schema.ConversationCreate, db: AsyncSession = Depends(get_db)) -> pydantic_schema.Conversation:
     """
     Create a new conversation
     """
@@ -42,9 +39,7 @@ async def create_conversation(
 
 
 @router.get("/{conversation_id}")
-async def get_conversation(
-    conversation_id: UUID, db: AsyncSession = Depends(get_db)
-) -> pydantic_schema.Conversation:
+async def get_conversation(conversation_id: UUID, db: AsyncSession = Depends(get_db)) -> pydantic_schema.Conversation:
     """
     Get a conversation by ID along with its messages and message subprocesses.
     """
@@ -54,12 +49,8 @@ async def get_conversation(
     return conversation
 
 
-@router.delete(
-    "/{conversation_id}", response_model=None, status_code=status.HTTP_204_NO_CONTENT
-)
-async def delete_conversation(
-    conversation_id: UUID, db: AsyncSession = Depends(get_db)
-):
+@router.delete("/{conversation_id}", response_model=None, status_code=status.HTTP_204_NO_CONTENT)
+async def delete_conversation(conversation_id: UUID, db: AsyncSession = Depends(get_db)):
     """
     Delete a conversation by ID.
     """
@@ -70,11 +61,7 @@ async def delete_conversation(
 
 
 @router.get("/{conversation_id}/message")
-async def message_conversation(
-    conversation_id: UUID,
-    user_message: str,
-    db: AsyncSession = Depends(get_db),
-) -> EventSourceResponse:
+async def message_conversation(conversation_id: UUID, user_message: str, db: AsyncSession = Depends(get_db)) -> EventSourceResponse:
     """
     Send a message from a user to a conversation, receive a SSE stream of the assistant's response.
     Each event in the SSE stream is a Message object. As the assistant continues processing the response,
@@ -141,7 +128,8 @@ async def message_conversation(
                         )
                         event_id_to_sub_process[message_obj.event_id] = sub_process
 
-                        message.sub_processes = list(event_id_to_sub_process.values())
+                        message.sub_processes = list(
+                            event_id_to_sub_process.values())
                     else:
                         logger.error(
                             f"Unknown message object type: {type(message_obj)}"

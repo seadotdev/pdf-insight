@@ -12,7 +12,7 @@ export const TitlePage = () => {
   }, []);
 
   return (
-    <div className="landing-page-gradient-1 relative flex h-screen w-screen flex-col items-center font-calibri">
+    <div className="landing-page-gradient-1 relative flex h-screen w-screen flex-col items-center font-calibri overflow-hidden">
       <div className="absolute right-4 top-4">
         <a href="https://www.sea.dev/" target="_blank">
           <button className="flex items-center justify-center font-nunito text-lg font-bold ">

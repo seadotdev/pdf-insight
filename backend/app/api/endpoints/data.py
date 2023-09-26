@@ -44,6 +44,7 @@ async def upload_file(file: Annotated[UploadFile, File()], company_name: Annotat
     async with SessionLocal() as db:
         document = await crud.upsert_document(db, doc)
 
+    # Build index for the document
     fs = get_s3_fs()
     service_context = get_tool_service_context([])
     await build_doc_id_to_index_map(service_context, [document], fs=fs)

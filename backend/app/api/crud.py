@@ -38,9 +38,7 @@ async def fetch_conversation_with_messages(db: AsyncSession, conversation_id: st
     return None
 
 
-async def create_conversation(
-    db: AsyncSession, convo_payload: pydantic_schema.ConversationCreate
-) -> pydantic_schema.Conversation:
+async def create_conversation(db: AsyncSession, convo_payload: pydantic_schema.ConversationCreate) -> pydantic_schema.Conversation:
     conversation = Conversation()
     convo_doc_db_objects = [
         ConversationDocument(document_id=doc_id, conversation=conversation)
@@ -103,7 +101,7 @@ async def fetch_documents(
         stmt = stmt.limit(limit)
     result = await db.execute(stmt)
     documents = result.scalars().all()
-    
+
     return [pydantic_schema.Document.from_orm(doc) for doc in documents]
 
 

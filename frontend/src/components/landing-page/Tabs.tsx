@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DocumentExplorer } from "~/components/landing-page/DocumentExplorer"
 import { Conversation } from "~/components/landing-page/Conversation";
+import { KnowledgeGraph } from "~/components/landing-page/KnowledgeGraph";
 
 function TabsContent(props: { activeTab: string; }) {
     const activeTab = props.activeTab;
@@ -10,7 +11,7 @@ function TabsContent(props: { activeTab: string; }) {
         case "conversation-tab":
             return (<Conversation />)
         case "kg-tab":
-            return (<div>Knowledge Graph</div>)
+            return (<KnowledgeGraph id="0bd80d62-9923-418d-be52-5077d0e67035" />)
         case "template-tab":
             return (<div>Template</div>)
         case "agent-tab":
@@ -65,7 +66,7 @@ const Tabs = () => {
                     </a>
                 </li>
             </ul>
-            <div id="tabs-content" className="w-full h-full">
+            <div id="tabs-content" className="w-full h-full overflow-auto">
                 <TabsContent activeTab={activeTab} />
             </div>
         </div >
