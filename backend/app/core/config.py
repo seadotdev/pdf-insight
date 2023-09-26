@@ -50,6 +50,7 @@ class PreviewPrefixedSettings(BaseSettings):
     deployments, so they are not prefixed.
     """
 
+    CH_API_KEY: str
     OPENAI_API_KEY: str
     AWS_KEY: str
     AWS_SECRET: str
@@ -81,7 +82,8 @@ class Settings(PreviewPrefixedSettings):
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
     # "http://localhost:8080", "http://local.dockertoolbox.tiangolo.com"]'
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    # THIS IS OVERRIDDEN IN .env
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:3000", "http://localhost"]
 
     @property
     def VERBOSE(self) -> bool:

@@ -30,8 +30,8 @@ export const SelectDocument = () => {
         if (file) {
             const form = e.target;
             const formData = new FormData(form);
-            const res = await backendClient.uploadFile(file.type, formData);
-            if (res.status == 200)
+            const res = await backendClient.uploadFile(formData);
+            if (res.ok)
                 setFileIsUploaded(true);
         }
     };
@@ -42,7 +42,7 @@ export const SelectDocument = () => {
             const docs = await backendClient.getSupportedDocTypes();
             setSupportedDocumentTypes(docs);
         }
-        getDocTypes().catch(() => console.error("could not fetch document types"));
+        getDocTypes().catch(() => console.error("Could not fetch document types"));
     }, []);
 
     // Fetch all the available document types on render
@@ -54,13 +54,13 @@ export const SelectDocument = () => {
                 setDocumentTypeSchemaMapping(schema_mapping);
             }
         }
-        getSchemaMapping().catch(() => console.error("could not fetch schema mapping"));
+        getSchemaMapping().catch(() => console.error("Could not fetch schema mapping"));
     }, [documentType]);
 
     return (
-        <div className="w-full flex justify-between min-w-[700px] max-w-[700px] border-gray-500 rounded border px-4 py-4">
-            <form className="mt-4 mx-0 w-full px-4 py-4" onSubmit={handleFormSubmit}>
-                <div id="file-upload" className="flex justify-between min-w-[700px]">
+        <div className="w-full flex justify-between max-w-[700px] border-gray-500 rounded border">
+            <form className="mx-0 w-full px-4 py-4" onSubmit={handleFormSubmit}>
+                <div id="file-upload" className="flex justify-between">
                     <FileInput id="file" name="file" onChange={handleFileChange} />
                 </div>
                 {

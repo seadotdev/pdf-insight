@@ -25,7 +25,7 @@ const Tabs = () => {
     const tabHrefClassString = "inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg text-white hover:text-gray-900 hover:border-gray-900 dark:hover:text-gray-300 group";
 
     return (
-        <div id="tabs" className="border-b border-transparent max-w-[1200px] w-full">
+        <div id="tabs" className="border-b border-transparent max-w-[1200px] w-full h-full">
             <ul className="flex flex-wrap -mb-px text-sm font-medium border-transparent text-center text-gray-500 dark:text-blue-400 w-full">
                 <li className={activeTab === "doc-tab" ? "active mr-2" : "mr-2"} onClick={() => { setActiveTab("doc-tab"); }}>
                     <a href="#" className={tabHrefClassString + (activeTab === "doc-tab" ? " bg-llama-indigo" : "")}>
@@ -65,7 +65,7 @@ const Tabs = () => {
                     </a>
                 </li>
             </ul>
-            <div id="tabs-content">
+            <div id="tabs-content" className="w-full h-full">
                 <TabsContent activeTab={activeTab} />
             </div>
         </div >

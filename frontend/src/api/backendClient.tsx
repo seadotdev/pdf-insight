@@ -1,4 +1,5 @@
-import { backendUrl } from "~/config";
+import { backendUrl, chApiKey } from "~/config";
+import { FilingItem } from "~/types/ch-data";
 import type { Message } from "~/types/conversation";
 import type { BackendDocument } from "~/types/document";
 import { Document } from "~/types/document";
@@ -19,6 +20,7 @@ interface GetConversationReturnType {
     documents: Document[];
 }
 
+// Connection endpoints between frontend and backend api
 class BackendClient {
     private async get(endpoint: string, body?: any) {
         const url = backendUrl + endpoint + '?' + new URLSearchParams(body);
@@ -56,7 +58,7 @@ class BackendClient {
         return res.json();
     }
 
-    public async uploadFile(type: string, body?: any) {
+    public async uploadFile(body?: any) {
         const url = backendUrl + "data/upload"
         const res = await fetch(url, {
             method: "POST",
@@ -70,21 +72,8 @@ class BackendClient {
         return res;
     }
 
-    public async queryCompaniesHouseFilings(id: string) {
-        const ch_api_key = 'acacaeb4-13f9-419a-b802-44b249db6fe0'
-        const companyApiStub = 'https://api.company-information.service.gov.uk/company/';
-        const url = companyApiStub + id + '/filing-history';
-
-        console.log(url);
-
-        const res = await fetch(url, {
-            method: "GET",
-            headers: { 'Authorization': ch_api_key },
-        });
-
-        if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-        }
+    public async uploadCHDocument(details: FilingItem) {
+        const res = await this.post("data/search-ch", details);
 
         return res;
     }

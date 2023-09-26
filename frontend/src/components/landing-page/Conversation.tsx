@@ -54,7 +54,7 @@ export const Conversation = () => {
     } = useDocumentSelector();
 
     return (
-        <div className="mt-1 flex h-min w-11/12 max-w-[1200px] flex-col items-center justify-center rounded-lg border-2 bg-white sm:h-[600px]">
+        <div className="mt-1 flex h-min w-full max-w-[1200px] flex-col items-center justify-center rounded-lg border-2 bg-white sm:h-[600px]">
             <div className="p-4 text-center text-xl font-bold">
                 Select documents to start conversation
             </div>

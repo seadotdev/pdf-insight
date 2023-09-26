@@ -17,6 +17,7 @@ from app.core.config import settings, AppEnvironment
 from app.loader_io import loader_io_router
 from contextlib import asynccontextmanager
 from app.chat.pg_vector import get_vector_store_singleton, CustomPGVectorStore
+from fastapi.middleware.cors import CORSMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -97,8 +98,7 @@ if settings.BACKEND_CORS_ORIGINS:
     # allow all origins
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.BACKEND_CORS_ORIGINS,
-        allow_origin_regex="https://llama-app-frontend.*\.vercel\.app",
+        allow_origins= settings.BACKEND_CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

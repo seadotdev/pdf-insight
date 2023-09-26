@@ -5,7 +5,7 @@ import { SelectFromCH } from "~/components/landing-page/SelectFromCH";
 
 export const DocumentExplorer = () => {
     return (
-        <div className="mt-1 flex bg-gray-200 h-min w-full max-w-[1200px] flex-col items-center rounded-lg border-2 sm:h-[600px]">
+        <div className="mt-1 flex bg-gray-200 h-min w-full max-w-[1200px] flex-col items-center rounded-lg border-2 pb-4">
             <div className="p-4 text-center text-xl font-bold">
                 Upload documents
             </div>

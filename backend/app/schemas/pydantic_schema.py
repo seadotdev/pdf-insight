@@ -166,3 +166,16 @@ class Conversation(Base):
 
 class ConversationCreate(BaseModel):
     document_ids: List[UUID]
+
+
+class Links(BaseModel):
+    self: str
+    document_metadata: str
+
+
+class CHFiling(BaseModel):
+    category: str
+    date: str
+    description: str
+    links: Links
+    transaction_id: str
