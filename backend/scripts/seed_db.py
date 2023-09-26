@@ -59,12 +59,18 @@ async def async_seed_db():
     print("Indexing documents:\n")
     print(all_pdf_docs)
 
-    all_docs = []
+    kg_docs = []
     print("Seeding storage context")
     for filename in all_pdf_docs:
-        metadata = {"name": "good company", "doc_type": DocumentTypeEnum.ANNUAL_REPORT, "year": 2022}
+        print(f"Processing {filename}...\n")
+
+        # Placeholder metadata, need a more robust way of populating this stuff
+        metadata = {"name": "Good Company Inc", "doc_type": DocumentTypeEnum.ANNUAL_REPORT, "year": 2022}
         doc = await upsert_document.upsert_single_document(url=filename, metadata=metadata)
-        all_docs = all_docs + fetch_and_read_document(doc)
+
+        # This is one of the SMEC documents, use this for now to generate KG
+        if(filename == "data/12592114_aa_2023-08-04.pdf"):
+            kg_docs = kg_docs + fetch_and_read_document(doc)
 
         # Build index for the document
         service_context = get_tool_service_context([])
@@ -88,20 +94,24 @@ async def async_seed_db():
     # )
     service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
 
-    # Building KG index automatically from the documents
+    # Building KG index automatically from the documents (can override with json input or seed with some custom data)
+    # KnowledgeGrapIndex will also build a vectorstore alongside the graphstore by default
     kg_index = KnowledgeGraphIndex.from_documents(
-        all_docs,
+        kg_docs,
         max_triplets_per_chunk=15,
         storage_context=storage_context,
         service_context=service_context,
         include_embeddings=True
     )
 
+    # Make note of the index id, because might need to specify it when loading
+    print(f"Index Id: {kg_index.index_id}")
+
     # Here we can stick in whatever triplets we like, e.g.
 
     # kg_index.upsert_triplet(("James Kaberry", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
 
-    kg_index.storage_context.persist(persist_dir=persist_dir)
+    kg_index.storage_context.persist(persist_dir=persist_dir, fs=fs)
 
     print(
         """

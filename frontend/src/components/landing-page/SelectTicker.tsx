@@ -1,27 +1,15 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-import type { Ticker } from "~/types/document";
 import { useCombobox } from "downshift";
 import cx from "classnames";
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 import useFocus from "~/hooks/utils/useFocus";
-
-function getTickerFilter(inputValue: string) {
-    const lowerCasedInputValue = inputValue.toLowerCase();
-
-    return function tickerFilter(ticker: Ticker) {
-        return (
-            !inputValue ||
-            ticker.fullName.toLowerCase().includes(lowerCasedInputValue) ||
-            ticker.ticker.toLowerCase().includes(lowerCasedInputValue)
-        );
-    };
-}
+import { Document } from "~/types/document";
 
 interface DocumentSelectComboboxProps {
-    selectedItem: Ticker | null;
-    setSelectedItem: (ticker: Ticker) => void;
-    availableDocuments: Ticker[];
+    selectedItem:  Document | null;
+    setSelectedItem: (doc: Document) => void;
+    availableDocuments: Document[];
     shouldFocusTicker: boolean;
     setFocusState: Dispatch<SetStateAction<boolean>>;
 }
@@ -43,8 +31,7 @@ export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({
         }
     }, [shouldFocusTicker]);
 
-    const [filteredDocuments, setFilteredDocuments] =
-        useState<Ticker[]>(availableDocuments);
+    const [filteredDocuments, setFilteredDocuments] = useState<Document[]>(availableDocuments);
 
     useEffect(() => {
         setFilteredDocuments(availableDocuments);
@@ -58,19 +45,9 @@ export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({
         getItemProps,
         setInputValue,
     } = useCombobox({
-        onInputValueChange({ inputValue }) {
-            if (inputValue) {
-                setFilteredDocuments(
-                    availableDocuments.filter(getTickerFilter(inputValue))
-                );
-            } else {
-                setFilteredDocuments(availableDocuments);
-            }
-        },
+        onInputValueChange() { setFilteredDocuments(availableDocuments); },
         items: filteredDocuments,
-        itemToString(item) {
-            return item ? item.ticker : "";
-        },
+        itemToString(doc) { return doc ? doc.name : ""; },
         selectedItem,
         onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
             if (newSelectedItem) {
@@ -109,11 +86,11 @@ export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({
                                 selectedItem === item && "font-bold",
                                 "z-20 flex flex-col px-3 py-2 shadow-sm"
                             )}
-                            key={`${item.fullName}${index}`}
+                            key={`${item.name}${index}`}
                             {...getItemProps({ item, index })}
                         >
-                            <span>{item.fullName}</span>
-                            <span className="text-sm ">{item.ticker}</span>
+                            <span>{item.name}</span>
+                            <span className="text-sm ">{item.id}</span>
                         </li>
                     ))}
             </ul>

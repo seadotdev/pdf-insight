@@ -48,10 +48,8 @@ export const DisplayMultiplePdfs: React.FC<DisplayMultiplePdfsProps> = ({
                       : ""
                   }`}
                 >
-                  <div>{file.ticker}</div>
-                  <div className="text-left">
-                    {file.year} {file.quarter && `Q${file.quarter}`}
-                  </div>
+                  <div>{file.name}</div>
+                  <div className="text-left">{file.year}</div>
                 </div>
               </button>
             </div>

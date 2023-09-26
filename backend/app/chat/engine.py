@@ -257,6 +257,7 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
         
         kg_index = load_index_from_storage(
             storage_context=storage_context,
+            index_id="bdb5f7e9-62a7-453b-8645-01e4e7757bc9",
             service_context=service_context,
             max_triplets_per_chunk=15,
             verbose=True,
@@ -283,26 +284,9 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
             )
         ]
 
-        qualitative_question_engine = SubQuestionQueryEngine.from_defaults(
-            query_engine_tools=query_engine_tools,
-            service_context=service_context,
-            response_synthesizer=response_synth,
-            verbose=settings.VERBOSE,
-            use_async=True,
-        )
-
-        quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
-            query_engine_tools=query_engine_tools,
-            service_context=service_context,
-            response_synthesizer=response_synth,
-            verbose=settings.VERBOSE,
-            use_async=True,
-        )
-
         refine_template_str = f"""
-A user has selected a set of SEC filing documents and has asked a question about them. \
-The SEC documents have the following titles:
-{doc_titles}
+A user has asked a question about a company that has \
+information about it in a knowledge graph.
 The original query is as follows: {{query_str}}
 We have provided an existing answer: {{existing_answer}}
 We have the opportunity to refine the existing answer \
@@ -321,7 +305,7 @@ Refined Answer:
         )
 
         qa_template_str = f"""
-A user has a question about them. \
+A user has a question about a company. \
 Context information is below.
 ---------------------
 {{context_str}}
@@ -341,6 +325,22 @@ Answer:
             refine_template=refine_prompt,
             text_qa_template=qa_prompt,
             structured_answer_filtering=True,
+        )
+
+        qualitative_question_engine = SubQuestionQueryEngine.from_defaults(
+            query_engine_tools=query_engine_tools,
+            service_context=service_context,
+            response_synthesizer=response_synth,
+            verbose=settings.VERBOSE,
+            use_async=True,
+        )
+
+        quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
+            query_engine_tools=query_engine_tools,
+            service_context=service_context,
+            response_synthesizer=response_synth,
+            verbose=settings.VERBOSE,
+            use_async=True,
         )
     else:
         doc_id_to_index = await build_doc_id_to_index_map(service_context, conversation.documents, fs=s3_fs)

@@ -1,27 +1,27 @@
-import { DocumentColorEnum } from "~/utils/colors";
+import type { DocumentColorEnum } from "~/utils/colors";
 
 export enum DocumentType {
-  ANNUAL_REPORT = "Annual Report",
-  CONFIRMATION_STATEMENT = "Confirmation Statement"
+    ANNUAL_REPORT = "Annual Report",
+    CONFIRMATION_STATEMENT = "Confirmation Statement"
 }
 
-export type Ticker = {
-  ticker: string;
-  fullName: string;
-};
-
-export interface Document extends Ticker {
-  id: string;
-  url: string;
-  year: string;
-  docType: DocumentType;
-  color: DocumentColorEnum;
+export interface Document {
+    id: string;
+    url: string;
+    name: string;
+    year: string;
+    docType: DocumentType;
+    color: DocumentColorEnum;
 }
 
 export interface BackendDocument {
-  created_at: string;
-  id: string;
-  updated_at: string;
-  url: string;
-  docType: DocumentType;
+    id: string;
+    created_at: string;
+    updated_at: string;
+    url: string;
+    metadata_map: {
+        doc_type: DocumentType;
+        year: number;
+        name: string;
+    }
 }

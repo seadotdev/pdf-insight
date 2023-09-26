@@ -32,11 +32,12 @@ export const Conversation = () => {
     };
 
     const {
-        availableTickers,
+        availableDocuments,
         availableDocumentTypes,
         sortedAvailableYears,
         selectedDocuments,
-        selectedTicker,
+        selectedCompany,
+        selectCompany,
         selectedDocumentType,
         selectedYear,
         setSelectedYear,
@@ -46,7 +47,6 @@ export const Conversation = () => {
         isStartConversationButtonEnabled,
         yearFocusRef,
         documentTypeFocusRef,
-        selectTicker,
         selectDocumentType,
         shouldFocusCompanySelect,
         setShouldFocusCompanySelect,
@@ -61,9 +61,9 @@ export const Conversation = () => {
             <div className="h-1/8 flex w-full flex-wrap items-center justify-center font-nunito">
                 <div className="m-1 flex w-96 items-center">
                     <DocumentSelectCombobox
-                        selectedItem={selectedTicker}
-                        setSelectedItem={selectTicker}
-                        availableDocuments={availableTickers}
+                        selectedItem={selectedCompany}
+                        setSelectedItem={selectCompany}
+                        availableDocuments={availableDocuments}
                         shouldFocusTicker={shouldFocusCompanySelect}
                         setFocusState={setShouldFocusCompanySelect}
                     />
@@ -153,13 +153,10 @@ export const Conversation = () => {
                         )}
                     >
                         <div className="w-64 text-left">
-                            <span className="font-bold">{doc.ticker}</span> -{" "}
-                            {doc.fullName}
+                            <span className="font-bold">{doc.name}</span>({doc.id})
                         </div>
-                        <div className="w-24 text-left">
-                            {doc.year}
-                        </div>
-                        <div>{doc.docType}</div>
+                        <div className="w-24 text-left">{doc.docType}</div>
+                        <div>{doc.year}</div>
                         <button
                             className="mr-4 group-hover:text-[#FF0000]"
                             onClick={() => handleRemoveDocument(index)}

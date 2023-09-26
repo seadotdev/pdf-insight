@@ -49,7 +49,6 @@ export const SelectDocument = () => {
     useEffect(() => {
         async function getSchemaMapping() {
             if (documentType) {
-                console.log("set schema mapping for doctype" + documentType)
                 const schema_mapping = await backendClient.getSchemaMapping(documentType);
                 setDocumentTypeSchemaMapping(schema_mapping);
             }

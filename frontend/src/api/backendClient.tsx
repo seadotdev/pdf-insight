@@ -3,7 +3,7 @@ import { FilingItem } from "~/types/ch-data";
 import type { Message } from "~/types/conversation";
 import type { BackendDocument } from "~/types/document";
 import { Document } from "~/types/document";
-import { fromBackendDocumentToFrontend } from "~/utils/documents";
+import { fromBackendDocumentToFrontend } from "~/utils/doc-selection";
 
 interface CreateConversationPayload {
     id: string;
@@ -23,7 +23,7 @@ interface GetConversationReturnType {
 // Connection endpoints between frontend and backend api
 class BackendClient {
     private async get(endpoint: string, body?: any) {
-        const url = backendUrl + endpoint + '?' + new URLSearchParams(body);
+        const url = backendUrl + endpoint + '?' + (new URLSearchParams(body)).toString();
         const res = await fetch(url);
 
         if (!res.ok) {

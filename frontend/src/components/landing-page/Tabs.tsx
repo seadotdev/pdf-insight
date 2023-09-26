@@ -11,7 +11,7 @@ function TabsContent(props: { activeTab: string; }) {
         case "conversation-tab":
             return (<Conversation />)
         case "kg-tab":
-            return (<KnowledgeGraph id="0bd80d62-9923-418d-be52-5077d0e67035" />)
+            return (<KnowledgeGraph />)
         case "template-tab":
             return (<div>Template</div>)
         case "agent-tab":

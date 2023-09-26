@@ -1,5 +1,3 @@
-import { DocumentColorEnum } from "~/utils/colors";
-
 export interface FilingItem {
     category: string,
     date: Date,
@@ -16,8 +14,8 @@ export interface FilingItem {
 }
 
 export class FilingResponse {
-    total_count: number = 0;
-    items_per_page: number = 0;
-    start_index: number = 0;
+    total_count = 0;
+    items_per_page = 0;
+    start_index = 0;
     items: FilingItem[] = [];
 }

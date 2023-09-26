@@ -1,4 +1,12 @@
-import React, { ChangeEvent, ComponentPropsWithRef, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, Component, ComponentPropsWithRef, useEffect, useRef, useState } from "react";
+import ReactFlow, {
+    addEdge,
+    MiniMap,
+    Controls,
+    Background,
+    useNodesState,
+    useEdgesState,
+} from "reactflow";
 import { backendClient } from "~/api/backendClient";
 
 import { backendUrl } from "~/config";
@@ -6,27 +14,15 @@ import useMessages from "~/hooks/useMessages";
 import { MESSAGE_STATUS, Message } from "~/types/conversation";
 import { RenderConversations } from "~/components/conversations/RenderConversations";
 import { BsArrowUpCircle } from "react-icons/bs";
-import router from "next/router";
+import useLocalStorage from "~/hooks/utils/useLocalStorage";
 
-export const KnowledgeGraph = (props: ComponentPropsWithRef<any>) => {
+export const KnowledgeGraph = () => {
     const [conversationId, setConversationId] = useState<string | null>(null);
     const [isMessagePending, setIsMessagePending] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>("");
     const { messages, userSendMessage, systemSendMessage, setMessages } = useMessages(conversationId || "");
 
     const textFocusRef = useRef<HTMLTextAreaElement | null>(null);
-
-    useEffect(() => {
-        if (props.id) {
-            setConversationId(props.id);
-        } else {
-            if (!conversationId) {
-                // If no conversation id, create one
-                backendClient.createConversation([]).then(id => { setConversationId(id); console.info(id); })
-            }
-        }
-
-    }, []);
 
     useEffect(() => {
         const fetchConversation = async (id: string) => {
@@ -44,6 +40,14 @@ export const KnowledgeGraph = (props: ComponentPropsWithRef<any>) => {
 
     // Keeping this in this file for now because this will be subject to change
     const submit = () => {
+        if (!conversationId) {
+            console.info("apparently we are null lol");
+            console.info(conversationId);
+            // If no conversation id, create one (we're creating with no docs here, hacky way to use KG)
+            backendClient.createConversation([])
+                .then(id => { setConversationId(id); console.info(`here we go again: ${id}`); });
+        }
+
         if (!userMessage || !conversationId)
             return;
 

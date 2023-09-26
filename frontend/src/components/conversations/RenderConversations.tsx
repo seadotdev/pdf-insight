@@ -150,7 +150,7 @@ const SubProcessDisplay: React.FC<SubProcessDisplayProps> = ({
                                                                                     documentId: citation.document_id,
                                                                                     snippet: citation.text,
                                                                                     pageNumber: citation.page_number,
-                                                                                    ticker: citationDocument?.ticker,
+                                                                                    ticker: citationDocument?.name,
                                                                                     displayDate: yearDisplay,
                                                                                     color: citationDocument.color,
                                                                                 } as Citation
