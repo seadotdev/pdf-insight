@@ -248,8 +248,9 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
 
     # hacky way to use the knowledge graph
     if (len(conversation.documents) == 0):
-        response_synthesizer = get_response_synthesizer(
-            response_mode="tree_summarize")
+        llm = OpenAI(model="gpt-4", temperature=0)
+        service_context = service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
+        response_synthesizer = get_response_synthesizer(response_mode="tree_summarize")
         
         persist_dir = f"{settings.S3_BUCKET_NAME}"
         storage_context = StorageContext.from_defaults(
@@ -257,7 +258,7 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
         
         kg_index = load_index_from_storage(
             storage_context=storage_context,
-            index_id="bdb5f7e9-62a7-453b-8645-01e4e7757bc9",
+            index_id="81aac04c-9d00-45fc-83cf-6bd142e7ebc8",
             service_context=service_context,
             max_triplets_per_chunk=15,
             verbose=True,
@@ -279,8 +280,7 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
         query_engine_tools = [
             QueryEngineTool(
                 query_engine=graph_query_engine,
-                metadata=ToolMetadata(
-                    name="Knowledge Graph", description="KG metadata")
+                metadata=ToolMetadata(name="Knowledge Graph", description="KG metadata")
             )
         ]
 
@@ -327,7 +327,7 @@ Answer:
             structured_answer_filtering=True,
         )
 
-        qualitative_question_engine = SubQuestionQueryEngine.from_defaults(
+        question_engine = SubQuestionQueryEngine.from_defaults(
             query_engine_tools=query_engine_tools,
             service_context=service_context,
             response_synthesizer=response_synth,
@@ -335,13 +335,17 @@ Answer:
             use_async=True,
         )
 
-        quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
-            query_engine_tools=query_engine_tools,
-            service_context=service_context,
-            response_synthesizer=response_synth,
-            verbose=settings.VERBOSE,
-            use_async=True,
-        )
+        top_level_sub_tools = [
+            QueryEngineTool(
+                query_engine=question_engine,
+                metadata=ToolMetadata(
+                    name="question_engine",
+                    description="""
+A query engine that can answer questions about data in the knowledge graph that the user pre-selected for the conversation.
+""".strip(),
+                ),
+            ),
+        ]
     else:
         doc_id_to_index = await build_doc_id_to_index_map(service_context, conversation.documents, fs=s3_fs)
         id_to_doc: Dict[str, DocumentSchema] = {
@@ -382,28 +386,28 @@ Answer:
             use_async=True,
         )
 
-    top_level_sub_tools = [
-        QueryEngineTool(
-            query_engine=qualitative_question_engine,
-            metadata=ToolMetadata(
-                name="qualitative_question_engine",
-                description="""
-A query engine that can answer qualitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
-Any questions about company-related headwinds, tailwinds, risks, sentiments, or administrative information should be asked here.
-""".strip(),
+        top_level_sub_tools = [
+            QueryEngineTool(
+                query_engine=qualitative_question_engine,
+                metadata=ToolMetadata(
+                    name="qualitative_question_engine",
+                    description="""
+    A query engine that can answer qualitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
+    Any questions about company-related headwinds, tailwinds, risks, sentiments, or administrative information should be asked here.
+    """.strip(),
+                ),
             ),
-        ),
-        QueryEngineTool(
-            query_engine=quantitative_question_engine,
-            metadata=ToolMetadata(
-                name="quantitative_question_engine",
-                description="""
-A query engine that can answer quantitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
-Any questions about company-related financials or other metrics should be asked here.
-""".strip(),
+            QueryEngineTool(
+                query_engine=quantitative_question_engine,
+                metadata=ToolMetadata(
+                    name="quantitative_question_engine",
+                    description="""
+    A query engine that can answer quantitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
+    Any questions about company-related financials or other metrics should be asked here.
+    """.strip(),
+                ),
             ),
-        ),
-    ]
+        ]
 
     chat_llm = OpenAI(
         temperature=0,
@@ -429,8 +433,7 @@ Any questions about company-related financials or other metrics should be asked 
         llm=chat_llm,
         chat_history=chat_history,
         verbose=settings.VERBOSE,
-        system_prompt=SYSTEM_MESSAGE.format(
-            doc_titles=doc_titles, curr_date=curr_date),
+        system_prompt=SYSTEM_MESSAGE.format(doc_titles=doc_titles, curr_date=curr_date),
         callback_manager=service_context.callback_manager,
         max_function_calls=3,
     )

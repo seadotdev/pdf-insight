@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from app.chat.engine import build_doc_id_to_index_map, fetch_and_read_document, get_s3_fs, get_tool_service_context
 from app.schemas.pydantic_schema import DocumentTypeEnum
@@ -89,7 +90,6 @@ Done! 🏁
 
 
 def build_kg():
-    s3_bucket = settings.S3_ASSET_BUCKET_NAME
     persist_dir = f"{settings.S3_BUCKET_NAME}"
     fs = get_s3_fs()
 
@@ -97,7 +97,7 @@ def build_kg():
     print("Generating Knowledge Graph...\n")
 
     graph_store = SimpleGraphStore()
-    storage_context = StorageContext.from_defaults(graph_store=graph_store)
+    storage_context = StorageContext.from_defaults(graph_store=graph_store, fs=fs, persist_dir=persist_dir)
 
     # Rebel supports up to 512 input tokens, but shorter sequences also work well
     llm = OpenAI(model="gpt-4", temperature=0)
@@ -126,7 +126,7 @@ def build_kg():
     print(f"Index Id: {kg_index.index_id}")
 
     # Here we can stick in whatever triplets we like, e.g.
-    # kg_index.upsert_triplet(("James Kaberry", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("James Kaberry", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
 
     # Store the index in the s3 bucket
     kg_index.storage_context.persist(persist_dir=persist_dir, fs=fs)
@@ -136,8 +136,7 @@ def load_kg(index_id: str):
     # Loading the index
     s3_fs = get_s3_fs()
     persist_dir = f"{settings.S3_BUCKET_NAME}"
-    storage_context = StorageContext.from_defaults(
-        fs=s3_fs, persist_dir=persist_dir)
+    storage_context = StorageContext.from_defaults(fs=s3_fs, persist_dir=persist_dir)
 
     # Rebel supports up to 512 input tokens, but shorter sequences also work well
     llm = OpenAI(model="gpt-4", temperature=0)
@@ -159,11 +158,13 @@ def load_kg(index_id: str):
         verbose=True,
     )
 
+    return kg_index
+
 
 def seed_db():
     asyncio.run(async_seed_db())
 
 
 if __name__ == "__main__":
-    # Fire(load_kg("bdb5f7e9-62a7-453b-8645-01e4e7757bc9"))
-    Fire(build_kg)
+    kg_index = load_kg("81aac04c-9d00-45fc-83cf-6bd142e7ebc8")
+    # Fire(build_kg)
