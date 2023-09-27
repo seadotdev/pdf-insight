@@ -1,0 +1,14 @@
+OPENAI_API_KEY=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
+CH_API_KEY=acacaeb4-13f9-419a-b802-44b249db6fe0
+DATABASE_URL=postgresql://user:password@127.0.0.1:5432/llama_app_db
+BACKEND_CORS_ORIGINS='["http://localhost", "http://localhost:8000", "http://localhost:3000", "http://127.0.0.1:3000", "http://www.bananafarmer.com:3000", "http://www.bananafarmer.com"]'
+LOG_LEVEL=debug
+RENDER=False
+S3_BUCKET_NAME=llama-app-backend-local
+S3_ASSET_BUCKET_NAME=llama-app-web-assets-local
+CDN_BASE_URL=http://llama-app-web-assets-local.s3-website.localhost.localstack.cloud:4566
+AWS_KEY=xxx
+AWS_SECRET=xxx
+POLYGON_IO_API_KEY=xxx
+TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+PYTHONPATH=~/workspace/seadev/pdf-insight/backend
