@@ -29,7 +29,7 @@ services:
           property: connectionString
       - fromGroup: general-settings
       - fromGroup: prod-web-secrets
-      - fromGroup: preview-web-secrets
+      # - fromGroup: preview-web-secrets
 envVarGroups:
 - name: general-settings
   envVars:
