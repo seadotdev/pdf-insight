@@ -127,6 +127,18 @@ def build_kg():
 
     # Here we can stick in whatever triplets we like, e.g.
     kg_index.upsert_triplet(("James Kaberry", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("James Kaberry", "is director of", "SME LENDING LIMITED"))
+    
+    kg_index.upsert_triplet(("Ronnie", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("Ronnie", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("Ronnie", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+
+    # is director of
+    # is shareholder of
+    
+    # is subsidiary of - check how this is done on CH
+
+    # SME ltd is shareholder of SME Tech Ltd
 
     # Store the index in the s3 bucket
     kg_index.storage_context.persist(persist_dir=persist_dir, fs=fs)
