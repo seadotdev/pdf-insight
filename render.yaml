@@ -17,7 +17,6 @@ services:
     rootDir: ./backend
     scaling:
       minInstances: 1
-      maxInstances: 1
       targetMemoryPercent: 75 # optional if targetCPUPercent is set (valid: 1-90)
       targetCPUPercent: 75 # optional if targetMemory is set (valid: 1-90)
     healthCheckPath: /api/health/
