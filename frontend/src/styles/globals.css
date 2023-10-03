@@ -26,9 +26,18 @@
   .landing-page-gradient-1 {
     background-color: hsla(0,0%,100%,1);
     background-image:
-      radial-gradient(at 21% 11%, hsla(240, 100%, 21%, 0.53) 0px, transparent 90%),
-      radial-gradient(at 85% 0%, hsla(262, 87%, 6%, 0.52) 0px, transparent 90%),
-      radial-gradient(at 91% 36%, hsla(221, 84%, 7%, 0.68) 0px, transparent 90%),
-      radial-gradient(at 8% 40%, hsla(322, 91%, 34%, 0.46) 0px, transparent 90%);
+      radial-gradient(at 0% 100%, rgba(31,56,80,1) 0px, transparent 80%),
+      radial-gradient(at 100% 100%, rgba(31,56,80,1) 0px, transparent 80%),
+      radial-gradient(at 50% 30%, rgba(31,56,80,1) 0px, transparent 80%);
+  }
+
+  .landing-page-header-image {
+    background-color: none; 
+    /* background-image: url("https://lh4.googleusercontent.com/pDDVhXFjl4S9KZC3sWgQyGnvFbDnDupvcNgcm2VyXi_XG-JSGipxbKDwzVndPXYTXV1Cb9HCDr-DKUTiKK-tYW4=w16383");
+    background-size: contain; */
+  }
+
+  .bg-sea-blue {
+    background-color: rgba(31,56,80,1);
   }
 }

@@ -21,7 +21,7 @@ export const TitlePage = () => {
           </button>
         </a>
       </div>
-      <div className="mt-28 flex flex-col items-center">
+      <div className="pt-28 flex flex-col items-center landing-page-header-image max-w-[1200px] w-full">
         <div className="w-4/5 text-center text-4xl">
           {/* Improve the efficiency of your credit teams with{" "} */}
           <span className="font-bold">WorkFlow Agent </span>

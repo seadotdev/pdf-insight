@@ -3,6 +3,7 @@ import { MAX_NUMBER_OF_SELECTED_DOCUMENTS } from "~/hooks/useDocumentSelector";
 import { type Document, DocumentType, type BackendDocument } from "~/types/document";
 import type { SelectOption } from "~/types/selection";
 import { documentColors } from "~/utils/colors";
+import { backendUrl } from "~/config";
 
 export const documentTypeOptions = [
     { value: DocumentType.CONFIRMATION_STATEMENT, label: DocumentType.CONFIRMATION_STATEMENT },
@@ -64,7 +65,7 @@ export const fromBackendDocumentToFrontend = (backendDocuments: BackendDocument[
         // fill this with metadata from the backend doc  
         const payload = {
             id: backendDoc.id,
-            url: `http://localhost:8000/api/${backendDoc.url}`,
+            url: `${backendUrl}${backendDoc.url}`,
             year: backendDoc.metadata_map.year.toString(),
             name: `${backendDoc.metadata_map.name}`,
             ticker: `${backendDoc.id}`,
