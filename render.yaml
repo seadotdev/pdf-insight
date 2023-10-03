@@ -15,11 +15,11 @@ services:
     region: frankfurt
     plan: free
     rootDir: ./backend
-    scaling:
-      minInstances: 1
-      maxInstances: 2
-      targetMemoryPercent: 75 # optional if targetCPUPercent is set (valid: 1-90)
-      targetCPUPercent: 75 # optional if targetMemory is set (valid: 1-90)
+    # scaling:
+    #   minInstances: 1
+    #   maxInstances: 2
+    #   targetMemoryPercent: 75 # optional if targetCPUPercent is set (valid: 1-90)
+    #   targetCPUPercent: 75 # optional if targetMemory is set (valid: 1-90)
     healthCheckPath: /api/health/
     # initialDeployHook: make seed_db_based_on_env
     envVars:
