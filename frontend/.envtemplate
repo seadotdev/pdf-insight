@@ -13,6 +13,5 @@
 # SERVERVAR="foo"
 # NEXT_PUBLIC_CLIENTVAR="bar"
 
-<!-- NEXT_PUBLIC_BACKEND_URL=http://localhost:8000/api/ -->
-<!-- NEXT_PUBLIC_BACKEND_URL=https://reimagined-couscous-77769q6p46437wj-8000.github.dev/:8000/api/ -->
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000/api/
 NEXT_PUBLIC_CH_API_KEY=acacaeb4-13f9-419a-b802-44b249db6fe0
