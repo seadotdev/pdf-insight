@@ -7,7 +7,7 @@ WORKDIR $APP_HOME
 RUN pip install poetry
 COPY . ./
 RUN apt-get update
-RUN apt-get install libpq-dev gcc build-essential tesseract-ocr wkhtmltopdf  -y
+RUN apt-get install libpq-dev gcc build-essential tesseract-ocr wkhtmltopdf -y
 RUN poetry install
 
 ARG DATABASE_URL

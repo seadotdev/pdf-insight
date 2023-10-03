@@ -3,7 +3,6 @@ import uvicorn
 import logging
 import sys
 import sentry_sdk
-from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from alembic.config import Config
 import alembic.config
@@ -11,13 +10,13 @@ from alembic import script
 from alembic.runtime import migration
 from sqlalchemy.engine import create_engine, Engine
 from llama_index.text_splitter.utils import split_by_sentence_tokenizer
-
 from app.api.api import api_router
 from app.core.config import settings, AppEnvironment
 from app.loader_io import loader_io_router
 from contextlib import asynccontextmanager
 from app.chat.pg_vector import get_vector_store_singleton, CustomPGVectorStore
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
 
 logger = logging.getLogger(__name__)
 
