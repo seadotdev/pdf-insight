@@ -251,6 +251,7 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
         llm = OpenAI(model="gpt-4", temperature=0)
         service_context = service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
         response_synthesizer = get_response_synthesizer(response_mode="tree_summarize")
+        # response_synthesizer = get_response_synthesizer(response_mode="refine")
         
         persist_dir = f"{settings.S3_BUCKET_NAME}"
         storage_context = StorageContext.from_defaults(
@@ -258,7 +259,9 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
         
         kg_index = load_index_from_storage(
             storage_context=storage_context,
-            index_id="0db47163-b896-42a8-a48d-f7012cce73ec",
+            #TODO change this
+            # index_id="",
+            index_id="21b11038-1a2d-4c11-b36c-84fc436dc115",
             service_context=service_context,
             max_triplets_per_chunk=15,
             verbose=True,
@@ -392,7 +395,7 @@ A query engine that can answer questions about data in the knowledge graph that 
                 metadata=ToolMetadata(
                     name="qualitative_question_engine",
                     description="""
-    A query engine that can answer qualitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
+    A query engine that can answer qualitative questions about a set of company financial documents that the user pre-selected for the conversation.
     Any questions about company-related headwinds, tailwinds, risks, sentiments, or administrative information should be asked here.
     """.strip(),
                 ),
@@ -402,7 +405,7 @@ A query engine that can answer questions about data in the knowledge graph that 
                 metadata=ToolMetadata(
                     name="quantitative_question_engine",
                     description="""
-    A query engine that can answer quantitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
+    A query engine that can answer quantitative questions about a set of company financial documents that the user pre-selected for the conversation.
     Any questions about company-related financials or other metrics should be asked here.
     """.strip(),
                 ),

@@ -170,9 +170,17 @@ def update_kg(index_id: str):
     kg_index.upsert_triplet(("James Kaberry", "is director of", "SME LENDING LIMITED"))
     kg_index.upsert_triplet(("Ronnie Sarkar", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
     kg_index.upsert_triplet(("Andy Davis", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("Andy Davis", "is director of", "SME LENDING LIMITED"))
+
+    kg_index.upsert_triplet(("SME LENDING LIMITED", "has director", "James Kaberry"))
+    kg_index.upsert_triplet(("SME LENDING LIMITED", "has director", "Andy Davis"))
+    kg_index.upsert_triplet(("SME ANALYTICS & TECHNOLOGIES LIMITED", "has director", "Ronnie Sarkar"))
+    kg_index.upsert_triplet(("SME ANALYTICS & TECHNOLOGIES LIMITED", "has director", "Andy Davis"))
 
     # Store the index in the s3 bucket
     kg_index.storage_context.persist(persist_dir=persist_dir, fs=s3_fs)
+    # list(kg_index)
+    
 
 
 def seed_db():
@@ -182,6 +190,8 @@ def seed_db():
 if __name__ == "__main__":
     index_id = Fire(build_kg)
     load_kg(index_id)
+
+    # index_id = 'c5133a24-339a-4bfc-a067-3483f7c9558f'
     update_kg(index_id)
     print('🚨 put this in the engine yo! just search for index_id="')
     print(index_id)
