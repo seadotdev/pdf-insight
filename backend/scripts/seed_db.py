@@ -97,7 +97,7 @@ def build_kg():
     print("Generating Knowledge Graph...\n")
 
     graph_store = SimpleGraphStore()
-    storage_context = StorageContext.from_defaults(graph_store=graph_store, fs=fs, persist_dir=persist_dir)
+    storage_context = StorageContext.from_defaults(graph_store=graph_store)
 
     # Rebel supports up to 512 input tokens, but shorter sequences also work well
     llm = OpenAI(model="gpt-4", temperature=0)
@@ -166,5 +166,5 @@ def seed_db():
 
 
 if __name__ == "__main__":
-    kg_index = load_kg("81aac04c-9d00-45fc-83cf-6bd142e7ebc8")
-    # Fire(build_kg)
+    Fire(build_kg)
+    # kg_index = load_kg("81aac04c-9d00-45fc-83cf-6bd142e7ebc8")
