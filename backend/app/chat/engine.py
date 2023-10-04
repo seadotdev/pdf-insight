@@ -258,7 +258,7 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
         
         kg_index = load_index_from_storage(
             storage_context=storage_context,
-            index_id="81aac04c-9d00-45fc-83cf-6bd142e7ebc8",
+            index_id="0db47163-b896-42a8-a48d-f7012cce73ec",
             service_context=service_context,
             max_triplets_per_chunk=15,
             verbose=True,

@@ -131,6 +131,8 @@ def build_kg():
     # Store the index in the s3 bucket
     kg_index.storage_context.persist(persist_dir=persist_dir, fs=fs)
 
+    return kg_index.index_id
+
 
 def load_kg(index_id: str):
     # Loading the index
@@ -160,11 +162,26 @@ def load_kg(index_id: str):
 
     return kg_index
 
+def update_kg(index_id: str):
+    s3_fs = get_s3_fs()
+    persist_dir = f"{settings.S3_BUCKET_NAME}"
+    kg_index = load_kg(index_id)
+
+    kg_index.upsert_triplet(("James Kaberry", "is director of", "SME LENDING LIMITED"))
+    kg_index.upsert_triplet(("Ronnie Sarkar", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("Andy Davis", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+
+    # Store the index in the s3 bucket
+    kg_index.storage_context.persist(persist_dir=persist_dir, fs=s3_fs)
+
 
 def seed_db():
     asyncio.run(async_seed_db())
 
 
 if __name__ == "__main__":
-    Fire(build_kg)
-    # kg_index = load_kg("81aac04c-9d00-45fc-83cf-6bd142e7ebc8")
+    index_id = Fire(build_kg)
+    load_kg(index_id)
+    update_kg(index_id)
+    print('🚨 put this in the engine yo! just search for index_id="')
+    print(index_id)
