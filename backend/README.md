@@ -21,6 +21,16 @@ Live at https://secinsights.ai/
     - The server will not run in a container but will instead run directly on your OS.
         - This is to allow for use of debugging tools like `pdb`
 
+MA Codespace notes: 
+- Backend: need to run `poetry shell && set -a && source .env && make run` each time
+- Seed: need to `set -a; source .env; python scripts/seed_db.py`
+
+ocr
+- docker compouse up --build
+- docker kill <c id>
+- make run
+
+
 ## Scripts
 The `scripts/` folder contains several scripts that are useful for both operations and development.
 

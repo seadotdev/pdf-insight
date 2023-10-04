@@ -12,3 +12,4 @@ AWS_SECRET=xxx
 POLYGON_IO_API_KEY=xxx
 TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 PYTHONPATH=~/workspace/seadev/pdf-insight/backend
+

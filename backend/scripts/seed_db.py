@@ -97,7 +97,8 @@ def build_kg():
     print("Generating Knowledge Graph...\n")
 
     graph_store = SimpleGraphStore()
-    storage_context = StorageContext.from_defaults(graph_store=graph_store, fs=fs, persist_dir=persist_dir)
+    storage_context = StorageContext.from_defaults(graph_store=graph_store)
+    # storage_context = StorageContext.from_defaults(graph_store=graph_store, fs=fs, persist_dir=persist_dir)
 
     # Rebel supports up to 512 input tokens, but shorter sequences also work well
     llm = OpenAI(model="gpt-4", temperature=0)
@@ -129,8 +130,6 @@ def build_kg():
     kg_index.upsert_triplet(("James Kaberry", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
     kg_index.upsert_triplet(("James Kaberry", "is director of", "SME LENDING LIMITED"))
     
-    kg_index.upsert_triplet(("Ronnie", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
-    kg_index.upsert_triplet(("Ronnie", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
     kg_index.upsert_triplet(("Ronnie", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
 
     # is director of
@@ -178,5 +177,13 @@ def seed_db():
 
 
 if __name__ == "__main__":
-    kg_index = load_kg("81aac04c-9d00-45fc-83cf-6bd142e7ebc8")
+
+    # builds kg
     # Fire(build_kg)
+    
+    # Loads from data/ into the vector store 
+    # Fire(async_seed_db)
+
+    # loads index from virtual S3
+    kg_index = load_kg("585cfa95-58b7-44ae-87f3-92e0a9adf1f4")
+    
