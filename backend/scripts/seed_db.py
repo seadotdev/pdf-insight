@@ -127,10 +127,9 @@ def build_kg():
     print(f"Index Id: {kg_index.index_id}")
 
     # Here we can stick in whatever triplets we like, e.g.
-    kg_index.upsert_triplet(("James Kaberry", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
-    kg_index.upsert_triplet(("James Kaberry", "is director of", "SME LENDING LIMITED"))
-    
-    kg_index.upsert_triplet(("Ronnie", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("James Kamper", "is director of", "SME ANALYTICS LIMITED"))
+    kg_index.upsert_triplet(("James Kamper", "is director of", "SME LENDING LIMITED"))
+    kg_index.upsert_triplet(("Ronnie Sing", "is director of", "SME ANALYTICS LIMITED"))
 
     # is director of
     # is shareholder of
@@ -142,6 +141,7 @@ def build_kg():
     # Store the index in the s3 bucket
     kg_index.storage_context.persist(persist_dir=persist_dir, fs=fs)
 
+    return kg_index.index_id
 
 def load_kg(index_id: str):
     # Loading the index
@@ -179,11 +179,12 @@ def seed_db():
 if __name__ == "__main__":
 
     # builds kg
-    # Fire(build_kg)
+    index_id = Fire(build_kg)
     
     # Loads from data/ into the vector store 
     # Fire(async_seed_db)
 
     # loads index from virtual S3
-    kg_index = load_kg("585cfa95-58b7-44ae-87f3-92e0a9adf1f4")
+    kg_index = load_kg(index_id)
+    print('🚨 put this in the engine yo! just search for index_id="')
     
