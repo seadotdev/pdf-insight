@@ -22,12 +22,16 @@ Live at https://secinsights.ai/
         - This is to allow for use of debugging tools like `pdb`
 
 MA Codespace notes: 
-- Backend: need to run `poetry shell && set -a && source .env && make run` each time
+- Backend: need to run in new terminal `cd backend && poetry shell && set -a && source .env && make run` each time
 - Seed: need to `set -a; source .env; python scripts/seed_db.py`
+
+add id to both seed and app/chat/engine at `index_id` 261
 
 ocr
 - docker compouse up --build
 - docker kill <c id>
+- sudo apt-get update
+- sudo apt-get install tesseract-ocr
 - make run
 
 
