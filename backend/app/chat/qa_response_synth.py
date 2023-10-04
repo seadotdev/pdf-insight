@@ -13,8 +13,8 @@ def get_custom_response_synth(
 ) -> BaseSynthesizer:
     doc_titles = "\n".join("- " + build_title_for_document(doc) for doc in documents)
     refine_template_str = f"""
-A user has selected a set of SEC filing documents and has asked a question about them. \
-The SEC documents have the following titles:
+A user has selected a set of company documents and has asked a question about them. \
+The company documents have the following titles:
 {doc_titles}
 The original query is as follows: {{query_str}}
 We have provided an existing answer: {{existing_answer}}
@@ -34,8 +34,8 @@ Refined Answer:
     )
 
     qa_template_str = f"""
-A user has selected a set of SEC filing documents and has asked a question about them. \
-The SEC documents have the following titles:
+A user has selected a set of company documents and has asked a question about them. \
+The company documents have the following titles:
 {doc_titles}
 Context information is below.
 ---------------------

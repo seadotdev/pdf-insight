@@ -34,7 +34,7 @@ def build_title_for_document(document: DocumentSchema) -> str:
     #     else str(sec_metadata.year)
     # )
     # return f"{sec_metadata.company_name} ({sec_metadata.company_ticker}) {sec_metadata.doc_type.value} ({time_period})"
-    return ("some metadata that i will fill later")
+    return ("Company Metadata")
 
 
 def describe_financials(financials: StockFinancial) -> str:
@@ -92,7 +92,7 @@ def describe_financials(financials: StockFinancial) -> str:
 def get_tool_metadata_for_document(doc: DocumentSchema) -> ToolMetadata:
     doc_title = build_title_for_document(doc)
     name = f"extract_json_from_sec_document[{doc_title}]"
-    description = f"Returns basic financial data extracted from the SEC filing document {doc_title}"
+    description = f"Returns basic financial data extracted from the company documents {doc_title}"
 
     return ToolMetadata(name=name, description=description)
 
@@ -156,7 +156,7 @@ def get_api_query_engine_tool(document: DocumentSchema, service_context: Service
         [polygon_io_tool],
         llm=service_context.llm,
         callback_manager=service_context.callback_manager,
-        system_prompt=f"You are an agent that is asked quantitative questions about a SEC filing named {doc_title} and you answer them by using your tools.",
+        system_prompt=f"You are an agent that is asked quantitative questions about a company filing named {doc_title} and you answer them by using your tools.",
     )
 
     return QueryEngineTool.from_defaults(

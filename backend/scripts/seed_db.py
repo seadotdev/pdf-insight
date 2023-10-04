@@ -127,9 +127,9 @@ def build_kg():
     print(f"Index Id: {kg_index.index_id}")
 
     # Here we can stick in whatever triplets we like, e.g.
-    kg_index.upsert_triplet(("James Kamper", "is director of", "SME ANALYTICS LIMITED"))
-    kg_index.upsert_triplet(("James Kamper", "is director of", "SME LENDING LIMITED"))
-    kg_index.upsert_triplet(("Ronnie Sing", "is director of", "SME ANALYTICS LIMITED"))
+    kg_index.upsert_triplet(("James kamper", "is director of", "sme analytics"))
+    kg_index.upsert_triplet(("james kamper", "is director of", "sme lending"))
+    kg_index.upsert_triplet(("ronnie sing", "is director of", "sme analytics"))
 
     # is director of
     # is shareholder of

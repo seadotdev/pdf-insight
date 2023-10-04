@@ -258,7 +258,7 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
         
         kg_index = load_index_from_storage(
             storage_context=storage_context,
-            index_id="fa88463f-eac7-4740-8566-5f5297ec6d15",
+            index_id="502b65f1-2e78-4e70-aae1-ddb4a86dbcea",
             service_context=service_context,
             max_triplets_per_chunk=15,
             verbose=True,
@@ -392,7 +392,7 @@ A query engine that can answer questions about data in the knowledge graph that 
                 metadata=ToolMetadata(
                     name="qualitative_question_engine",
                     description="""
-    A query engine that can answer qualitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
+    A query engine that can answer qualitative questions about a set of company financial documents that the user pre-selected for the conversation.
     Any questions about company-related headwinds, tailwinds, risks, sentiments, or administrative information should be asked here.
     """.strip(),
                 ),
@@ -402,7 +402,7 @@ A query engine that can answer questions about data in the knowledge graph that 
                 metadata=ToolMetadata(
                     name="quantitative_question_engine",
                     description="""
-    A query engine that can answer quantitative questions about a set of SEC financial documents that the user pre-selected for the conversation.
+    A query engine that can answer quantitative questions about a set of company financial documents that the user pre-selected for the conversation.
     Any questions about company-related financials or other metrics should be asked here.
     """.strip(),
                 ),
