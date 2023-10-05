@@ -90,7 +90,7 @@ class Settings(PreviewPrefixedSettings):
         """
         Used for setting verbose flag in LlamaIndex modules.
         """
-        return self.LOG_LEVEL == "DEBUG" or self.IS_PULL_REQUEST or not self.RENDER
+        return True
 
     @property
     def S3_ENDPOINT_URL(self) -> str:
