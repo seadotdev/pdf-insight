@@ -14,7 +14,10 @@ migrate:
 	poetry run python -m alembic upgrade head
 
 deploy:
-	migrate
+	echo "Running migrations."
+	docker compose start db
+	poetry run python -m alembic upgrade head
+	echo "Running"
 	poetry run start
 
 test:
