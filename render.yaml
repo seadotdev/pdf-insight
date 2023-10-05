@@ -4,7 +4,6 @@ databases:
     region: frankfurt
     databaseName: seadev_db
     plan: free
-    region: frankfurt
 
 services:
   # A Docker web service
