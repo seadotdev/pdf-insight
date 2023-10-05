@@ -15,7 +15,6 @@ migrate:
 
 deploy:
 	echo "Running migrations."
-	docker compose start db
 	poetry run python -m alembic upgrade head
 	echo "Running"
 	poetry run start
