@@ -14,8 +14,6 @@ migrate:
 	poetry run python -m alembic upgrade head
 
 deploy:
-	echo "Trying to connect to be, see what happens"
-	psql postgres://seadev_db_user:pxOwBdWv6PNwtRJivRyQxMn5VngPZR3c@dpg-cke65i7s0fgc73e1h5m0-a/seadev_db
 	echo "Running migrations."
 	poetry run python -m alembic upgrade head
 	echo "Running"
