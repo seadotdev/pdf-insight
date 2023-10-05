@@ -16,4 +16,4 @@ ENV DATABASE_URL=$DATABASE_URL
 ARG OPENAI_API_KEY
 ENV OPENAI_API_KEY=$OPENAI_API_KEY
 
-CMD ["make", "deploy"]
+CMD ["poetry", "run", "start"]
