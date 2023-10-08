@@ -30,9 +30,7 @@ async def retrieve(filename: str) -> Response:
 async def upload_file(file: Annotated[UploadFile, File()], company_name: Annotated[str, Form()], document_type: Annotated[str, Form()]) -> Response:
     logger.info(f"Uploading: {file.filename}...")
     if file.content_type != "application/pdf":
-        logger.error(
-            f"Can only upload pdf files. {file.content_type} not supported")
-        
+        logger.error(f"Can only upload pdf files. {file.content_type} not supported")
         raise HTTPException(status_code=422, detail=f"Can only upload pdf files. {file.content_type} not supported")
 
     fs = get_s3_fs()

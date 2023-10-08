@@ -1,3 +1,4 @@
+import io
 import logging
 import s3fs
 import requests
@@ -91,7 +92,10 @@ def fetch_and_read_document(document: DocumentSchema) -> List[LlamaIndexDocument
     and returning a LLaMA Index document
     """
 
-    doc = fitz.open(document.url)
+    s3 = get_s3_fs()
+    filename = Path(document.url).name
+    f = s3.open(f"{settings.S3_ASSET_BUCKET_NAME}/{filename}", "rb")
+    doc = fitz.open(stream=io.BytesIO(f.read()), filetype="pdf")
     extra_info = {
         DB_DOC_ID_KEY: str(document.id),
         "total_pages": len(doc),
@@ -138,13 +142,10 @@ async def build_doc_id_to_index_map(service_context: ServiceContext, documents: 
     vector_store = await get_vector_store_singleton()
     try:
         try:
-            storage_context = get_storage_context(
-                persist_dir, vector_store, fs=fs)
+            storage_context = get_storage_context(persist_dir, vector_store, fs=fs)
         except FileNotFoundError:
-            logger.error(
-                "Could not find storage context in S3. Creating new storage context.")
-            storage_context = StorageContext.from_defaults(
-                vector_store=vector_store, fs=fs)
+            logger.error("Could not find storage context in S3. Creating new storage context.")
+            storage_context = StorageContext.from_defaults(vector_store=vector_store, fs=fs)
             storage_context.persist(persist_dir=persist_dir, fs=fs)
 
         index_ids = [str(doc.id) for doc in documents]
@@ -156,13 +157,10 @@ async def build_doc_id_to_index_map(service_context: ServiceContext, documents: 
 
         doc_id_to_index = dict(zip(index_ids, indices))
         logger.info("Loaded indices from storage.")
-        storage_context = StorageContext.from_defaults(
-            persist_dir=persist_dir, vector_store=vector_store, fs=fs)
+        storage_context = StorageContext.from_defaults(persist_dir=persist_dir, vector_store=vector_store, fs=fs)
     except ValueError:
-        logger.error(
-            "Failed to load indices from storage. Creating new indices.", exc_info=True)
-        storage_context = StorageContext.from_defaults(
-            persist_dir=persist_dir, vector_store=vector_store, fs=fs)
+        logger.error("Failed to load indices from storage. Creating new indices.", exc_info=True)
+        storage_context = StorageContext.from_defaults(persist_dir=persist_dir, vector_store=vector_store, fs=fs)
         doc_id_to_index = {}
         for doc in documents:
             llama_index_docs = fetch_and_read_document(doc)
@@ -234,6 +232,7 @@ def get_tool_service_context(callback_handlers: List[BaseCallbackHandler]) -> Se
         embed_model=embedding_model,
         node_parser=node_parser,
     )
+
     return service_context
 
 
@@ -241,7 +240,7 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
     service_context = get_tool_service_context([callback_handler])
     s3_fs = get_s3_fs()
 
-    # hacky way to use the knowledge graph
+    # [TODO: hacky way to use the knowledge graph, please change this for the love of god]
     if (len(conversation.documents) == 0):
         llm = OpenAI(model="gpt-4", temperature=0)
         service_context = service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
