@@ -65,7 +65,7 @@ class Settings(PreviewPrefixedSettings):
     Application settings.
     """
 
-    PROJECT_NAME: str = "llama_app"
+    PROJECT_NAME: str = "seadotdev_demo"
     API_PREFIX: str = "/api"
     DATABASE_URL: str
     LOG_LEVEL: str = "DEBUG"
@@ -73,6 +73,7 @@ class Settings(PreviewPrefixedSettings):
     RENDER: bool = False
     S3_BUCKET_NAME: str
     S3_ASSET_BUCKET_NAME: str
+    S3_ENDPOINT_URL: str = "https://s3.eu-west-2.amazonaws.com"
     CDN_BASE_URL: str
     VECTOR_STORE_TABLE_NAME: str = "pg_vector_store"
     SENTRY_DSN: Optional[str]
@@ -92,20 +93,13 @@ class Settings(PreviewPrefixedSettings):
         """
         return True
 
-    @property
-    def S3_ENDPOINT_URL(self) -> str:
-        """
-        Used for setting S3 endpoint URL in the s3fs module.
-        When running locally, this should be set to the localstack endpoint.
-        """
-        return "https://s3.eu-west-2.amazonaws.com"# if self.RENDER else "http://localhost:4566"
-
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
         elif isinstance(v, (list, str)):
             return v
+
         raise ValueError(v)
 
     @validator("DATABASE_URL", pre=True)
@@ -113,6 +107,7 @@ class Settings(PreviewPrefixedSettings):
         """Preprocesses the database URL to make it compatible with asyncpg."""
         if not v or not v.startswith("postgres"):
             raise ValueError("Invalid database URL: " + str(v))
+        
         return (
             v.replace("postgres://", "postgresql://")
             .replace("postgresql://", "postgresql+asyncpg://")
@@ -125,6 +120,7 @@ class Settings(PreviewPrefixedSettings):
         v = v.strip().upper()
         if v not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
             raise ValueError("Invalid log level: " + str(v))
+        
         return v
 
     @validator("IS_PULL_REQUEST", pre=True)
@@ -136,6 +132,7 @@ class Settings(PreviewPrefixedSettings):
         """
         if isinstance(v, bool):
             return v
+        
         return v.lower() == "true"
 
     @property
@@ -153,6 +150,7 @@ class Settings(PreviewPrefixedSettings):
     def UVICORN_WORKER_COUNT(self) -> int:
         if self.ENVIRONMENT == AppEnvironment.LOCAL:
             return 1
+
         # The recommended number of workers is (2 x $num_cores) + 1:
         # Source: https://docs.gunicorn.org/en/stable/design.html#how-many-workers
         # But the Render.com servers don't have enough memory to support that many workers,

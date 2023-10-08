@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 @router.get("/{filename}")
 async def retrieve(filename: str) -> Response:
-    with open(f'data/{filename}', 'rb') as f:
+    fs = get_s3_fs()
+    with fs.open(f"{settings.S3_ASSET_BUCKET_NAME}/{filename}", "rb") as f:
         return Response(io.BytesIO(f.read()).getvalue(), media_type="application/pdf")
 
 
@@ -31,13 +32,14 @@ async def upload_file(file: Annotated[UploadFile, File()], company_name: Annotat
     if file.content_type != "application/pdf":
         logger.error(
             f"Can only upload pdf files. {file.content_type} not supported")
-        raise HTTPException(
-            status_code=422, detail=f"Can only upload pdf files. {file.content_type} not supported")
+        
+        raise HTTPException(status_code=422, detail=f"Can only upload pdf files. {file.content_type} not supported")
 
-    with open(f'data/{file.filename}', 'wb') as buffer:
+    fs = get_s3_fs()
+    with fs.open(f"{settings.S3_ASSET_BUCKET_NAME}/{file.filename}", "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    logger.info(f"File uploaded: {file.filename}")
+    logger.info(f"File uploaded: {file.filename}\nIndexing...\n")
 
     metadata = {"name": company_name, "doc_type": document_type, "year": 2022}
     doc = Document(url=f"data/{file.filename}", metadata_map=metadata)
@@ -45,7 +47,6 @@ async def upload_file(file: Annotated[UploadFile, File()], company_name: Annotat
         document = await crud.upsert_document(db, doc)
 
     # Build index for the document
-    fs = get_s3_fs()
     service_context = get_tool_service_context([])
     await build_doc_id_to_index_map(service_context, [document], fs=fs)
 
@@ -69,7 +70,7 @@ async def upload_from_ch(data: CHFiling) -> Response:
     metadata = response.json()
     doc_link = metadata['links']['document']
     doc_response = requests.get(doc_link, auth=(settings.CH_API_KEY, ''), headers={'Accept': 'application/pdf'})
-    
+
     url = f"data/{metadata['filename']}.pdf"
     with open(url, "wb") as f:
         f.write(doc_response.content)

@@ -5,7 +5,6 @@ import sys
 import sentry_sdk
 from starlette.middleware.cors import CORSMiddleware
 from alembic.config import Config
-import alembic.config
 from alembic import script
 from alembic.runtime import migration
 from sqlalchemy.engine import create_engine, Engine

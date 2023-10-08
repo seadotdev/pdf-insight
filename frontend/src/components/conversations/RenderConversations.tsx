@@ -287,11 +287,6 @@ const AssistantDisplay: React.FC<AssistantDisplayProps> = ({
                             <p className="relative mb-2 mt-2 pr-3 font-nunito whitespace-pre-wrap font-bold text-gray-90">
                                 {message.content}
                             </p>
-                            <p className="flex items-center justify-start p-1 text-xs text-gray-60">
-                                This statement is for informational purposes only and does not
-                                serve as professional financial advice. Please consult a
-                                Certified Public Accountant
-                            </p>
                         </div>
                     </div>
                 </>

@@ -76,15 +76,11 @@ nest_asyncio.apply()
 
 
 def get_s3_fs() -> AsyncFileSystem:
-    print("Getting S3 FS\n")
-    print(f"AWS_KEY: {settings.AWS_KEY}\nAWS_SECRET: {settings.AWS_SECRET}\nS3_ENDPOINT_URL: {settings.S3_ENDPOINT_URL}" )
     s3 = s3fs.S3FileSystem(
         key=settings.AWS_KEY,
         secret=settings.AWS_SECRET,
         endpoint_url=settings.S3_ENDPOINT_URL,
     )
-    if not (settings.RENDER or s3.exists(settings.S3_BUCKET_NAME)):
-        s3.mkdir(settings.S3_BUCKET_NAME, region_name="eu-west-2")
 
     return s3
 

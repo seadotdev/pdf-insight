@@ -132,7 +132,7 @@ export const KnowledgeGraph = () => {
 
     return (
         <div className="mt-1 flex bg-gray-200 h-min w-full max-w-[1200px] flex-col items-center rounded-lg border-2 pb-4">
-            <div className="flex max-h-[500px] w-[44vw] flex-grow flex-col overflow-scroll ">
+            <div className="flex max-h-[500px] w-[44vw] flex-grow flex-col overflow-scroll">
                 <RenderConversations
                     messages={messages}
                     documents={[]}
