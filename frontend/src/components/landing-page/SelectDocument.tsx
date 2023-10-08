@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { backendClient } from "~/api/backendClient";
-import useFocus from "~/hooks/utils/useFocus";
 import { Button, FileInput, SelectInput, TextInput } from "~/components/basics/GenericElements";
 
+
 export const SelectDocument = () => {
-    const [focusRef, setFocus] = useFocus<HTMLInputElement>();
     const [file, setFile] = useState<File | null>(null);
-    const [fileIsUploaded, setFileIsUploaded] = useState<boolean>(false);
     const [supportedDocumentTypes, setSupportedDocumentTypes] = useState<string[]>([])
-    const [documentTypeSchemaMapping, setDocumentTypeSchemaMapping] = useState<JSON | null>(null)
-    const [documentType, setDocumentType] = useState<string | null>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -18,21 +14,14 @@ export const SelectDocument = () => {
         }
     };
 
-    const handleTypeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        let selectedOptions = e.target.selectedOptions
-        if (selectedOptions.length && selectedOptions[0]) {
-            setDocumentType(selectedOptions[0].label)
-        }
-    };
-
-    const handleFormSubmit = async (e: { preventDefault: () => void; target: any; }) => {
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (file) {
-            const form = e.target;
+            const form = e.target as HTMLFormElement;
             const formData = new FormData(form);
-            const res = await backendClient.uploadFile(formData);
-            if (res.ok)
-                setFileIsUploaded(true);
+            backendClient.uploadFile(formData)
+                .then(res => { if (res.ok) alert("File Uploaded!"); else alert("File Upload Failed!") })
+                .catch(() => { console.error("Could not upload file"); alert("File Upload Failed!") });
         }
     };
 
@@ -44,17 +33,6 @@ export const SelectDocument = () => {
         }
         getDocTypes().catch(() => console.error("Could not fetch document types"));
     }, []);
-
-    // Fetch all the available document types on render
-    useEffect(() => {
-        async function getSchemaMapping() {
-            if (documentType) {
-                const schema_mapping = await backendClient.getSchemaMapping(documentType);
-                setDocumentTypeSchemaMapping(schema_mapping);
-            }
-        }
-        getSchemaMapping().catch(() => console.error("Could not fetch schema mapping"));
-    }, [documentType]);
 
     return (
         <div className="w-full flex justify-between max-w-[700px] border-gray-500 rounded border">
@@ -72,7 +50,7 @@ export const SelectDocument = () => {
                             </div>
                             <div className="w-full md:w-1/2 px-3">
                                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-document-type">Document Type</label>
-                                <SelectInput id="grid-document-type" name="document_type" onChange={handleTypeSelect}>
+                                <SelectInput id="grid-document-type" name="document_type">
                                     {supportedDocumentTypes.map((typeName) => (<option key={typeName}>{typeName}</option>))}
                                 </SelectInput>
                             </div>

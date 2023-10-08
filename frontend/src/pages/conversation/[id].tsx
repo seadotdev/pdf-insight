@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { PdfFocusProvider } from "~/context/pdf";
 
@@ -21,11 +21,11 @@ import useIsMobile from "~/hooks/utils/useIsMobile";
 export default function Conversation() {
     const router = useRouter();
     const { id } = router.query;
-
     const { shutdown } = useIntercom();
+
     useEffect(() => {
         shutdown();
-    }, []);
+    }, [shutdown]);
 
     const { isOpen: isShareModalOpen, toggleModal: toggleShareModal } = useModal();
     const { isMobile } = useIsMobile();
@@ -33,10 +33,12 @@ export default function Conversation() {
     const [isMessagePending, setIsMessagePending] = useState(false);
     const [userMessage, setUserMessage] = useState("");
     const [selectedDocuments, setSelectedDocuments] = useState<Document[]>([]);
-    const { messages, userSendMessage, systemSendMessage, setMessages } =
-        useMessages(conversationId || "");
-
+    const { messages, userSendMessage, systemSendMessage, setMessages } = useMessages(conversationId || "");
     const textFocusRef = useRef<HTMLTextAreaElement | null>(null);
+
+    const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+        setUserMessage(event.target.value);
+    };
 
     useEffect(() => {
         // router can have multiple query params which would then return string[]
@@ -63,7 +65,7 @@ export default function Conversation() {
     }, [conversationId, setMessages]);
 
     // Keeping this in this file for now because this will be subject to change
-    const submit = () => {
+    const submit = useCallback(() => {
         if (!userMessage || !conversationId) {
             return;
         }
@@ -91,10 +93,8 @@ export default function Conversation() {
                 setIsMessagePending(false);
             }
         };
-    };
-    const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-        setUserMessage(event.target.value);
-    };
+    }, [userMessage, conversationId, userSendMessage, systemSendMessage, setIsMessagePending, setUserMessage]);
+
     useEffect(() => {
         const textarea = document.querySelector("textarea");
         if (textarea) {
@@ -117,7 +117,7 @@ export default function Conversation() {
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [submit]);
+    }, [submit, isMessagePending]);
 
     const setSuggestedMessage = (text: string) => {
         setUserMessage(text);

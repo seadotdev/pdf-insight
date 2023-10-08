@@ -1,9 +1,9 @@
-export interface FilingItem {
+export interface FilingItem extends JSON {
     category: string,
     date: Date,
     description: string,
     links: {
-        self: string, 
+        self: string,
         document_metadata: string,
     },
     transaction_id: string,
@@ -13,9 +13,9 @@ export interface FilingItem {
     barcode?: string,
 }
 
-export class FilingResponse {
-    total_count = 0;
-    items_per_page = 0;
-    start_index = 0;
-    items: FilingItem[] = [];
+export interface FilingResponse extends JSON {
+    total_count: number;
+    items_per_page: number;
+    start_index: number;
+    items: FilingItem[];
 }

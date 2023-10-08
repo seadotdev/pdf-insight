@@ -55,11 +55,9 @@ from llama_index.node_parser.simple import SimpleNodeParser
 
 from app.core.config import settings
 from app.schemas.pydantic_schema import (
-    DocumentTypeEnum,
     Message as MessageSchema,
     Document as DocumentSchema,
     Conversation as ConversationSchema,
-    DocumentMetadata,
 )
 from app.db.models.base import MessageRoleEnum, MessageStatusEnum
 from app.chat.constants import (
@@ -78,13 +76,15 @@ nest_asyncio.apply()
 
 
 def get_s3_fs() -> AsyncFileSystem:
+    print("Getting S3 FS\n")
+    print(f"AWS_KEY: {settings.AWS_KEY}\nAWS_SECRET: {settings.AWS_SECRET}\nS3_ENDPOINT_URL: {settings.S3_ENDPOINT_URL}" )
     s3 = s3fs.S3FileSystem(
         key=settings.AWS_KEY,
         secret=settings.AWS_SECRET,
         endpoint_url=settings.S3_ENDPOINT_URL,
     )
     if not (settings.RENDER or s3.exists(settings.S3_BUCKET_NAME)):
-        s3.mkdir(settings.S3_BUCKET_NAME)
+        s3.mkdir(settings.S3_BUCKET_NAME, region_name="eu-west-2")
 
     return s3
 
@@ -183,15 +183,14 @@ async def build_doc_id_to_index_map(service_context: ServiceContext, documents: 
     return doc_id_to_index
 
 
-def get_chat_history(
-    chat_messages: List[MessageSchema],
-) -> List[ChatMessage]:
+def get_chat_history(chat_messages: List[MessageSchema]) -> List[ChatMessage]:
     """
     Given a list of chat messages, return a list of ChatMessage instances.
 
     Failed chat messages are filtered out and then the remaining ones are
     sorted by created_at.
     """
+
     # pre-process chat messages
     chat_messages = [
         m
@@ -252,14 +251,14 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
         service_context = service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
         response_synthesizer = get_response_synthesizer(response_mode="tree_summarize")
         # response_synthesizer = get_response_synthesizer(response_mode="refine")
-        
+
         persist_dir = f"{settings.S3_BUCKET_NAME}"
         storage_context = StorageContext.from_defaults(
             fs=s3_fs, persist_dir=persist_dir)
-        
+
         kg_index = load_index_from_storage(
             storage_context=storage_context,
-            #TODO change this
+            # TODO change this
             # index_id="",
             index_id="21b11038-1a2d-4c11-b36c-84fc436dc115",
             service_context=service_context,
