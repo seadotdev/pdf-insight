@@ -1,10 +1,8 @@
 import io
 import logging
 import s3fs
-import requests
 import fitz
 import nest_asyncio
-
 
 from datetime import timedelta
 from cachetools import cached, TTLCache
@@ -12,7 +10,6 @@ from typing import Dict, List, Optional
 from pathlib import Path
 from datetime import datetime
 from fsspec.asyn import AsyncFileSystem
-
 from llama_index import (
     QuestionAnswerPrompt,
     RefinePrompt,
@@ -37,21 +34,12 @@ from llama_index.tools import QueryEngineTool, ToolMetadata
 from llama_index.query_engine import SubQuestionQueryEngine
 from llama_index.indices.query.base import BaseQueryEngine
 from llama_index import (
-    LLMPredictor,
     ServiceContext,
     StorageContext,
-    KnowledgeGraphIndex,
 )
 from llama_index.llms import OpenAI
 from llama_index.query_engine import RetrieverQueryEngine
-from llama_index.retrievers import KnowledgeGraphRAGRetriever
 from llama_index import get_response_synthesizer, load_index_from_storage
-from llama_index.graph_stores import KuzuGraphStore
-from llama_index.indices.query.schema import QueryBundle
-from llama_index.vector_stores.types import (
-    MetadataFilters,
-    ExactMatchFilter,
-)
 from llama_index.node_parser.simple import SimpleNodeParser
 
 from app.core.config import settings
