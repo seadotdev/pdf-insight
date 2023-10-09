@@ -6,7 +6,7 @@ import {
 } from "react-icons/hi2";
 import { PiCaretDownBold, PiCaretUpBold } from "react-icons/pi";
 import { zoomLevels } from "~/hooks/usePdfViewer";
-import { Document } from "~/types/document";
+import type { Document } from "~/types/document";
 import { borderColors } from "~/utils/colors";
 
 interface PDFOptionsBarProps {

@@ -4,7 +4,7 @@ import { usePdfFocus } from "~/context/pdf";
 
 import type { PdfFocusHandler as PdfFocusHandler } from "~/components/pdf-viewer/VirtualizedPdf";
 import React from "react";
-import { Document } from "~/types/document";
+import type { Document } from "~/types/document";
 
 export const zoomLevels = [
   "50%",
@@ -44,6 +44,19 @@ const usePDFViewer = (file: Document) => {
     }
   }, [file, pdfFocusState]);
 
+  const setZoomLevel = useCallback(
+    (zoomLevel: string) => {
+      const newZoomLevelIdx = zoomLevels.indexOf(zoomLevel);
+      const newScale = percentToScale(zoomLevel) + scaleFit - 1;
+      setScale(newScale);
+      setTimeout(() => {
+        goToPage(scrolledIndex);
+      }, 30);
+      setZoomLevelIdx(newZoomLevelIdx);
+    },
+    [scrolledIndex, scaleFit]
+  );
+
   const setCurrentPageNumber = useCallback((n: number) => {
     setScrolledIndex(n);
   }, []);
@@ -54,7 +67,7 @@ const usePDFViewer = (file: Document) => {
       return;
     }
     setZoomLevel(zoomLevels[nextLevel] || "100%");
-  }, [zoomLevelIdx, scrolledIndex, pdfFocusRef]);
+  }, [zoomLevelIdx, setZoomLevel ]);
 
   const handleZoomOut = useCallback(() => {
     const nextLevel = zoomLevelIdx - 1;
@@ -62,7 +75,7 @@ const usePDFViewer = (file: Document) => {
       return;
     }
     setZoomLevel(zoomLevels[nextLevel] || "100%");
-  }, [zoomLevelIdx, scrolledIndex, pdfFocusRef]);
+  }, [zoomLevelIdx, setZoomLevel]);
 
   const nextPage = () => {
     goToPage(scrolledIndex + 1);
@@ -75,19 +88,6 @@ const usePDFViewer = (file: Document) => {
   const toPercentPlusBase = (n: number) => {
     return `${100 + n * 100}%`;
   };
-
-  const setZoomLevel = useCallback(
-    (zoomLevel: string) => {
-      const newZoomLevelIdx = zoomLevels.indexOf(zoomLevel);
-      const newScale = percentToScale(zoomLevel) + scaleFit - 1;
-      setScale(newScale);
-      setTimeout(() => {
-        goToPage(scrolledIndex);
-      }, 30);
-      setZoomLevelIdx(newZoomLevelIdx);
-    },
-    [scrolledIndex]
-  );
 
   function percentToScale(percent: string): number {
     const number = parseInt(percent, 10);

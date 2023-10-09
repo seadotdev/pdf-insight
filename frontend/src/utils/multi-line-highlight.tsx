@@ -176,25 +176,25 @@ interface SearchStrings {
   endWordIdx: number;
 }
 
-function generateFuzzySearchData(arr: WordData[], n: number): SearchStrings[] {
-  // used when we need to fuzzy search across the page
-  const searchStrings: SearchStrings[] = [];
+// function generateFuzzySearchData(arr: WordData[], n: number): SearchStrings[] {
+//   // used when we need to fuzzy search across the page
+//   const searchStrings: SearchStrings[] = [];
 
-  for (let i = 0; i <= arr.length - n; i++) {
-    // constructs sentence of length n
-    const text = arr
-      .slice(i, i + n)
-      .reduce((acc, val) => acc + " " + val.text, "");
+//   for (let i = 0; i <= arr.length - n; i++) {
+//     // constructs sentence of length n
+//     const text = arr
+//       .slice(i, i + n)
+//       .reduce((acc, val) => acc + " " + val.text, "");
 
-    const startSpan = arr[i]?.spanIdx || 0; // have to add these defaults because typescript is dumb
-    const endSpan = arr[i + n]?.spanIdx || 0;
-    const startWordIdx = arr[i]?.wordIdx || 0;
-    const endWordIdx = arr[i + n]?.wordIdx || 0;
-    searchStrings.push({ text, startSpan, endSpan, startWordIdx, endWordIdx });
-  }
+//     const startSpan = arr[i]?.spanIdx || 0;
+//     const endSpan = arr[i + n]?.spanIdx || 0;
+//     const startWordIdx = arr[i]?.wordIdx || 0;
+//     const endWordIdx = arr[i + n]?.wordIdx || 0;
+//     searchStrings.push({ text, startSpan, endSpan, startWordIdx, endWordIdx });
+//   }
 
-  return searchStrings;
-}
+//   return searchStrings;
+// }
 
 function generateDirectSearchData(
   startString: string,

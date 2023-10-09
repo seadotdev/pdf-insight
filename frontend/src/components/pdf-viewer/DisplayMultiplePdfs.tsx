@@ -1,6 +1,6 @@
 import { ViewPdf } from "~/components/pdf-viewer/ViewPdf";
 import { useMultiplePdfs } from "../../hooks/useMultiplePdfs";
-import { Document } from "~/types/document";
+import type  { Document } from "~/types/document";
 import cx from "classnames";
 import { borderColors } from "~/utils/colors";
 

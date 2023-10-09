@@ -1,29 +1,36 @@
-import React, { ChangeEvent, Component, ComponentPropsWithRef, useEffect, useRef, useState } from "react";
-import ReactFlow, {
-    addEdge,
-    MiniMap,
-    Controls,
-    Background,
-    useNodesState,
-    useEdgesState,
-} from "reactflow";
+import React, { type ChangeEvent, useEffect, useRef, useState, useCallback } from "react";
 import { backendClient } from "~/api/backendClient";
 
 import { backendUrl } from "~/config";
 import useMessages from "~/hooks/useMessages";
-import { MESSAGE_STATUS, Message } from "~/types/conversation";
+import { MESSAGE_STATUS, type Message } from "~/types/conversation";
 import { RenderConversations } from "~/components/conversations/RenderConversations";
 import { BsArrowUpCircle } from "react-icons/bs";
 import useLocalStorage from "~/hooks/utils/useLocalStorage";
 
+
+/**
+ * Renders the knowledge graph component, which allows the user to interact with a chatbot and receive information.
+ */
 export const KnowledgeGraph = () => {
     const [conversationId, setConversationId] = useState<string | null>(null);
     const [isMessagePending, setIsMessagePending] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>("");
+    const [conversationIdStored, setConversationIdStored] = useLocalStorage<string | null>("conversationId", null);
     const { messages, userSendMessage, systemSendMessage, setMessages } = useMessages(conversationId || "");
-
     const textFocusRef = useRef<HTMLTextAreaElement | null>(null);
 
+    useEffect(() => {
+        if (conversationIdStored) {
+            setConversationId(conversationIdStored);
+            console.info(`Loaded conversation from session cookie: ${conversationIdStored}`);
+        }
+    }, [conversationIdStored]);
+
+    /**
+     * Fetches the stored conversation from the backend and sets the messages state.
+     * @param id The ID of the conversation to fetch.
+     */
     useEffect(() => {
         const fetchConversation = async (id: string) => {
             const result = await backendClient.fetchConversation(id);
@@ -31,36 +38,26 @@ export const KnowledgeGraph = () => {
                 setMessages(result.messages);
             }
         };
+
         if (conversationId) {
-            fetchConversation(conversationId).catch(() =>
-                console.error("Conversation Load Error")
-            );
+            fetchConversation(conversationId).catch(() => console.error("Conversation Load Error"));
         }
     }, [conversationId, setMessages]);
 
-    // Keeping this in this file for now because this will be subject to change
-    const submit = () => {
-        if (!conversationId) {
-            console.info("apparently we are null lol");
-            console.info(conversationId);
-            // If no conversation id, create one (we're creating with no docs here, hacky way to use KG)
-            backendClient.createConversation([])
-                .then(id => { setConversationId(id); console.info(`here we go again: ${id}`); });
-        }
-
-        if (!userMessage || !conversationId)
-            return;
-
+    /**
+     * Sends the user's message to the backend and processes the response.
+     */
+    const processUserMessage = useCallback((id: string) => {
         setIsMessagePending(true);
         userSendMessage(userMessage);
         setUserMessage("");
 
-        const messageEndpoint = backendUrl + `conversation/${conversationId}/message`;
+        const messageEndpoint = backendUrl + `conversation/${id}/message`;
         const url = messageEndpoint + `?user_message=${encodeURI(userMessage)}`;
 
         const events = new EventSource(url);
         events.onmessage = (event: MessageEvent) => {
-            const parsedData: Message = JSON.parse(event.data);
+            const parsedData: Message = JSON.parse(event.data as string) as Message;
             systemSendMessage(parsedData);
 
             if (parsedData.status === MESSAGE_STATUS.SUCCESS || parsedData.status === MESSAGE_STATUS.ERROR) {
@@ -68,12 +65,41 @@ export const KnowledgeGraph = () => {
                 setIsMessagePending(false);
             }
         };
-    };
+    }, [userMessage, userSendMessage, systemSendMessage]);
 
+    /**
+     * Handles the submission of the user's message.
+     */
+    const submit = useCallback(() => {
+        if (!userMessage)
+            return;
+
+        if (!conversationId) {
+            // If no conversation id, create one (we're creating with no docs here, hacky way to use KG)
+            backendClient.createConversation([])
+                .then(id => {
+                    setConversationId(id);
+                    setConversationIdStored(id);
+                    console.info(`Created new conversation: ${id}`);
+                    processUserMessage(id);
+                })
+                .catch(() => { console.error("Conversation Creation Error"); alert("Failed to create conversation!"); });
+        } else {
+            processUserMessage(conversationId);
+        }
+    }, [conversationId, userMessage, processUserMessage, setConversationIdStored]);
+
+    /**
+     * Handles changes to the text input field.
+     * @param event The change event.
+     */
     const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
         setUserMessage(event.target.value);
     };
 
+    /**
+     * Automatically resizes the text input field based on its content.
+     */
     useEffect(() => {
         const textarea = document.querySelector("textarea");
         if (textarea) {
@@ -83,6 +109,9 @@ export const KnowledgeGraph = () => {
         }
     }, [userMessage]);
 
+    /**
+     * Handles the submission of the user's message when the Enter key is pressed.
+     */
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Enter") {
@@ -92,15 +121,18 @@ export const KnowledgeGraph = () => {
                 }
             }
         };
+
         document.addEventListener("keydown", handleKeyDown);
+
+        // Cleanup before re-render
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [submit]);
+    }, [submit, isMessagePending]);
 
     return (
         <div className="mt-1 flex bg-gray-200 h-min w-full max-w-[1200px] flex-col items-center rounded-lg border-2 pb-4">
-            <div className="flex max-h-[500px] w-[44vw] flex-grow flex-col overflow-scroll ">
+            <div className="flex max-h-[500px] w-[44vw] flex-grow flex-col overflow-scroll">
                 <RenderConversations
                     messages={messages}
                     documents={[]}

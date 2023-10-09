@@ -1,9 +1,8 @@
+import io
 import logging
 import s3fs
-import requests
 import fitz
 import nest_asyncio
-
 
 from datetime import timedelta
 from cachetools import cached, TTLCache
@@ -11,7 +10,6 @@ from typing import Dict, List, Optional
 from pathlib import Path
 from datetime import datetime
 from fsspec.asyn import AsyncFileSystem
-
 from llama_index import (
     QuestionAnswerPrompt,
     RefinePrompt,
@@ -36,30 +34,19 @@ from llama_index.tools import QueryEngineTool, ToolMetadata
 from llama_index.query_engine import SubQuestionQueryEngine
 from llama_index.indices.query.base import BaseQueryEngine
 from llama_index import (
-    LLMPredictor,
     ServiceContext,
     StorageContext,
-    KnowledgeGraphIndex,
 )
 from llama_index.llms import OpenAI
 from llama_index.query_engine import RetrieverQueryEngine
-from llama_index.retrievers import KnowledgeGraphRAGRetriever
 from llama_index import get_response_synthesizer, load_index_from_storage
-from llama_index.graph_stores import KuzuGraphStore
-from llama_index.indices.query.schema import QueryBundle
-from llama_index.vector_stores.types import (
-    MetadataFilters,
-    ExactMatchFilter,
-)
 from llama_index.node_parser.simple import SimpleNodeParser
 
 from app.core.config import settings
 from app.schemas.pydantic_schema import (
-    DocumentTypeEnum,
     Message as MessageSchema,
     Document as DocumentSchema,
     Conversation as ConversationSchema,
-    DocumentMetadata,
 )
 from app.db.models.base import MessageRoleEnum, MessageStatusEnum
 from app.chat.constants import (
@@ -83,8 +70,6 @@ def get_s3_fs() -> AsyncFileSystem:
         secret=settings.AWS_SECRET,
         endpoint_url=settings.S3_ENDPOINT_URL,
     )
-    if not (settings.RENDER or s3.exists(settings.S3_BUCKET_NAME)):
-        s3.mkdir(settings.S3_BUCKET_NAME)
 
     return s3
 
@@ -95,7 +80,10 @@ def fetch_and_read_document(document: DocumentSchema) -> List[LlamaIndexDocument
     and returning a LLaMA Index document
     """
 
-    doc = fitz.open(document.url)
+    s3 = get_s3_fs()
+    filename = Path(document.url).name
+    f = s3.open(f"{settings.S3_ASSET_BUCKET_NAME}/{filename}", "rb")
+    doc = fitz.open(stream=io.BytesIO(f.read()), filetype="pdf")
     extra_info = {
         DB_DOC_ID_KEY: str(document.id),
         "total_pages": len(doc),
@@ -142,13 +130,10 @@ async def build_doc_id_to_index_map(service_context: ServiceContext, documents: 
     vector_store = await get_vector_store_singleton()
     try:
         try:
-            storage_context = get_storage_context(
-                persist_dir, vector_store, fs=fs)
+            storage_context = get_storage_context(persist_dir, vector_store, fs=fs)
         except FileNotFoundError:
-            logger.error(
-                "Could not find storage context in S3. Creating new storage context.")
-            storage_context = StorageContext.from_defaults(
-                vector_store=vector_store, fs=fs)
+            logger.error("Could not find storage context in S3. Creating new storage context.")
+            storage_context = StorageContext.from_defaults(vector_store=vector_store, fs=fs)
             storage_context.persist(persist_dir=persist_dir, fs=fs)
 
         index_ids = [str(doc.id) for doc in documents]
@@ -160,13 +145,10 @@ async def build_doc_id_to_index_map(service_context: ServiceContext, documents: 
 
         doc_id_to_index = dict(zip(index_ids, indices))
         logger.info("Loaded indices from storage.")
-        storage_context = StorageContext.from_defaults(
-            persist_dir=persist_dir, vector_store=vector_store, fs=fs)
+        storage_context = StorageContext.from_defaults(persist_dir=persist_dir, vector_store=vector_store, fs=fs)
     except ValueError:
-        logger.error(
-            "Failed to load indices from storage. Creating new indices.", exc_info=True)
-        storage_context = StorageContext.from_defaults(
-            persist_dir=persist_dir, vector_store=vector_store, fs=fs)
+        logger.error("Failed to load indices from storage. Creating new indices.", exc_info=True)
+        storage_context = StorageContext.from_defaults(persist_dir=persist_dir, vector_store=vector_store, fs=fs)
         doc_id_to_index = {}
         for doc in documents:
             llama_index_docs = fetch_and_read_document(doc)
@@ -183,15 +165,14 @@ async def build_doc_id_to_index_map(service_context: ServiceContext, documents: 
     return doc_id_to_index
 
 
-def get_chat_history(
-    chat_messages: List[MessageSchema],
-) -> List[ChatMessage]:
+def get_chat_history(chat_messages: List[MessageSchema]) -> List[ChatMessage]:
     """
     Given a list of chat messages, return a list of ChatMessage instances.
 
     Failed chat messages are filtered out and then the remaining ones are
     sorted by created_at.
     """
+
     # pre-process chat messages
     chat_messages = [
         m
@@ -239,6 +220,7 @@ def get_tool_service_context(callback_handlers: List[BaseCallbackHandler]) -> Se
         embed_model=embedding_model,
         node_parser=node_parser,
     )
+
     return service_context
 
 
@@ -246,16 +228,17 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
     service_context = get_tool_service_context([callback_handler])
     s3_fs = get_s3_fs()
 
-    # hacky way to use the knowledge graph
+    # [TODO: hacky way to use the knowledge graph, please change this for the love of god]
     if (len(conversation.documents) == 0):
         llm = OpenAI(model="gpt-4", temperature=0)
         service_context = service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
         response_synthesizer = get_response_synthesizer(response_mode="tree_summarize")
-        
+        # response_synthesizer = get_response_synthesizer(response_mode="refine")
+
         persist_dir = f"{settings.S3_BUCKET_NAME}"
         storage_context = StorageContext.from_defaults(
             fs=s3_fs, persist_dir=persist_dir)
-        
+
         kg_index = load_index_from_storage(
             storage_context=storage_context,
             index_id="502b65f1-2e78-4e70-aae1-ddb4a86dbcea",

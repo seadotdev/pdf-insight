@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithRef, useState } from "react";
+import React, { type ComponentPropsWithRef } from "react";
 import classNames from "classnames";
 
 export const FileInput = (props: ComponentPropsWithRef<"input">) => {

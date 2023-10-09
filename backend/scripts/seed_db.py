@@ -98,7 +98,6 @@ def build_kg():
 
     graph_store = SimpleGraphStore()
     storage_context = StorageContext.from_defaults(graph_store=graph_store)
-    # storage_context = StorageContext.from_defaults(graph_store=graph_store, fs=fs, persist_dir=persist_dir)
 
     # Rebel supports up to 512 input tokens, but shorter sequences also work well
     llm = OpenAI(model="gpt-4", temperature=0)
@@ -143,6 +142,7 @@ def build_kg():
 
     return kg_index.index_id
 
+
 def load_kg(index_id: str):
     # Loading the index
     s3_fs = get_s3_fs()
@@ -171,13 +171,32 @@ def load_kg(index_id: str):
 
     return kg_index
 
+def update_kg(index_id: str):
+    s3_fs = get_s3_fs()
+    persist_dir = f"{settings.S3_BUCKET_NAME}"
+    kg_index = load_kg(index_id)
+
+    kg_index.upsert_triplet(("James Kaberry", "is director of", "SME LENDING LIMITED"))
+    kg_index.upsert_triplet(("Ronnie Sarkar", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("Andy Davis", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
+    kg_index.upsert_triplet(("Andy Davis", "is director of", "SME LENDING LIMITED"))
+
+    kg_index.upsert_triplet(("SME LENDING LIMITED", "has director", "James Kaberry"))
+    kg_index.upsert_triplet(("SME LENDING LIMITED", "has director", "Andy Davis"))
+    kg_index.upsert_triplet(("SME ANALYTICS & TECHNOLOGIES LIMITED", "has director", "Ronnie Sarkar"))
+    kg_index.upsert_triplet(("SME ANALYTICS & TECHNOLOGIES LIMITED", "has director", "Andy Davis"))
+
+    # Store the index in the s3 bucket
+    kg_index.storage_context.persist(persist_dir=persist_dir, fs=s3_fs)
+    # list(kg_index)
+    
+
 
 def seed_db():
     asyncio.run(async_seed_db())
 
 
 if __name__ == "__main__":
-
     # builds kg
     index_id = Fire(build_kg)
     
@@ -186,5 +205,4 @@ if __name__ == "__main__":
 
     # loads index from virtual S3
     kg_index = load_kg(index_id)
-    print('🚨 put this in the engine yo! just search for index_id="')
-    
+    print(f'🚨 put this in the engine yo! just search for index_id="{index_id}"')

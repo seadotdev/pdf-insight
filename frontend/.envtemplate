@@ -13,5 +13,5 @@
 # SERVERVAR="foo"
 # NEXT_PUBLIC_CLIENTVAR="bar"
 
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8000/api/
+NEXT_PUBLIC_BACKEND_URL=https://seadev-backend.onrender.com/api/
 NEXT_PUBLIC_CH_API_KEY=acacaeb4-13f9-419a-b802-44b249db6fe0
