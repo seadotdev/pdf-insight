@@ -112,17 +112,19 @@ export const KnowledgeGraph = () => {
                     ref={textFocusRef}
                     rows={1}
                     className="box-border w-full flex-grow resize-none overflow-hidden rounded px-5 py-3 pr-10 text-gray-90 placeholder-gray-60 outline-none"
-                    placeholder={"Start typing your question..."}
+                    placeholder={"Start typing your question to interact with the Knowledge Graph..."}
                     value={userMessage}
                     onChange={handleTextChange}
-                />
+                    />
                 <button
                     disabled={isMessagePending || userMessage.length === 0}
                     onClick={submit}
                     className="z-1 absolute right-6 top-1/2 mb-1 -translate-y-1/2 transform rounded text-gray-90 opacity-80 enabled:hover:opacity-100 disabled:opacity-30"
-                >
+                    >
                     <BsArrowUpCircle size={24} />
                 </button>
             </div>
+            <img src="kg.png" className="mx-2 rounded-lg" />
+            <div className="flourish-embed flourish-network" data-src="visualisation/15237724"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
         </div>);
 };

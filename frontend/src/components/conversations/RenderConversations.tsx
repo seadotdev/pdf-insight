@@ -361,10 +361,10 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
                 <div className="flex h-full items-center justify-center ">
                     <div className="flex w-full flex-col items-center justify-center">
                         <div>
-                            <HiOutlineChatAlt2 size={40} />
+                            <HiOutlineChatAlt2 size={30} />
                         </div>
                         <div className="mb-2 w-3/4 text-center text-lg font-bold">
-                            Ask WorkFlow_Agent questions about the documents you&apos;ve
+                            Ask questions about the documents you&apos;ve
                             selected, such as:
                         </div>
                         <div className="m-auto flex w-full flex-wrap justify-center">
@@ -374,13 +374,13 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
                                 }
                                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
                             >
-                                Describe key risks to funding a loan to this group?
+                                Key risks to funding a loan to this group?
                             </button>
                             <button
                                 onClick={() => setUserMessage("What are their main business focus areas?")}
                                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
                             >
-                                Draft a new proforma Investmen Memo for this company?
+                                Draft a proforma Investment Memo for this company?
                             </button>
                             <button
                                 onClick={() =>
@@ -388,7 +388,7 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
                                 }
                                 className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
                             >
-                                Describe the ownership and incentive structure for the shareholders and directors?
+                                Describe incentive structure for the shareholders?
                             </button>
                         </div>
                     </div>
