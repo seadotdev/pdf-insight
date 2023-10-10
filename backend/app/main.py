@@ -5,7 +5,6 @@ import sys
 import sentry_sdk
 from starlette.middleware.cors import CORSMiddleware
 from alembic.config import Config
-import alembic.config
 from alembic import script
 from alembic.runtime import migration
 from sqlalchemy.engine import create_engine, Engine
@@ -112,14 +111,14 @@ def start():
     __setup_logging(settings.LOG_LEVEL)
     __setup_sentry()
     """Launched with `poetry run start` at root level"""
-    if settings.RENDER:
-        # on render.com deployments, run migrations
-        logger.debug("Running migrations")
-        alembic_args = ["--raiseerr", "upgrade", "head"]
-        alembic.config.main(argv=alembic_args)
-        logger.debug("Migrations complete")
-    else:
-        logger.debug("Skipping migrations")
+    # if settings.RENDER:
+    #     # on render.com deployments, run migrations
+    #     logger.debug("Running migrations")
+    #     alembic_args = ["--raiseerr", "upgrade", "head"]
+    #     alembic.config.main(argv=alembic_args)
+    #     logger.debug("Migrations complete")
+    # else:
+    logger.debug("Skipping migrations")
         
     live_reload = not settings.RENDER
     uvicorn.run(

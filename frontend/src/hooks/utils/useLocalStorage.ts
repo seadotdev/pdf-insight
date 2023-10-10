@@ -7,7 +7,7 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val
         try {
             const item = window.localStorage.getItem(key);
             if (item) {
-                console.info("Use effecting:");
+                console.info(`Fetching: ${key} from local storage`);
                 console.info(item);
                 setStoredValue(JSON.parse(item) as T);
             }
@@ -18,10 +18,9 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val
 
     const setValue = (value: T | ((val: T) => T)) => {
         try {
-            console.info("Setting:");
+            console.info(`Setting: ${key} to local storage`);
             console.info(value);
-            const valueToStore =
-                value instanceof Function ? value(storedValue) : value;
+            const valueToStore = value instanceof Function ? value(storedValue) : value;
             setStoredValue(valueToStore);
             window.localStorage.setItem(key, JSON.stringify(valueToStore));
         } catch (error) {

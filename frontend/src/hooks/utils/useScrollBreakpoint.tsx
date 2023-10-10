@@ -19,7 +19,7 @@ export const useScrollBreakpoint = (offset = 0) => {
             window.removeEventListener("load", setTop);
             window.removeEventListener("resize", setTop);
         };
-    }, []);
+    }, [offset]);
 
     return { ref, breakpoint };
 };

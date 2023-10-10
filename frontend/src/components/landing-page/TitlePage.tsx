@@ -1,15 +1,14 @@
 import React, { useEffect } from "react";
 import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
-import Tabs from "~/components/landing-page/Tabs"
+import Tabs from "~/components/landing-page/Tabs";
+import Image from "next/image";
 
 export const TitlePage = () => {
   const { isMobile } = useIsMobile();
   const { boot } = useIntercom();
 
-  useEffect(() => {
-    boot();
-  }, []);
+  useEffect(() => { boot(); }, [boot]);
 
   return (
     <div className="landing-page-gradient-1 relative flex h-screen w-screen flex-col items-center font-calibri overflow-hidden">
