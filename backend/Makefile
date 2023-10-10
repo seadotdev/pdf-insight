@@ -14,7 +14,7 @@ migrate:
 	poetry run python -m alembic upgrade head
 
 deploy:
-	migrate
+	echo "Running"
 	poetry run start
 
 test:

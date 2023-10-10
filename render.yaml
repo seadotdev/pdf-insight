@@ -1,6 +1,7 @@
 previewsEnabled: false
 databases:
   - name: seadev-db
+    region: frankfurt
     databaseName: seadev_db
     plan: free
 

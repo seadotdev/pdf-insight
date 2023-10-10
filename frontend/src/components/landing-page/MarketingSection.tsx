@@ -2,6 +2,7 @@
 import React from "react";
 import AnimateSvg from "./AnimateSvg";
 import useScrollBreakpoint from "~/hooks/utils/useScrollBreakpoint";
+import Image from "next/image";
 
 export const MarketingSection = () => {
   const scrollToTop = () => {
@@ -36,26 +37,11 @@ export const MarketingSection = () => {
             breakpoint={chatBreakpoint}
             increment={80}
             svgs={[
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="chat-1.svg"
-              />,
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="chat-2.svg"
-              />,
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="chat-3.svg"
-              />,
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="chat-4.svg"
-              />,
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="chat-5.svg"
-              />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="chat-1.svg" alt={"Your ad could be here"} />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="chat-2.svg" alt={"Your ad could be here"} />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="chat-3.svg" alt={"Your ad could be here"} />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="chat-4.svg" alt={"Your ad could be here"} />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="chat-5.svg" alt={"Your ad could be here"}   />,
             ]}
           />
         </div>
@@ -89,18 +75,9 @@ export const MarketingSection = () => {
             breakpoint={multiDocBreakpoint}
             increment={150}
             svgs={[
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="multi-boxco-doc-4.svg.svg"
-              />,
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="multi-doc-2.svg"
-              />,
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="multi-doc-3.svg"
-              />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="multi-boxco-doc-4.svg.svg" alt={"Your ad could be here"} />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="multi-doc-2.svg" alt={"Your ad could be here"} />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="multi-doc-3.svg" alt={"Your ad could be here"} />,
             ]}
           />
         </div>
@@ -125,18 +102,9 @@ export const MarketingSection = () => {
             breakpoint={highlightBreakpoint}
             increment={150}
             svgs={[
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="highlight-4.svg"
-              />,
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="highlight-2.svg"
-              />,
-              <img
-                className="max-w-[350px] sm:max-w-[400px]"
-                src="highlight-1.svg"
-              />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="highlight-4.svg" alt={"Your ad could be here"} />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="highlight-2.svg" alt={"Your ad could be here"} />,
+              <Image className="max-w-[350px] sm:max-w-[400px]" src="highlight-1.svg" alt={"Your ad could be here"} />,
             ]}
           />
         </div>

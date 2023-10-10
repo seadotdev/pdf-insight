@@ -6,7 +6,7 @@ import re
 
 from datetime import date
 
-from typing import Annotated, List, Optional
+from typing import Annotated, List
 from fastapi import APIRouter, Form, HTTPException, Response, File, UploadFile
 from app.api import crud
 from app.chat.engine import build_doc_id_to_index_map, get_s3_fs, get_tool_service_context
@@ -20,24 +20,24 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/{filename}")
-async def retrieve(filename: str):
-    with open(f'data/{filename}', 'rb') as f:
+async def retrieve(filename: str) -> Response:
+    fs = get_s3_fs()
+    with fs.open(f"{settings.S3_ASSET_BUCKET_NAME}/{filename}", "rb") as f:
         return Response(io.BytesIO(f.read()).getvalue(), media_type="application/pdf")
 
 
 @router.post("/upload")
-async def upload_file(file: Annotated[UploadFile, File()], company_name: Annotated[str, Form()], document_type: Annotated[str, Form()]):
+async def upload_file(file: Annotated[UploadFile, File()], company_name: Annotated[str, Form()], document_type: Annotated[str, Form()]) -> Response:
     logger.info(f"Uploading: {file.filename}...")
     if file.content_type != "application/pdf":
-        logger.error(
-            f"Can only upload pdf files. {file.content_type} not supported")
-        raise HTTPException(
-            status_code=422, detail=f"Can only upload pdf files. {file.content_type} not supported")
+        logger.error(f"Can only upload pdf files. {file.content_type} not supported")
+        raise HTTPException(status_code=422, detail=f"Can only upload pdf files. {file.content_type} not supported")
 
-    with open(f'data/{file.filename}', 'wb') as buffer:
+    fs = get_s3_fs()
+    with fs.open(f"{settings.S3_ASSET_BUCKET_NAME}/{file.filename}", "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    logger.info(f"File uploaded: {file.filename}")
+    logger.info(f"File uploaded: {file.filename}\nIndexing...\n")
 
     metadata = {"name": company_name, "doc_type": document_type, "year": 2022}
     doc = Document(url=f"data/{file.filename}", metadata_map=metadata)
@@ -45,15 +45,14 @@ async def upload_file(file: Annotated[UploadFile, File()], company_name: Annotat
         document = await crud.upsert_document(db, doc)
 
     # Build index for the document
-    fs = get_s3_fs()
     service_context = get_tool_service_context([])
     await build_doc_id_to_index_map(service_context, [document], fs=fs)
 
-    return {"ok": True}
+    return Response(status_code=200)
 
 
 @router.post("/search-ch")
-async def upload_from_ch(data: CHFiling):
+async def upload_from_ch(data: CHFiling) -> Response:
     """
     Upload a filing from Companies House
     """
@@ -65,14 +64,11 @@ async def upload_from_ch(data: CHFiling):
     company_data = requests.get(company_details_url, headers={'Authorization': settings.CH_API_KEY}).json()
     company_name = company_data["company_name"]
 
-    response = requests.get(data.links.document_metadata,
-                            auth=(settings.CH_API_KEY, ''))
+    response = requests.get(data.links.document_metadata, auth=(settings.CH_API_KEY, ''))
     metadata = response.json()
-
     doc_link = metadata['links']['document']
-    doc_response = requests.get(doc_link, auth=(settings.CH_API_KEY, ''), headers={
-                                'Accept': 'application/pdf'})
-    
+    doc_response = requests.get(doc_link, auth=(settings.CH_API_KEY, ''), headers={'Accept': 'application/pdf'})
+
     url = f"data/{metadata['filename']}.pdf"
     with open(url, "wb") as f:
         f.write(doc_response.content)
@@ -91,4 +87,4 @@ async def upload_from_ch(data: CHFiling):
     service_context = get_tool_service_context([])
     await build_doc_id_to_index_map(service_context, [document], fs=fs)
 
-    return {"ok": True}
+    return Response(status_code=200)

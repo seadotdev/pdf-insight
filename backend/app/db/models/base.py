@@ -15,11 +15,9 @@ class Base:
     """
     Every table has these
     """
-    id = Column(UUID, primary_key=True, index=True,
-                default=func.uuid_generate_v4())
+    id = Column(UUID, primary_key=True, index=True, default=func.uuid_generate_v4())
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime, server_default=func.now(),
-                        onupdate=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __name__: str
 
@@ -69,7 +67,8 @@ class Document(Base):
     # URL to the actual document (e.g. a PDF)
     url = Column(String, nullable=False, unique=True)
     metadata_map = Column(JSONB, nullable=True)
-    conversations = relationship("ConversationDocument", back_populates="document")
+    conversations = relationship(
+        "ConversationDocument", back_populates="document")
 
 
 class Conversation(Base):
@@ -78,7 +77,8 @@ class Conversation(Base):
     """
 
     messages = relationship("Message", back_populates="conversation")
-    conversation_documents = relationship("ConversationDocument", back_populates="conversation")
+    conversation_documents = relationship(
+        "ConversationDocument", back_populates="conversation")
 
 
 class ConversationDocument(Base):
@@ -86,9 +86,12 @@ class ConversationDocument(Base):
     A many-to-many relationship between a conversation and a document
     """
 
-    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
-    document_id = Column(UUID(as_uuid=True), ForeignKey("document.id"), index=True)
-    conversation = relationship("Conversation", back_populates="conversation_documents")
+    conversation_id = Column(
+        UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
+    document_id = Column(UUID(as_uuid=True),
+                         ForeignKey("document.id"), index=True)
+    conversation = relationship(
+        "Conversation", back_populates="conversation_documents")
     document = relationship("Document", back_populates="conversations")
 
 
@@ -97,10 +100,12 @@ class Message(Base):
     A message in a conversation
     """
 
-    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
+    conversation_id = Column(
+        UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
     content = Column(String)
     role = Column(to_pg_enum(MessageRoleEnum))
-    status = Column(to_pg_enum(MessageStatusEnum), default=MessageStatusEnum.PENDING)
+    status = Column(to_pg_enum(MessageStatusEnum),
+                    default=MessageStatusEnum.PENDING)
     conversation = relationship("Conversation", back_populates="messages")
     sub_processes = relationship("MessageSubProcess", back_populates="message")
 
@@ -110,7 +115,8 @@ class MessageSubProcess(Base):
     A record of a sub-process that occurred as part of the generation of a message from an AI assistant
     """
 
-    message_id = Column(UUID(as_uuid=True), ForeignKey("message.id"), index=True)
+    message_id = Column(UUID(as_uuid=True),
+                        ForeignKey("message.id"), index=True)
     source = Column(to_pg_enum(MessageSubProcessSourceEnum))
     message = relationship("Message", back_populates="sub_processes")
     status = Column(

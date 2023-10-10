@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Select from "react-select";
 import cx from "classnames";
 import type { SelectOption } from "~/types/selection";
@@ -40,7 +40,7 @@ export const Conversation = () => {
         selectCompany,
         selectedDocumentType,
         selectedYear,
-        setSelectedYear,
+        selectYear,
         handleAddDocument,
         handleRemoveDocument,
         isDocumentSelectionEnabled,
@@ -106,7 +106,7 @@ export const Conversation = () => {
                             options={sortedAvailableYears || []}
                             getOptionLabel={(option: SelectOption) => option.label}
                             getOptionValue={(option: SelectOption) => option.value}
-                            onChange={setSelectedYear}
+                            onChange={selectYear}
                             value={selectedYear}
                             placeholder="Select Year"
                             components={{

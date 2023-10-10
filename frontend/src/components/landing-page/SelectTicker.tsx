@@ -1,50 +1,28 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
 import { useCombobox } from "downshift";
 import cx from "classnames";
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 import useFocus from "~/hooks/utils/useFocus";
-import { Document } from "~/types/document";
+import type { Document } from "~/types/document";
 
 interface DocumentSelectComboboxProps {
-    selectedItem:  Document | null;
+    selectedItem: Document | null;
     setSelectedItem: (doc: Document) => void;
     availableDocuments: Document[];
     shouldFocusTicker: boolean;
     setFocusState: Dispatch<SetStateAction<boolean>>;
 }
 
-export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({
-    selectedItem,
-    availableDocuments,
-    setSelectedItem,
-    shouldFocusTicker,
-    setFocusState,
-}) => {
+export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({ selectedItem, availableDocuments, setSelectedItem, shouldFocusTicker, setFocusState }) => {
     const [focusRef, setFocus] = useFocus<HTMLInputElement>();
-
-    useEffect(() => {
-        if (shouldFocusTicker) {
-            setInputValue("");
-            setFocus();
-            setFocusState(false);
-        }
-    }, [shouldFocusTicker]);
-
     const [filteredDocuments, setFilteredDocuments] = useState<Document[]>(availableDocuments);
 
-    useEffect(() => {
-        setFilteredDocuments(availableDocuments);
-    }, [availableDocuments]);
-
-    const {
-        isOpen,
-        getMenuProps,
-        getInputProps,
-        highlightedIndex,
-        getItemProps,
-        setInputValue,
-    } = useCombobox({
+    /**
+     * A custom hook that returns an object containing properties and methods for rendering a dropdown menu with selectable items.
+     * @returns An object containing properties and methods for rendering a dropdown menu with selectable items.
+     */
+    const { isOpen, getMenuProps, getInputProps, highlightedIndex, getItemProps, setInputValue } = useCombobox({
         onInputValueChange() { setFilteredDocuments(availableDocuments); },
         items: filteredDocuments,
         itemToString(doc) { return doc ? doc.name : ""; },
@@ -55,6 +33,18 @@ export const DocumentSelectCombobox: React.FC<DocumentSelectComboboxProps> = ({
             }
         },
     });
+
+    useEffect(() => {
+        if (shouldFocusTicker) {
+            setInputValue("");
+            setFocus();
+            setFocusState(false);
+        }
+    }, [shouldFocusTicker, setFocusState, setInputValue, setFocus]);
+
+    useEffect(() => {
+        setFilteredDocuments(availableDocuments);
+    }, [availableDocuments]);
 
     return (
         <div className="flex-grow">
