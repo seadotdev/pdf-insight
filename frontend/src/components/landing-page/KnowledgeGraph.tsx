@@ -1,4 +1,6 @@
 import React, { type ChangeEvent, useEffect, useRef, useState, useCallback } from "react";
+import Image from 'next/image';
+import Script from 'next/script';
 import { backendClient } from "~/api/backendClient";
 
 import { backendUrl } from "~/config";
@@ -156,7 +158,9 @@ export const KnowledgeGraph = () => {
                     <BsArrowUpCircle size={24} />
                 </button>
             </div>
-            <img src="kg.png" className="mx-2 rounded-lg" />
-            <div className="flourish-embed flourish-network" data-src="visualisation/15237724"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
+            <Image src="/kg.png" width={300} height={200} className="mx-2 rounded-lg" alt="Knowledge Graph" />
+            <div className="flourish-embed flourish-network" data-src="visualisation/15237724">
+                <Script src="https://public.flourish.studio/resources/embed.js"></Script>
+            </div>
         </div>);
 };
