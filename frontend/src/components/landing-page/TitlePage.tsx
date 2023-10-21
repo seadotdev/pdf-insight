@@ -5,10 +5,10 @@ import Tabs from "~/components/landing-page/Tabs";
 import Image from "next/image";
 
 export const TitlePage = () => {
-  const { isMobile } = useIsMobile();
-  const { boot } = useIntercom();
+    const { isMobile } = useIsMobile();
+    const { boot } = useIntercom();
 
-  useEffect(() => { boot(); }, [boot]);
+    useEffect(() => { boot(); }, [boot]);
 
   return (
     <div className="landing-page-gradient-1 relative flex h-screen w-screen flex-col items-center font-calibri overflow-hidden">
@@ -23,6 +23,7 @@ export const TitlePage = () => {
       <div className="pt-28 flex flex-col items-center landing-page-header-image max-w-[1200px] w-full">
         <div className="w-4/5 text-center text-4xl">
           {/* Improve the efficiency of your credit teams with{" "} */}
+          {/* <span className="font-bold">Finance WorkFlow Agent </span> */}
           <span className="font-bold">WorkFlow Agent </span>
         </div>
         <div className="mt-4 flex items-center justify-center">
