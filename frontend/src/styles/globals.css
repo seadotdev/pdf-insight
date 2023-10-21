@@ -24,12 +24,12 @@
 
 @layer components {
   .landing-page-gradient-1 {
-    background-color: hsla(0,0%,100%,1);
-    background-image:
-      radial-gradient(at 0% 100%, rgba(31,56,80,1) 0px, transparent 80%),
-      radial-gradient(at 100% 100%, rgba(31,56,80,1) 0px, transparent 80%),
-      radial-gradient(at 50% 30%, rgba(31,56,80,1) 0px, transparent 80%);
+    background-color: rgb(138, 138, 138);
+    background-image: url('/b2b2-kg.png');
+    background-repeat: no-repeat;
+    background-size: cover;
   }
+  
 
   .landing-page-header-image {
     background-color: none; 
@@ -38,6 +38,12 @@
   }
 
   .bg-sea-blue {
-    background-color: rgba(31,56,80,1);
+    background-color: #1f3850;
   }
+}
+
+.react-flow__node-custom {
+  padding: 10px;
+  background-color: #556677;
+  color: white;
 }

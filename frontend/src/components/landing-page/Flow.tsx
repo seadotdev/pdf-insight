@@ -11,10 +11,87 @@ import { BsArrowUpCircle } from "react-icons/bs";
 import useLocalStorage from "~/hooks/utils/useLocalStorage";
 
 
+import 'reactflow/dist/style.css';
+
+import ReactFlow, {
+  Controls,
+  Background,
+  addEdge,
+  FitViewOptions,
+  applyNodeChanges,
+  applyEdgeChanges,
+  Node,
+  Edge,
+  OnNodesChange,
+  OnEdgesChange,
+  OnConnect,
+  Handle, Position
+} from 'reactflow';
+
+const initialNodes: Node[] = [
+  { id: '1', data: { label: 'SME LENDING' }, position: { x: 100, y: 400 } },
+  { id: '2', data: { label: 'SME TECHNOLOGIES' }, position: { x: 300, y: 400 } },
+  { id: '3', data: { label: 'BANK TECH' }, position: { x: 600, y: 400 } },
+  { id: '4', data: { label: 'Peter Berry' }, position: { x: 50, y: 100 } },
+  { id: '5', data: { label: 'Ronnie Jayson' }, position: { x: 250, y: 100 } },
+  { id: '6', data: { label: 'Andy Davis' }, position: { x: 450, y: 100 } },
+  { id: '7', data: { label: 'Sarah Smith' }, position: { x: 750, y: 100 } },
+  { id: '8', data: { label: 'John Roberts' }, position: { x: 950, y: 100 } },
+
+];
+const initialEdges: Edge[] = [{ id: 'e1-2', source: '4', target: '1' },
+                              { id: 'e1-2', source: '4', target: '2' },
+                              { id: 'e1-2', source: '6', target: '1' },
+                              { id: 'e1-2', source: '6', target: '2' },
+                              { id: 'e1-2', source: '5', target: '2' },
+                              { id: 'e1-2', source: '8', target: '3' },
+                              { id: 'e1-2', source: '7', target: '3' }];
+
+
+
+export default function AppFlow() {
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes]
+  );
+  const onEdgesChange: OnEdgesChange = useCallback(
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges]
+  );
+  const onConnect: OnConnect = useCallback(
+    (connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges]
+  );
+
+  const reactFlowStyle = {
+    background: 'grey',
+    width: '100%',
+    height: 300,
+  };
+  
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <ReactFlow style={reactFlowStyle} 
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+      />
+    </div>
+  );
+}
+
+// TODO - figure out force feedback layout https://reactflow.dev/docs/guides/layouting/#d3-force
+// TODO - figure out custom nodes 
+
 /**
  * Renders the knowledge graph component, which allows the user to interact with a chatbot and receive information.
  */
-export const KnowledgeGraph = () => {
+export const KnowledgeGraph2 = () => {
     const [conversationId, setConversationId] = useState<string | null>(null);
     const [isMessagePending, setIsMessagePending] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>("");
@@ -165,3 +242,4 @@ export const KnowledgeGraph = () => {
             </div>
         </div>);
 };
+

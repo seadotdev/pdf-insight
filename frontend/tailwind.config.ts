@@ -10,10 +10,10 @@ export default {
         nunito: ["Nunito Sans", "sans-serif"], // The second font is a fallback.
       },
       colors: {
-        "gradient-start": "rgba(255, 255, 204, 0.2)", // Change this with your color.
-        "gradient-end": "rgba(204, 153, 255, 0.2)", // Change this with your color.
-        "gradient-start-light": "rgba(255, 255, 204, 0.1)", // Change this with your color.
-        "gradient-end-light": "rgba(204, 153, 255, 0.1)", // Change this with your color.
+      //   "gradient-start": "rgba(255, 255, 204, 0.2)", // Change this with your color.
+      //   "gradient-end": "rgba(204, 153, 255, 0.2)", // Change this with your color.
+      //   "gradient-start-light": "rgba(255, 255, 204, 0.1)", // Change this with your color.
+      //   "gradient-end-light": "rgba(204, 153, 255, 0.1)", // Change this with your color.
         "gray-00": "#F9F9FA",
         "gray-15": "#E9E9ED",
         "gray-30": "#D2D2DC",
@@ -39,10 +39,11 @@ export default {
         "llama-blue-light": "#EDF5FD",
         "llama-blue": "#87B6F3",
         "llama-indigo-light": "#EDECFD",
-        "llama-indigo": "#817AF2",
+        // "llama-indigo": "#817AF2",
       },
+      // overidden by globals.css
       backgroundImage: (theme) => ({
-        gradient: "url('https://llama-app-frontend.vercel.app/Gradient.png')",
+        gradient: "url('/b2b2-kg.png')",
       }),
       backgroundSize: {
         "100%": "100%",
