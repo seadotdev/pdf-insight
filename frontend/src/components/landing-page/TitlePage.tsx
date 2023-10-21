@@ -16,7 +16,7 @@ export const TitlePage = () => {
         <a href="https://www.sea.dev/" target="_blank">
           <button className="flex items-center justify-center font-nunito text-lg font-bold ">
             sea.dev
-            <Image src="logo-black.svg" className="mx-2 rounded-lg" width={40} alt={"Your ad could be here"} />
+            {/* <Image src="logo-black.svg" className="mx-2 rounded-lg" width={40} alt={"Your ad could be here"} /> */}
           </button>
         </a>
       </div>
@@ -24,7 +24,7 @@ export const TitlePage = () => {
         <div className="w-4/5 text-center text-4xl">
           {/* Improve the efficiency of your credit teams with{" "} */}
           {/* <span className="font-bold">Finance WorkFlow Agent </span> */}
-          <span className="font-bold">WorkFlow Agent </span>
+          <span className="font-bold"> </span>
         </div>
         <div className="mt-4 flex items-center justify-center">
           <div className="w-3/5 text-center font-nunito">

@@ -41,6 +41,7 @@ export default {
         "llama-indigo-light": "#EDECFD",
         // "llama-indigo": "#817AF2",
       },
+      // overidden by globals.css
       backgroundImage: (theme) => ({
         gradient: "url('/b2b2-kg.png')",
       }),
