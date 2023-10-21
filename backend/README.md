@@ -21,6 +21,24 @@ Live at https://secinsights.ai/
     - The server will not run in a container but will instead run directly on your OS.
         - This is to allow for use of debugging tools like `pdb`
 
+MA Codespace notes: 
+- Backend: need to run in new terminal `cd backend && poetry shell && set -a && source .env && make run` each time
+- Seed: 
+```
+cd backend; poetry shell
+set -a; source .env; python scripts/seed_db.py
+```
+
+add id to both seed and app/chat/engine at `index_id` 261
+
+ocr
+- docker compouse up --build
+- docker kill <c id>
+- sudo apt-get update
+- sudo apt-get install tesseract-ocr
+- make run
+
+
 ## Scripts
 The `scripts/` folder contains several scripts that are useful for both operations and development.
 

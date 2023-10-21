@@ -33,6 +33,7 @@ const Tabs = () => {
                         <svg className="w-5 h-5 mr-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-200 dark:group-hover:text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 25 23">
                             <path d="M18 13h1c.55 0 1 .45 1 1.01v2.98c0 .56-.45 1.01-1 1.01h-4c-.55 0-1-.45-1-1.01v-2.98c0-.56.45-1.01 1-1.01h1v-2h-5v2h1c.55 0 1 .45 1 1.01v2.98c0 .56-.45 1.01-1 1.01H8c-.55 0-1-.45-1-1.01v-2.98c0-.56.45-1.01 1-1.01h1v-2H4v2h1c.55 0 1 .45 1 1.01v2.98C6 17.55 5.55 18 5 18H1c-.55 0-1-.45-1-1.01v-2.98C0 13.45.45 13 1 13h1v-2c0-1.1.9-2 2-2h5V7H8c-.55 0-1-.45-1-1.01V3.01C7 2.45 7.45 2 8 2h4c.55 0 1 .45 1 1.01v2.98C13 6.55 12.55 7 12 7h-1v2h5c1.1 0 2 .9 2 2v2z" />
                         </svg>Knowledge Graph
+
                     </a>
                 </li>
                 <li className={activeTab === "conversation-tab" ? "active mr-2" : "mr-2"} onClick={() => { setActiveTab("conversation-tab"); }}>
@@ -55,13 +56,14 @@ const Tabs = () => {
                     <a href="#" className={tabHrefClassString + (activeTab === "template-tab" ? " bg-sea-blue" : "")}>
                         <svg className="w-5 h-5 mr-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-200 dark:group-hover:text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 25 23">
                             <path d="M16 1h-3.278A1.992 1.992 0 0 0 11 0H7a1.993 1.993 0 0 0-1.722 1H2a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2Zm-3 14H5a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2Zm0-4H5a1 1 0 0 1 0-2h8a1 1 0 1 1 0 2Zm0-5H5a1 1 0 0 1 0-2h2V2h4v2h2a1 1 0 1 1 0 2Z" />
-                        </svg>Templates
+                        </svg>Document Templates
                     </a>
                 </li>
                 <li className={activeTab === "agent-tab" ? "active mr-2" : "mr-2"} onClick={() => { setActiveTab("agent-tab"); }}>
                     <a href="#" className={tabHrefClassString + (activeTab === "agent-tab" ? " bg-sea-blue" : "")}>
                         <svg className="w-5 h-5 mr-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-200 dark:group-hover:text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 25 23">
                             <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z" />
+
                         </svg>Workflow Agents
                     </a>
                 </li> */}
