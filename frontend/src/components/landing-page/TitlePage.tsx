@@ -3,6 +3,7 @@ import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 import Tabs from "~/components/landing-page/Tabs";
 import Image from "next/image";
+import Sidebar from "~/components/landing-page/Navbar"
 
 export const TitlePage = () => {
     const { isMobile } = useIsMobile();

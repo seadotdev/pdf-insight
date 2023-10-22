@@ -3,7 +3,7 @@ import { DocumentExplorer } from "~/components/landing-page/DocumentExplorer"
 import { Conversation } from "~/components/landing-page/Conversation";
 import { KnowledgeGraph } from "~/components/landing-page/KnowledgeGraph";
 import AppFlow from "~/components/landing-page/Flow";
-// import Editor from "~/components/landing-page/Editor";
+import Editor from "~/components/landing-page/Editor";
 
 function TabsContent(props: { activeTab: string; }) {
     const activeTab = props.activeTab;
