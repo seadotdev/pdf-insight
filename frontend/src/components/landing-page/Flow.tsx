@@ -49,7 +49,7 @@ const initialEdges: Edge[] = [{ id: 'e1-2', source: '4', target: '1' },
 
 
 
-export default function AppFlow() {
+export default function Flow() {
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
 

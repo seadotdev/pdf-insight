@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { PropsWithChildren, useState, useEffect } from "react";
 import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 import Tabs from "~/components/landing-page/Tabs";
@@ -9,9 +9,14 @@ export const TitlePage = () => {
     const { boot } = useIntercom();
 
     useEffect(() => { boot(); }, [boot]);
+    
+    
+    return (
 
-  return (
-    <div className="landing-page-gradient-1 relative flex h-screen w-screen flex-col items-center font-calibri overflow-hidden">
+      <div className="landing-page-gradient-1 relative flex h-screen w-screen flex-col items-center font-calibri overflow-hidden">
+  
+
+      <div className="landing-page-gradient-1 relative flex h-screen w-screen flex-col items-center font-calibri overflow-hidden">
       <div className="absolute right-4 top-4">
         <a href="https://www.sea.dev/" target="_blank">
           <button className="flex items-center justify-center font-nunito text-lg font-bold ">
@@ -40,7 +45,8 @@ export const TitlePage = () => {
         </div>
       ) : (
         <Tabs />
-      )}
+        )}    
     </div>
+  </div>
   );
 };

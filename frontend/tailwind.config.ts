@@ -43,7 +43,7 @@ export default {
       },
       // overidden by globals.css
       backgroundImage: (theme) => ({
-        gradient: "url('/b2b2-kg.png')",
+        gradient: "url('')",
       }),
       backgroundSize: {
         "100%": "100%",
@@ -54,7 +54,12 @@ export default {
       backgroundRepeat: {
         "no-repeat": "no-repeat",
       },
+      gridTemplateColumns: {
+        sidebar: "300px auto", //for sidebar layout
+        "sidebar-collapsed": "64px auto", //for collapsed sidebar layout
+      },
     },
   },
   plugins: [],
 } satisfies Config;
+
