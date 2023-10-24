@@ -25,7 +25,7 @@
 @layer components {
   .landing-page-gradient-1 {
     background-color: rgb(138, 138, 138);
-    /* background-image: url('/b2b2-kg.png'); */
+    background-image: url('/b2b2-kg.png');
     background-repeat: no-repeat;
     background-size: cover;
   }
