@@ -2,8 +2,7 @@ import { useState } from "react";
 import { DocumentExplorer } from "~/components/landing-page/DocumentExplorer"
 import { Conversation } from "~/components/landing-page/Conversation";
 import { KnowledgeGraph } from "~/components/landing-page/KnowledgeGraph";
-import AppFlow from "~/components/landing-page/Flow";
-import Editor from "~/components/landing-page/Editor";
+import Flow from "~/components/landing-page/Flow";
 
 function TabsContent(props: { activeTab: string; }) {
     const activeTab = props.activeTab;
@@ -16,7 +15,7 @@ function TabsContent(props: { activeTab: string; }) {
             return (<div>Editor</div>);
             // return (<Editor />)
         case "agent-tab":
-            return (<AppFlow />)
+            return (<Flow />)
         case "doc-tab":
             return (<DocumentExplorer />)
         default:
