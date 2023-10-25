@@ -3,20 +3,22 @@ import json
 import os
 from app.chat.engine import build_doc_id_to_index_map, fetch_and_read_document, get_s3_fs, get_tool_service_context
 from app.schemas.pydantic_schema import DocumentTypeEnum
-import seed_storage_context
 import s3fs
+from app.api.crud import create_kg_index, fetch_kg_index
+from app.db.session import SessionLocal
 import upsert_document
 from pathlib import Path
 from fire import Fire
 from app.core.config import settings
 from typing import List
-from download_sec_pdf import DEFAULT_CIKS, DEFAULT_FILING_TYPES, DEFAULT_SOURCE_DIR
+from download_sec_pdf import DEFAULT_SOURCE_DIR
 
 from llama_index.schema import Document as LlamaIndexDocument
 from llama_index import (
     LLMPredictor,
     ServiceContext,
     KnowledgeGraphIndex,
+    load_graph_from_storage,
     load_index_from_storage,
 )
 from llama_index.graph_stores import SimpleGraphStore
@@ -89,46 +91,32 @@ Done! 🏁
     )
 
 
-def build_kg():
+async def build_kg():
     persist_dir = f"{settings.S3_BUCKET_NAME}"
-    fs = get_s3_fs()
+    s3_fs = get_s3_fs()
 
     # Build the KG here
     print("Generating Knowledge Graph...\n")
 
-    graph_store = SimpleGraphStore()
-    storage_context = StorageContext.from_defaults(graph_store=graph_store)
-
-    # Rebel supports up to 512 input tokens, but shorter sequences also work well
-    llm = OpenAI(model="gpt-4", temperature=0)
-
-    # Can customize various parameters of the service context
-    # service_context = ServiceContext.from_defaults(
-    #   llm=llm,
-    #   embed_model=embed_model,
-    #   node_parser=node_parser,
-    #   prompt_helper=prompt_helper
-    # )
-    service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
+    graph_store = SimpleGraphStore(fs=s3_fs, persist_dir=persist_dir)
+    storage_context = StorageContext.from_defaults(graph_store=graph_store, fs=s3_fs, persist_dir=persist_dir)
+    service_context = ServiceContext.from_defaults()
 
     # Building an empty KG (can override with json input or seed with some custom data)
     # KnowledgeGrapIndex will also build a vectorstore alongside the graphstore by default
-    kg_docs = []
     kg_index = KnowledgeGraphIndex.from_documents(
-        kg_docs,
-        max_triplets_per_chunk=15,
+        [],
         storage_context=storage_context,
         service_context=service_context,
-        include_embeddings=True
+        include_embeddings=False
     )
 
-    # Make note of the index id, because might need to specify it when loading
-    print(f"Index Id: {kg_index.index_id}")
+    # Persist the index in db
+    async with SessionLocal() as db:
+        await create_kg_index(db, kg_index.index_id)
 
-    # Here we can stick in whatever triplets we like, e.g.
-    kg_index.upsert_triplet(("James kamper", "is director of", "sme analytics"))
-    kg_index.upsert_triplet(("james kamper", "is director of", "sme lending"))
-    kg_index.upsert_triplet(("ronnie sing", "is director of", "sme analytics"))
+    # Make note of the index id, because might need to specify it when loading
+    print(f"Index Id: {kg_index.index_id}\n")
 
     # is director of
     # is shareholder of
@@ -138,19 +126,21 @@ def build_kg():
     # SME ltd is shareholder of SME Tech Ltd
 
     # Store the index in the s3 bucket
-    kg_index.storage_context.persist(persist_dir=persist_dir, fs=fs)
+    print(f"Persisting in {persist_dir}\n")
+    kg_index.storage_context.persist(persist_dir=persist_dir, fs=s3_fs)
 
     return kg_index.index_id
 
 
-def load_kg(index_id: str):
+async def load_kg():
     # Loading the index
     s3_fs = get_s3_fs()
     persist_dir = f"{settings.S3_BUCKET_NAME}"
-    storage_context = StorageContext.from_defaults(fs=s3_fs, persist_dir=persist_dir)
 
     # Rebel supports up to 512 input tokens, but shorter sequences also work well
     llm = OpenAI(model="gpt-4", temperature=0)
+    service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
+    storage_context = StorageContext.from_defaults(fs=s3_fs, persist_dir=persist_dir)
 
     # Can customize various parameters of the service context
     # service_context = ServiceContext.from_defaults(
@@ -159,37 +149,46 @@ def load_kg(index_id: str):
     #   node_parser=node_parser,
     #   prompt_helper=prompt_helper
     # )
+    
+    async with SessionLocal() as db:
+        index_id = await fetch_kg_index(db)
 
-    service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
     kg_index = load_index_from_storage(
         storage_context=storage_context,
-        index_id=index_id,
         service_context=service_context,
-        max_triplets_per_chunk=15,
+        index_id=index_id,
         verbose=True,
     )
 
     return kg_index
 
-def update_kg(index_id: str):
+async def update_kg():
     s3_fs = get_s3_fs()
     persist_dir = f"{settings.S3_BUCKET_NAME}"
-    kg_index = load_kg(index_id)
+    kg_index = await load_kg()
 
-    kg_index.upsert_triplet(("James Kaberry", "is director of", "SME LENDING LIMITED"))
-    kg_index.upsert_triplet(("Ronnie Sarkar", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
-    kg_index.upsert_triplet(("Andy Davis", "is director of", "SME ANALYTICS & TECHNOLOGIES LIMITED"))
-    kg_index.upsert_triplet(("Andy Davis", "is director of", "SME LENDING LIMITED"))
+    kg_index.upsert_triplet(("Peter Berry", "is shareholder of", "SME LENDING"))
+    kg_index.upsert_triplet(("Peter Berry", "is shareholder of", "SME TECHNOLOGIES"))
+    
+    kg_index.upsert_triplet(("Andy Davis", "is shareholder of", "SME LENDING"))
+    kg_index.upsert_triplet(("Andy Davis", "is shareholder of", "SME TECHNOLOGIES"))
 
-    kg_index.upsert_triplet(("SME LENDING LIMITED", "has director", "James Kaberry"))
-    kg_index.upsert_triplet(("SME LENDING LIMITED", "has director", "Andy Davis"))
-    kg_index.upsert_triplet(("SME ANALYTICS & TECHNOLOGIES LIMITED", "has director", "Ronnie Sarkar"))
-    kg_index.upsert_triplet(("SME ANALYTICS & TECHNOLOGIES LIMITED", "has director", "Andy Davis"))
+    kg_index.upsert_triplet(("Ronnie Jayson", "is shareholder of", "SME TECHNOLOGIES"))
+
+    kg_index.upsert_triplet(("John Roberts", "is shareholder of", "BANK TECH"))
+    kg_index.upsert_triplet(("Sarah Smith", "is shareholder of", "BANK TECH"))
+    
+
+    kg_index.upsert_triplet(("SME LENDING", "has shareholder", "Peter Berry"))
+    kg_index.upsert_triplet(("SME TECHNOLOGIES", "has shareholder", "Peter Berry"))
+    kg_index.upsert_triplet(("SME LENDING", "has shareholder", "Andy Davis"))
+    kg_index.upsert_triplet(("SME TECHNOLOGIES", "has shareholder", "Andy Davis"))
+    kg_index.upsert_triplet(("SME TECHNOLOGIES", "has shareholder", "Ronnie Jayson"))
+    kg_index.upsert_triplet(("BANK TECH", "has shareholder", "John Roberts"))
+    kg_index.upsert_triplet(("BANK TECH", "has shareholder", "Sarah Smith"))
 
     # Store the index in the s3 bucket
     kg_index.storage_context.persist(persist_dir=persist_dir, fs=s3_fs)
-    # list(kg_index)
-    
 
 
 def seed_db():
@@ -198,11 +197,11 @@ def seed_db():
 
 if __name__ == "__main__":
     # builds kg
-    index_id = Fire(build_kg)
+    # index_id = asyncio.run(build_kg())
     
     # Loads from data/ into the vector store 
     # Fire(async_seed_db)
 
     # loads index from virtual S3
-    kg_index = load_kg(index_id)
-    print(f'🚨 put this in the engine yo! just search for index_id="{index_id}"')
+    kg_index = asyncio.run(update_kg())
+    # print(f'🚨 put this in the engine yo! just search for index_id="{kg_index.index_id}"')

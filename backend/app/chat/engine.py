@@ -58,6 +58,8 @@ from app.chat.constants import (
 from app.chat.tools import get_api_query_engine_tool, build_title_for_document
 from app.chat.pg_vector import get_vector_store_singleton
 from app.chat.qa_response_synth import get_custom_response_synth
+from app.api.crud import fetch_kg_index
+from app.db.session import SessionLocal
 
 logger = logging.getLogger(__name__)
 logger.info("Applying nested asyncio patch")
@@ -230,19 +232,19 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
 
     # [TODO: hacky way to use the knowledge graph, please change this for the love of god]
     if (len(conversation.documents) == 0):
-        llm = OpenAI(model="gpt-4", temperature=0)
-        service_context = service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
-        response_synthesizer = get_response_synthesizer(response_mode="tree_summarize")
-        # response_synthesizer = get_response_synthesizer(response_mode="refine")
+        # Fetch index id from database
+        async with SessionLocal() as db:
+            index_id = await fetch_kg_index(db)
 
+        llm = OpenAI(model="gpt-4", temperature=0)
+        service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
+        response_synthesizer = get_response_synthesizer(response_mode="refine")
         persist_dir = f"{settings.S3_BUCKET_NAME}"
-        storage_context = StorageContext.from_defaults(
-            fs=s3_fs, persist_dir=persist_dir)
+        storage_context = StorageContext.from_defaults(fs=s3_fs, persist_dir=persist_dir)
 
         kg_index = load_index_from_storage(
             storage_context=storage_context,
-
-            index_id="502b65f1-2e78-4e70-aae1-ddb4a86dbcea",
+            index_id=index_id,
             service_context=service_context,
             max_triplets_per_chunk=15,
             verbose=True,
@@ -250,9 +252,9 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
 
         graph_retriever = kg_index.as_retriever(
             include_text=False,
-            embedding_mode="hybrid",
+            embedding_mode="keyword",
             similarity_top_k=5,
-            graph_store_query_depth=2
+            graph_store_query_depth=5
         )
 
         graph_query_engine = RetrieverQueryEngine.from_args(
@@ -283,10 +285,7 @@ answer the query. \
 If the context isn't useful, return the original answer.
 Refined Answer:
 """.strip()
-        refine_prompt = RefinePrompt(
-            template=refine_template_str,
-            prompt_type=PromptType.REFINE,
-        )
+        refine_prompt = RefinePrompt(template=refine_template_str, prompt_type=PromptType.REFINE)
 
         qa_template_str = f"""
 A user has a question about a company. \

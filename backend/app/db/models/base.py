@@ -115,8 +115,7 @@ class MessageSubProcess(Base):
     A record of a sub-process that occurred as part of the generation of a message from an AI assistant
     """
 
-    message_id = Column(UUID(as_uuid=True),
-                        ForeignKey("message.id"), index=True)
+    message_id = Column(UUID(as_uuid=True), ForeignKey("message.id"), index=True)
     source = Column(to_pg_enum(MessageSubProcessSourceEnum))
     message = relationship("Message", back_populates="sub_processes")
     status = Column(
@@ -125,3 +124,9 @@ class MessageSubProcess(Base):
         nullable=False,
     )
     metadata_map = Column(JSONB, nullable=True)
+
+class KnowledgeGraph(Base):
+    """
+    Knowledge graph for a document
+    """
+    index_id = Column(UUID(as_uuid=True), nullable=False, unique=True)

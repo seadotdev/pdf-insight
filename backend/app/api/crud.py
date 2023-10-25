@@ -1,9 +1,10 @@
 from typing import Optional, cast, Sequence, List
+import sqlalchemy
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from sqlalchemy.dialects.postgresql import insert
-from app.db.models.base import Conversation, Message, Document, ConversationDocument
+from app.db.models.base import Conversation, Message, Document, ConversationDocument, KnowledgeGraph
 from app.schemas import pydantic_schema
 
 
@@ -35,36 +36,24 @@ async def fetch_conversation_with_messages(db: AsyncSession, conversation_id: st
             ],
         }
         return pydantic_schema.Conversation(**convo_dict)
+
     return None
-
-
-async def create_conversation(db: AsyncSession, convo_payload: pydantic_schema.ConversationCreate) -> pydantic_schema.Conversation:
-    conversation = Conversation()
-    convo_doc_db_objects = [
-        ConversationDocument(document_id=doc_id, conversation=conversation)
-        for doc_id in convo_payload.document_ids
-    ]
-    db.add(conversation)
-    db.add_all(convo_doc_db_objects)
-    await db.commit()
-    await db.refresh(conversation)
-    return await fetch_conversation_with_messages(db, conversation.id)
 
 
 async def delete_conversation(db: AsyncSession, conversation_id: str) -> bool:
     stmt = delete(Conversation).where(Conversation.id == conversation_id)
     result = await db.execute(stmt)
     await db.commit()
+
     return result.rowcount > 0
 
 
-async def fetch_message_with_sub_processes(
-    db: AsyncSession, message_id: str
-) -> Optional[pydantic_schema.Message]:
+async def fetch_message_with_sub_processes(db: AsyncSession, message_id: str) -> Optional[pydantic_schema.Message]:
     """
     Fetch a message with its sub processes
     return None if the message with the given id does not exist
     """
+
     # Eagerly load required relationships
     stmt = (
         select(Message)
@@ -75,6 +64,7 @@ async def fetch_message_with_sub_processes(
     message = result.scalars().first()  # get the first result
     if message is not None:
         return pydantic_schema.Message.from_orm(message)
+
     return None
 
 
@@ -109,6 +99,7 @@ async def upsert_document(db: AsyncSession, document: pydantic_schema.Document) 
     """
     Upsert a document
     """
+
     stmt = insert(Document).values(**document.dict(exclude_none=True))
     stmt = stmt.on_conflict_do_update(
         index_elements=[Document.url],
@@ -120,3 +111,49 @@ async def upsert_document(db: AsyncSession, document: pydantic_schema.Document) 
     await db.commit()
 
     return upserted_doc
+
+
+async def create_conversation(db: AsyncSession, convo_payload: pydantic_schema.ConversationCreate) -> pydantic_schema.Conversation:
+    conversation = Conversation()
+    convo_doc_db_objects = [
+        ConversationDocument(document_id=doc_id, conversation=conversation)
+        for doc_id in convo_payload.document_ids
+    ]
+    db.add(conversation)
+    db.add_all(convo_doc_db_objects)
+    await db.commit()
+    await db.refresh(conversation)
+
+    return await fetch_conversation_with_messages(db, conversation.id)
+
+
+async def create_kg_index(db: AsyncSession, index_id: str) -> str:
+    """
+    Create a knowledge graph if it doesn't exist already
+    """
+
+    kg = KnowledgeGraph(index_id=index_id)
+
+    # Check if one already exists
+    existing = (select(KnowledgeGraph.index_id))
+    update_query = (
+        update(KnowledgeGraph)
+        .where(KnowledgeGraph.index_id.in_(existing))
+        .values({"index_id": kg.index_id})
+    )
+    await db.execute(update_query)
+    await db.commit()
+
+    return kg.index_id
+
+
+async def fetch_kg_index(db: AsyncSession) -> str:
+    """
+    Fetch the knowledge graph id
+    """
+
+    stmt = select(KnowledgeGraph.index_id)
+    result = await db.execute(stmt)
+    index_ids = result.scalars().all()
+
+    return str(index_ids[0])
