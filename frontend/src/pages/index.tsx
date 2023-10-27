@@ -5,10 +5,7 @@ import { TitlePage } from "~/components/landing-page/TitlePage";
 
 const LandingPage: NextPage = () => {
     return (
-        <>
-            <TitlePage />
-            {/* <MarketingSection /> */}
-        </>
+        <TitlePage />
     );
 };
 

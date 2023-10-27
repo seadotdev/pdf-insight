@@ -21,7 +21,7 @@ from llama_index import (
     load_graph_from_storage,
     load_index_from_storage,
 )
-from llama_index.graph_stores import SimpleGraphStore
+from llama_index.graph_stores import KuzuGraphStore
 from llama_index.node_parser import SimpleNodeParser
 from llama_index.storage.storage_context import StorageContext
 from llama_index.llms import OpenAI
@@ -98,7 +98,7 @@ async def build_kg():
     # Build the KG here
     print("Generating Knowledge Graph...\n")
 
-    graph_store = SimpleGraphStore(fs=s3_fs, persist_dir=persist_dir)
+    graph_store = KuzuGraphStore(fs=s3_fs, persist_dir=persist_dir)
     storage_context = StorageContext.from_defaults(graph_store=graph_store, fs=s3_fs, persist_dir=persist_dir)
     service_context = ServiceContext.from_defaults()
 

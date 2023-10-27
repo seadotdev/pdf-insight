@@ -252,9 +252,10 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
 
         graph_retriever = kg_index.as_retriever(
             include_text=False,
-            embedding_mode="keyword",
+            retriever_mode="keyword",
             similarity_top_k=5,
-            graph_store_query_depth=5
+            graph_store_query_depth=5,
+            verbose=True
         )
 
         graph_query_engine = RetrieverQueryEngine.from_args(

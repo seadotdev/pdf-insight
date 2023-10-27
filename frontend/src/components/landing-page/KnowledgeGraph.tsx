@@ -1,5 +1,4 @@
 import React, { type ChangeEvent, useEffect, useRef, useState, useCallback } from "react";
-import Image from 'next/image';
 import Script from 'next/script';
 import { backendClient } from "~/api/backendClient";
 
