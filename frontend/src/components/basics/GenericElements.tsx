@@ -28,7 +28,7 @@ export const Button = (props: ComponentPropsWithRef<"button">) => {
                 // colours
                 "bg-sea-blue text-gray-900 ": true,
                 //hover styling
-                "hover:bg-[#3B3775] hover:text-gray-100": true,
+                "hover:bg-sea-blue-dark hover:text-gray-100": true,
             })}
         >{props.children}
         </button>

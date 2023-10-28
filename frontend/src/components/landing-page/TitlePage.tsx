@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 import { DocumentExplorer } from "~/components/landing-page/DocumentExplorer"
@@ -15,6 +16,7 @@ import {
     HiUser,
     HiViewBoards,
     HiAdjustments,
+    HiHome,
     HiOutlineArrowCircleRight,
     HiNewspaper,
     HiChat,
@@ -25,6 +27,7 @@ import {
     HiTerminal,
     HiPresentationChartLine
 } from 'react-icons/hi';
+
 
 function Content(props: { activeItem: string; }) {
     const activeItem = props.activeItem;
@@ -37,8 +40,7 @@ function Content(props: { activeItem: string; }) {
             return (<KnowledgeGraph />)
         case "Template Tab":
             return (<div>Editor</div>);
-        // return (<Editor />)
-        case "Agent":
+        case "Agent Control Plane":
             return (<Flow />)
         case "Document Templates":
             return (<DocumentExplorer />)
@@ -59,7 +61,7 @@ const customTheme: CustomFlowbiteTheme = {
             inner: "flex flex-col h-full overflow-y-auto overflow-x-hidden rounded py-4 px-3 bg-gray-200"
         },
         collapse: {
-            button: "group flex w-full items-center rounded-lg p-2 text-base font-normal text-gray-900 transition duration-75 hover:bg-sea-blue dark:text-white dark:hover:bg-gray-700",
+            button: "group flex w-full items-center rounded-lg p-2 text-base font-normal text-gray-900 transition duration-75 hover:bg-sea-blue-light dark:text-white dark:hover:bg-gray-700",
             icon: {
                 base: "h-6 w-6 text-gray-500 transition duration-500 ease-in-out group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white",
                 open: {
@@ -96,8 +98,8 @@ const customTheme: CustomFlowbiteTheme = {
             }
         },
         item: {
-            base: "group flex items-center justify-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-sea-blue dark:text-white dark:hover:bg-gray-700",
-            active: "bg-sea-blue dark:bg-gray-700",
+            base: "group flex items-center justify-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-sea-blue-light dark:text-white dark:hover:bg-gray-700",
+            active: "bg-sea-blue-light dark:bg-gray-700",
             collapsed: {
                 insideCollapse: "group w-full pl-8 transition duration-75",
                 noIcon: "font-bold"
@@ -133,9 +135,10 @@ export const TitlePage = () => {
     useEffect(() => { boot(); }, [boot]);
 
     const [activeItem, setActiveItem] = useState("doc-tab");
+    const router = useRouter();
 
     return (
-        <div className="h-screen w-screen flex flex-row">
+        <div className="h-screen w-screen flex flex-row overflow-hidden">
             <Flowbite theme={{ theme: customTheme }}>
                 <Sidebar aria-label="Nav Menu">
                     <Sidebar.Logo href="#" img="/favicon.ico" imgAlt="SeaDotDev Logo">
@@ -143,6 +146,7 @@ export const TitlePage = () => {
                     </Sidebar.Logo>
                     <Sidebar.Items>
                         <Sidebar.ItemGroup >
+                            <Sidebar.Item href="#" icon={HiHome} onClick={() => { router.push("/") }}>Home</Sidebar.Item>
                             <Sidebar.Collapse icon={HiViewBoards} label="Lending Workflows">
                                 <Sidebar.Item href="#" icon={HiNewspaper} onClick={() => { setActiveItem("Underwriting Tools"); }} className="pl-4">Underwriting Tools</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiDocument} onClick={() => { setActiveItem("Document Templates"); }} className="pl-4">Document Templates</Sidebar.Item>
@@ -173,7 +177,7 @@ export const TitlePage = () => {
                     </Sidebar.Items>
                 </Sidebar>
             </Flowbite>
-            <div className="flex justify-center items-center flex-grow h-screen overflow-y-auto">
+            <div className="mt-6 flex justify-center flex-grow h-screen overflow-y-auto">
                 {Content({ activeItem: activeItem })}
             </div>
         </div >

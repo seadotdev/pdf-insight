@@ -29,8 +29,12 @@
     background-size: cover;
   }
   
-  .bg-sea-blue {
-    background-color: #84abcf70;
+  .bg-sea-blue-light {
+    background-color: #7cc0d8;
+  }
+
+  .bg-sea-blue-dark {
+    background-color: #134b5f
   }
 }
 
