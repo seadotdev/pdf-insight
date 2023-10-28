@@ -14,7 +14,7 @@ import { LoadingSpinner } from "~/components/basics/Loading";
 import { backendClient } from "~/api/backendClient";
 import { Button } from "~/components/basics/GenericElements";
 
-export const Conversation = () => {
+export const Conversation = () : React.JSX.Element => {
     const router = useRouter();
     const [isLoadingConversation, setIsLoadingConversation] = useState(false);
     const handleSubmit = (event: { preventDefault: () => void }) => {
@@ -184,7 +184,8 @@ export const Conversation = () => {
                         </>
                     )}
                     <div className="md:ml-12">
-                        <Button disabled={!isStartConversationButtonEnabled} onClick={handleSubmit}>
+                        <Button disabled={!isStartConversationButtonEnabled} onClick={handleSubmit}
+                        >
                             <div className="flex items-center justify-center">
                                 {isLoadingConversation ? (
                                     <div className="flex h-[22px] w-[180px] items-center justify-center">

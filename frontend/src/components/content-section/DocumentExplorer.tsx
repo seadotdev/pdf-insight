@@ -107,7 +107,7 @@ const SelectFromCH = (): JSX.Element => {
     };
 
     return (
-        <div className="w-full flex flex-wrap justify-between w-[800px] rounded px-4 py-4">
+        <div className="w-full flex flex-wrap justify-between w-[800px] rounded p-4">
             <div className="w-full flex flex-wrap justify-between">
                 <form id="search-form-submit" className="flex items-center w-full" onSubmit={handleSearchFormSubmit}>
                     <div className="relative w-full">

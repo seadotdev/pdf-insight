@@ -20,6 +20,8 @@ const PdfFocusContext = createContext<PdfFocusContextProps | undefined>(
 interface PdfFocusProviderProps {
   children: React.ReactNode;
 }
+
+
 // PDF Provider
 export const PdfFocusProvider: React.FC<PdfFocusProviderProps> = ({
   children,

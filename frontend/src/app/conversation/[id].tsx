@@ -15,17 +15,11 @@ import { FiShare } from "react-icons/fi";
 import ShareLinkModal from "~/components/modals/ShareLinkModal";
 import { BsArrowUpCircle } from "react-icons/bs";
 import { useModal } from "~/hooks/utils/useModal";
-import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 
 export default function Conversation() {
     const router = useRouter();
     const { id } = router.query;
-    const { shutdown } = useIntercom();
-
-    useEffect(() => {
-        shutdown();
-    }, [shutdown]);
 
     const { isOpen: isShareModalOpen, toggleModal: toggleShareModal } = useModal();
     const { isMobile } = useIsMobile();
