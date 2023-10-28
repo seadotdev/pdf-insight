@@ -119,22 +119,15 @@ export const Conversation = () => {
                     </div>
                 </div>
                 <div className="relative">
-                    <button
+                    <Button
                         className="m-4 rounded border bg-llama-indigo px-8 py-2 text-white hover:bg-[#3B3775] disabled:bg-gray-30"
                         onClick={handleAddDocument}
                         disabled={!isDocumentSelectionEnabled || !selectedYear}
-                    >
-                        Add
-                    </button>
-
-                    <div className="absolute -right-[10px] bottom-[-4px] w-[140px] font-nunito text-[10px] text-[#7F7F7F]">
-                        {" "}
-                        <span className="font-bold">Shift + Enter </span>to add to list{" "}
-                    </div>
+                    >Add</Button>
                 </div>
             </div>
 
-            <div className="mt-2 flex h-full w-11/12 flex-col justify-start overflow-scroll px-4 ">
+            <div className="mt-2 flex h-full w-11/12 flex-col justify-start overflow-auto px-4 ">
                 {selectedDocuments.length === 0 && (
                     <div className="m-4 flex h-full flex-col items-center justify-center bg-gray-00 font-nunito text-gray-90">
                         <div>
@@ -191,15 +184,7 @@ export const Conversation = () => {
                         </>
                     )}
                     <div className="md:ml-12">
-                        <Button
-                            disabled={!isStartConversationButtonEnabled}
-                            onClick={handleSubmit}
-                            className={cx(
-                                "m-4 rounded border bg-llama-indigo px-6 py-2 font-nunito text-white hover:bg-[#3B3775] disabled:bg-gray-30 ",
-                                !isStartConversationButtonEnabled &&
-                                "border-gray-300 bg-gray-300"
-                            )}
-                        >
+                        <Button disabled={!isStartConversationButtonEnabled} onClick={handleSubmit}>
                             <div className="flex items-center justify-center">
                                 {isLoadingConversation ? (
                                     <div className="flex h-[22px] w-[180px] items-center justify-center">
