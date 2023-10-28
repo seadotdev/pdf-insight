@@ -30,12 +30,12 @@
   }
   
   .bg-sea-blue {
-    background-color: #1f3850;
+    background-color: #84abcf70;
   }
 }
 
 .react-flow__node-custom {
   padding: 10px;
-  background-color: #556677;
+  background-color: #5ccf963d;
   color: white;
 }

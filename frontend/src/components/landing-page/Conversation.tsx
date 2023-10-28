@@ -12,6 +12,7 @@ import { CgFileDocument } from "react-icons/cg";
 import { customReactSelectStyles } from "~/styles/react-select";
 import { LoadingSpinner } from "~/components/basics/Loading";
 import { backendClient } from "~/api/backendClient";
+import { Button } from "~/components/basics/GenericElements";
 
 export const Conversation = () => {
     const router = useRouter();
@@ -190,7 +191,7 @@ export const Conversation = () => {
                         </>
                     )}
                     <div className="md:ml-12">
-                        <button
+                        <Button
                             disabled={!isStartConversationButtonEnabled}
                             onClick={handleSubmit}
                             className={cx(
@@ -213,7 +214,7 @@ export const Conversation = () => {
                                     </>
                                 )}
                             </div>
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

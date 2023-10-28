@@ -48,6 +48,8 @@ additional_message_subprocess_fields = {
     "CONSTRUCTED_QUERY_ENGINE": "constructed_query_engine",
     "SUB_QUESTIONS": "sub_questions",
 }
+
+
 MessageSubProcessSourceEnum = Enum(
     "MessageSubProcessSourceEnum",
     [(event_type.name, event_type.value) for event_type in CBEventType]
@@ -67,8 +69,7 @@ class Document(Base):
     # URL to the actual document (e.g. a PDF)
     url = Column(String, nullable=False, unique=True)
     metadata_map = Column(JSONB, nullable=True)
-    conversations = relationship(
-        "ConversationDocument", back_populates="document")
+    conversations = relationship("ConversationDocument", back_populates="document")
 
 
 class Conversation(Base):
@@ -77,8 +78,7 @@ class Conversation(Base):
     """
 
     messages = relationship("Message", back_populates="conversation")
-    conversation_documents = relationship(
-        "ConversationDocument", back_populates="conversation")
+    conversation_documents = relationship("ConversationDocument", back_populates="conversation")
 
 
 class ConversationDocument(Base):
@@ -86,12 +86,9 @@ class ConversationDocument(Base):
     A many-to-many relationship between a conversation and a document
     """
 
-    conversation_id = Column(
-        UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
-    document_id = Column(UUID(as_uuid=True),
-                         ForeignKey("document.id"), index=True)
-    conversation = relationship(
-        "Conversation", back_populates="conversation_documents")
+    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("document.id"), index=True)
+    conversation = relationship("Conversation", back_populates="conversation_documents")
     document = relationship("Document", back_populates="conversations")
 
 
@@ -100,12 +97,10 @@ class Message(Base):
     A message in a conversation
     """
 
-    conversation_id = Column(
-        UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
+    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversation.id"), index=True)
     content = Column(String)
     role = Column(to_pg_enum(MessageRoleEnum))
-    status = Column(to_pg_enum(MessageStatusEnum),
-                    default=MessageStatusEnum.PENDING)
+    status = Column(to_pg_enum(MessageStatusEnum), default=MessageStatusEnum.PENDING)
     conversation = relationship("Conversation", back_populates="messages")
     sub_processes = relationship("MessageSubProcess", back_populates="message")
 
@@ -124,6 +119,7 @@ class MessageSubProcess(Base):
         nullable=False,
     )
     metadata_map = Column(JSONB, nullable=True)
+
 
 class KnowledgeGraph(Base):
     """

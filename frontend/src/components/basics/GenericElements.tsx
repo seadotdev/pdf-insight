@@ -26,11 +26,12 @@ export const Button = (props: ComponentPropsWithRef<"button">) => {
                 // margins and border
                 "px-4 py-2 rounded border border-blue-700": true,
                 // colours
-                "bg-llama-indigo text-gray-900 ": true,
+                "bg-sea-blue text-gray-900 ": true,
                 //hover styling
                 "hover:bg-[#3B3775] hover:text-gray-100": true,
             })}
-        >Upload</button>
+        >{props.children}
+        </button>
     )
 }
 
