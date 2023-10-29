@@ -778,7 +778,7 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
     if (len(conversation.documents) == 0):
         llm = OpenAI(model="gpt-4", temperature=0)
         service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
-        response_synthesizer = get_response_synthesizer(response_mode="refine")
+        response_synthesizer = get_response_synthesizer(response_mode="tree_summarize")
         persist_dir = f"{settings.S3_BUCKET_NAME}"
         storage_context = StorageContext.from_defaults(fs=s3_fs, persist_dir=persist_dir)
 
