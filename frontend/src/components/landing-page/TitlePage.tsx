@@ -68,7 +68,7 @@ const customTheme: CustomFlowbiteTheme = {
             base: "h-full",
             collapsed: {
                 on: "w-16",
-                off: "w-64"
+                off: "w-72"
             },
             inner: "flex flex-col h-full overflow-y-auto overflow-x-hidden rounded py-4 px-3 bg-gray-200"
         },
@@ -189,7 +189,7 @@ export const TitlePage = () => {
                     </Sidebar.Items>
                 </Sidebar>
             </Flowbite>
-            <div className="mt-6 flex justify-center flex-grow h-screen overflow-y-auto">
+            <div className="flex justify-center flex-grow h-screen overflow-y-auto">
                 {Content({ activeItem: activeItem })}
             </div>
         </div >

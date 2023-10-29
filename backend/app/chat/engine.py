@@ -39,6 +39,7 @@ from llama_index import (
 )
 from llama_index.llms import OpenAI
 from llama_index.query_engine import RetrieverQueryEngine
+# from llama_index.retrievers import KnowledgeGraphRAGRetriever
 from llama_index import get_response_synthesizer, load_index_from_storage
 from llama_index.node_parser.simple import SimpleNodeParser
 
@@ -55,11 +56,13 @@ from app.chat.constants import (
     NODE_PARSER_CHUNK_OVERLAP,
     NODE_PARSER_CHUNK_SIZE,
 )
+from app.chat.kg_retriever_custom import KnowledgeGraphRAGRetriever
 from app.chat.tools import get_api_query_engine_tool, build_title_for_document
 from app.chat.pg_vector import get_vector_store_singleton
 from app.chat.qa_response_synth import get_custom_response_synth
 from app.api.crud import fetch_kg_index
 from app.db.session import SessionLocal
+
 
 logger = logging.getLogger(__name__)
 logger.info("Applying nested asyncio patch")
@@ -232,42 +235,27 @@ async def get_chat_engine(callback_handler: BaseCallbackHandler, conversation: C
 
     # [TODO: hacky way to use the knowledge graph, please change this for the love of god]
     if (len(conversation.documents) == 0):
-        # Fetch index id from database
-        async with SessionLocal() as db:
-            index_id = await fetch_kg_index(db)
-
         llm = OpenAI(model="gpt-4", temperature=0)
         service_context = ServiceContext.from_defaults(llm=llm, chunk_size=512)
-        response_synthesizer = get_response_synthesizer(response_mode="refine")
+        response_synthesizer = get_response_synthesizer(response_mode="tree_summarize")
         persist_dir = f"{settings.S3_BUCKET_NAME}"
         storage_context = StorageContext.from_defaults(fs=s3_fs, persist_dir=persist_dir)
 
-        kg_index = load_index_from_storage(
+        graph_retriever = KnowledgeGraphRAGRetriever(
             storage_context=storage_context,
-            index_id=index_id,
             service_context=service_context,
-            max_triplets_per_chunk=15,
+            llm=llm,
             verbose=True,
         )
-
-        graph_retriever = kg_index.as_retriever(
-            include_text=False,
-            retriever_mode="keyword",
-            similarity_top_k=5,
-            graph_store_query_depth=5,
-            verbose=True
-        )
-
         graph_query_engine = RetrieverQueryEngine.from_args(
             graph_retriever,
             service_context=service_context,
             response_synthesizer=response_synthesizer
         )
-
         query_engine_tools = [
             QueryEngineTool(
                 query_engine=graph_query_engine,
-                metadata=ToolMetadata(name="Knowledge Graph", description="KG metadata")
+                metadata=ToolMetadata(name="Knowledge Graph", description="The Knowledge Graph with data about companies")
             )
         ]
 
