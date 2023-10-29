@@ -68,7 +68,7 @@ const customTheme: CustomFlowbiteTheme = {
             base: "h-full",
             collapsed: {
                 on: "w-16",
-                off: "w-64"
+                off: "w-72"
             },
             inner: "flex flex-col h-full overflow-y-auto overflow-x-hidden rounded py-4 px-3 bg-gray-200"
         },
@@ -158,7 +158,7 @@ export const TitlePage = () => {
                     </Sidebar.Logo>
                     <Sidebar.Items>
                         <Sidebar.ItemGroup >
-                            <Sidebar.Item href="#" icon={HiHome} onClick={() => { router.push("/") }}>Home</Sidebar.Item>
+                            <Sidebar.Item href="#" icon={HiHome} onClick={() => router.push("/").catch( e => alert("Some error occurred!")) }>Home</Sidebar.Item>
                             <Sidebar.Collapse icon={HiViewBoards} label="Lending Workflows">
                                 <Sidebar.Item href="#" icon={HiNewspaper} onClick={() => { setActiveItem("Underwriting Tools"); }} className="pl-4">Underwriting Tools</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiDocument} onClick={() => { setActiveItem("Document Templates"); }} className="pl-4">Document Templates</Sidebar.Item>
@@ -189,7 +189,7 @@ export const TitlePage = () => {
                     </Sidebar.Items>
                 </Sidebar>
             </Flowbite>
-            <div className="mt-6 flex justify-center flex-grow h-screen overflow-y-auto">
+            <div className="flex justify-center flex-grow h-screen overflow-y-auto">
                 {Content({ activeItem: activeItem })}
             </div>
         </div >

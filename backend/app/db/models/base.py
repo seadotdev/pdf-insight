@@ -125,4 +125,5 @@ class KnowledgeGraph(Base):
     """
     Knowledge graph for a document
     """
+    
     index_id = Column(UUID(as_uuid=True), nullable=False, unique=True)
