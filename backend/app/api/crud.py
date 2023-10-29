@@ -136,15 +136,14 @@ async def create_kg_index(db: AsyncSession, index_id: str) -> str:
 
     # Check if one already exists
     existing = (select(KnowledgeGraph.index_id))
-    update_query = (
-        update(KnowledgeGraph)
-        .where(KnowledgeGraph.index_id.in_(existing))
-        .values({"index_id": kg.index_id})
-    )
-    await db.execute(update_query)
-    await db.commit()
+    result = await db.execute(existing)
+    
+    if(len(result.scalars().all()) == 0):
+        db.add(kg)
+        await db.commit()
+        await db.refresh(kg)
 
-    return kg.index_id
+    return fetch_kg_index(db)
 
 
 async def fetch_kg_index(db: AsyncSession) -> str:
