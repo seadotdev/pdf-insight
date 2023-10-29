@@ -235,7 +235,6 @@ export const KnowledgeGraph2 = () => {
                     <BsArrowUpCircle size={24} />
                 </button>
             </div>
-            {/* <Image src="/kg.png" width={300} height={200} className="mx-2 rounded-lg" alt="Knowledge Graph" /> */}
             {/* <div className="relative flex h-[70px] w-[44vw] w-full items-bottom border-b-2 border-t"></div> */}
             <div className="flourish-embed flourish-network w-full" data-src="visualisation/15237724">
                 <Script src="https://public.flourish.studio/resources/embed.js"></Script>

@@ -3,6 +3,10 @@ import { useRouter } from "next/router";
 import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 import { DocumentExplorer } from "~/components/landing-page/DocumentExplorer"
+import { Underwrite } from "~/components/landing-page/Underwrite"
+import { Analytics } from "~/components/landing-page/Analytics"
+import { Sources } from "~/components/landing-page/Sources"
+import { Targets } from "~/components/landing-page/Targets"
 import { Conversation } from "~/components/landing-page/Conversation";
 import { KnowledgeGraph } from "~/components/landing-page/KnowledgeGraph";
 import Flow from "~/components/landing-page/Flow";
@@ -44,6 +48,14 @@ function Content(props: { activeItem: string; }) {
             return (<Flow />)
         case "Document Templates":
             return (<DocumentExplorer />)
+        case "Analytics":
+            return (<Analytics />)
+        case "Sources":
+            return (<Sources />)
+        case "Targets":
+            return (<Targets />)
+        case "Underwriting Tools":
+            return (<Underwrite />)
         default:
             return (<div>Hi!</div>);
     }
