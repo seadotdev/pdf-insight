@@ -16,6 +16,8 @@ import { Sidebar } from 'flowbite-react';
 import type { CustomFlowbiteTheme } from 'flowbite-react';
 import { Flowbite } from 'flowbite-react';
 import {
+
+    // https://react-icons.github.io/react-icons/icons?name=hi
     HiArrowSmRight,
     HiChartPie,
     HiTable,
@@ -204,16 +206,16 @@ export const TitlePage = () => {
                     <Sidebar.Items>
                             {/* <Sidebar.Item href="#" icon={HiHome} onClick={() => router.push("/").catch( e => alert("Some error occurred!")) }>Home</Sidebar.Item> */}
                         <Sidebar.ItemGroup >
+                            <Sidebar.Collapse icon={HiBriefcase} label="Finance Workflows">
+                                <Sidebar.Item href="#" icon={HiNewspaper} onClick={() => { setActiveItem("Underwriting Tools"); }} className="pl-4">Underwriting Tools</Sidebar.Item>
+                                <Sidebar.Item href="#" icon={HiDocument} onClick={() => { setActiveItem("Document Templates"); }} className="pl-4">Document Templates</Sidebar.Item>
+                            </Sidebar.Collapse>
                             <Sidebar.Collapse icon={HiOutlineColorSwatch} label="Agent Control Plane">
                                 <Sidebar.Item href="#" icon={HiTerminal} onClick={() => { setActiveItem("Deployed Agents"); }} className="pl-4">Deployed Agents</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiUserGroup} onClick={() => { setActiveItem("Agent Permissions"); }} className="pl-4">Agent Permissions</Sidebar.Item>
                                 {/* <Sidebar.Item href="#" icon={HiCog} onClick={() => { setActiveItem("LLM Configration"); }} className="pl-4">LLM Configration</Sidebar.Item> */}
                                 {/* <Sidebar.Item href="#" icon={HiLockClosed} onClick={() => { setActiveItem("Security"); }} className="pl-4">Security</Sidebar.Item> */}
                                 <Sidebar.Item href="#" icon={HiChartBar} onClick={() => { setActiveItem("Observability"); }} className="pl-4">Observability</Sidebar.Item>
-                            </Sidebar.Collapse>
-                            <Sidebar.Collapse icon={HiBriefcase} label="Finance Workflows">
-                                <Sidebar.Item href="#" icon={HiNewspaper} onClick={() => { setActiveItem("Underwriting Tools"); }} className="pl-4">Underwriting Tools</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiDocument} onClick={() => { setActiveItem("Document Templates"); }} className="pl-4">Document Templates</Sidebar.Item>
                             </Sidebar.Collapse>
                             <Sidebar.Collapse icon={HiCubeTransparent} label="Semantic Layer">
                                 <Sidebar.Item href="#" icon={HiPresentationChartLine} onClick={() => { setActiveItem("Data Modelling"); }} className="pl-4">Data Modelling</Sidebar.Item>
