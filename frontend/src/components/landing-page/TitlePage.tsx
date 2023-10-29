@@ -158,7 +158,7 @@ export const TitlePage = () => {
                     </Sidebar.Logo>
                     <Sidebar.Items>
                         <Sidebar.ItemGroup >
-                            <Sidebar.Item href="#" icon={HiHome} onClick={() => { router.push("/") }}>Home</Sidebar.Item>
+                            <Sidebar.Item href="#" icon={HiHome} onClick={() => { router.push("/").catch(() => alert("whoops!")) }}>Home</Sidebar.Item>
                             <Sidebar.Collapse icon={HiViewBoards} label="Lending Workflows">
                                 <Sidebar.Item href="#" icon={HiNewspaper} onClick={() => { setActiveItem("Underwriting Tools"); }} className="pl-4">Underwriting Tools</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiDocument} onClick={() => { setActiveItem("Document Templates"); }} className="pl-4">Document Templates</Sidebar.Item>
