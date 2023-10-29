@@ -295,17 +295,15 @@ const AssistantDisplay: React.FC<AssistantDisplayProps> = ({
     );
 };
 
+
 interface IRenderConversation {
     messages: Message[];
     documents: Document[];
     setUserMessage: (str: string) => void;
 }
 
-export const RenderConversations: React.FC<IRenderConversation> = ({
-    messages,
-    documents,
-    setUserMessage,
-}) => {
+
+export const UnderwritingConversation: React.FC<IRenderConversation> = ({ messages, documents, setUserMessage }) => {
     const lastElementRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -316,7 +314,7 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
 
     const showLoading = messages[messages.length - 1]?.role === ROLE.USER;
     return (
-        <div className="box-border flex h-full flex-col justify-start font-nunito text-sm text-[#2B3175]">
+        <div className="box-border border-1 flex h-full flex-col justify-start font-nunito text-sm text-[#2B3175]">
             {messages.map((message, index) => {
                 let display;
                 if (message.role == ROLE.ASSISTANT) {
@@ -354,29 +352,7 @@ export const RenderConversations: React.FC<IRenderConversation> = ({
             })}
             {messages.length === 0 && (
                 <div className="flex h-full items-center justify-center ">
-                    <div className="flex w-full flex-col items-center justify-center">
-                        <div>
-                            <HiOutlineChatAlt2 size={30} />
-                        </div>
-                        <div className="mb-2 w-3/4 text-center text-lg font-bold">
-                            Ask questions about the documents you&apos;ve
-                            selected, such as:
-                        </div>
-                        <div className="m-auto flex w-full flex-wrap justify-center">
-                            <button
-                                onClick={() => setUserMessage("Key risks to funding a loan to this group?") }
-                                className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
-                            >Key risks to funding a loan to this group?</button>
-                            <button
-                                onClick={() => setUserMessage("Draft a proforma Investment Memo for this company?")}
-                                className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
-                            >Draft a proforma Investment Memo for this company?</button>
-                            <button
-                                onClick={() => setUserMessage("Describe incentive structure for the shareholders?") }
-                                className="m-1 flex-shrink rounded-full border border-gray-60 px-3 py-1 hover:bg-gray-15"
-                            >Describe incentive structure for the shareholders?</button>
-                        </div>
-                    </div>
+                    <div className="flex w-full flex-col items-center justify-center"></div>
                 </div>
             )}
             <div ref={lastElementRef}></div>

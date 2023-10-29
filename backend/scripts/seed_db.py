@@ -46,8 +46,6 @@ async def build_kg():
         await create_kg_index(db, kg_index.index_id)
 
     # Make note of the index id, because might need to specify it when loading
-    print(f"Index Id: {kg_index.index_id}\n")
-    print(f"Persisting in {persist_dir}\n")
     kg_index.storage_context.persist(persist_dir=persist_dir, fs=s3_fs)
 
     return kg_index.index_id
@@ -70,7 +68,6 @@ async def load_kg():
     kg_index = load_index_from_storage(
         storage_context=storage_context,
         service_context=service_context,
-        index_id=index_id,
         verbose=True,
     )
 
@@ -100,6 +97,9 @@ async def update_kg():
     kg_index.upsert_triplet(("SME TECHNOLOGIES", "has shareholder", "Ronnie Jayson"))
     kg_index.upsert_triplet(("BANK TECH", "has shareholder", "John Roberts"))
     kg_index.upsert_triplet(("BANK TECH", "has shareholder", "Sarah Smith"))
+
+    kg_index.upsert_triplet(("BANK TECH", "is acquired by", "SME TECHNOLOGIES"))
+    kg_index.upsert_triplet(("SME TECHNOLOGIES", "has acquired", "BANK TECH"))
 
     # Store the index in the s3 bucket
     kg_index.storage_context.persist(persist_dir=persist_dir, fs=s3_fs)

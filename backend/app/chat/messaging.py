@@ -75,8 +75,9 @@ class ChatCallbackHandler(BaseCallbackHandler):
 
         if (event_type == CBEventType.SUB_QUESTION and EventPayload.SUB_QUESTION in payload):
             sub_q: SubQuestionAnswerPair = payload[EventPayload.SUB_QUESTION]
-            metadata_map[SubProcessMetadataKeysEnum.SUB_QUESTION.value] = pydantic_schema.QuestionAnswerPair.from_sub_question_answer_pair(sub_q).dict()
-            
+            metadata_map[SubProcessMetadataKeysEnum.SUB_QUESTION.value] = pydantic_schema.QuestionAnswerPair.from_sub_question_answer_pair(
+                sub_q).dict()
+
         return metadata_map
 
     async def async_on_event(
@@ -107,11 +108,7 @@ class ChatCallbackHandler(BaseCallbackHandler):
     def start_trace(self, trace_id: Optional[str] = None) -> None:
         """No-op."""
 
-    def end_trace(
-        self,
-        trace_id: Optional[str] = None,
-        trace_map: Optional[Dict[str, List[str]]] = None,
-    ) -> None:
+    def end_trace(self, trace_id: Optional[str] = None, trace_map: Optional[Dict[str, List[str]]] = None) -> None:
         """No-op."""
 
 
@@ -119,9 +116,7 @@ async def handle_chat_message(conversation: pydantic_schema.Conversation,  user_
                               send_chan: MemoryObjectSendStream,
                               ) -> None:
     async with send_chan:
-        chat_engine = await get_chat_engine(
-            ChatCallbackHandler(send_chan), conversation
-        )
+        chat_engine = await get_chat_engine(ChatCallbackHandler(send_chan), conversation)
         await send_chan.send(
             StreamedMessageSubProcess(
                 event_id=str(uuid4()),
