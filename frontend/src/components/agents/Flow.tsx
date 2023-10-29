@@ -145,7 +145,7 @@ export default function Flow() {
             {/* <Image src="/integrations.png" width={1800} height={800} className="mx-2 rounded-lg" alt="analytics" /> */}
           </div>
         </div>);
-};
+}
 
 
 //   );

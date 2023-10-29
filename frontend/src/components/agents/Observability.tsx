@@ -101,5 +101,5 @@ export default function AgentPermissions() {
           </div>
         </div>
         </div>);
-};
+}
 
