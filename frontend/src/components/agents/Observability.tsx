@@ -75,7 +75,7 @@ export default function AgentPermissions() {
             ]}
             variant="bar"
             />  
-            <span className="font-extrabold">Transactions by Source</span>
+            {/* <span className="font-extrabold">Transactions by Source</span>
                 <Leaderboard
               headers={["DATA_SOURCE_TYPE", "value"]}
               rows={[
@@ -84,8 +84,8 @@ export default function AgentPermissions() {
                 ["S3", "203245"],
                 ["Redshift", "19594"],
               ]}
-            />
-              <span className="font-extrabold">Transaction % by LLM</span>
+            /> */}
+              {/* <span className="font-extrabold">Transaction % by LLM</span>
                 <Leaderboard
               headers={["DATA_SOURCE_TYPE", "value"]}
               rows={[
@@ -94,10 +94,10 @@ export default function AgentPermissions() {
                 ["Llama2", "12"],
                 ["Llama", "1"],
               ]}
-            />
+            /> */}
 
 <span className="font-extrabold"> Uptime</span>
-            <Counter prefixValue=" %" value="99.8" localize />
+            {/* <Counter prefixValue=" %" value="99.8" localize /> */}
           </div>
         </div>
         </div>);
