@@ -92,8 +92,9 @@ export default function Flow() {
                 <thead className="border-b bg-white font-medium dark:border-neutral-500 dark:bg-neutral-600">
                   <tr>
                     <th scope="col" className="px-6 py-4"></th>
-                    <th scope="col" className="px-6 py-4">Agent Owner</th>
+                    <th scope="col" className="px-6 py-4">Agent Component</th>
                     <th scope="col" className="px-6 py-4">Utilisation Rate</th>
+                    <th scope="col" className="px-6 py-4">Status</th>
                     <th scope="col" className="px-6 py-4">Errors</th>
                     <th scope="col" className="px-6 py-4">Config</th>
                   </tr>
@@ -102,8 +103,9 @@ export default function Flow() {
                   <tr
                     className="border-b transition duration-10 ease-in-out hover:bg-neutral-400 dark:border-neutral-500 dark:hover:bg-neutral-600">
                     <td className="whitespace-nowrap px-6 py-4 font-medium">1</td>
-                    <td className="whitespace-nowrap px-6 py-4">Siya Kolisi</td>
+                    <td className="whitespace-nowrap px-6 py-4">Data management</td>
                     <td className="whitespace-nowrap px-6 py-4">45%</td>
+                    <td className="whitespace-nowrap px-6 py-4">Active</td>
                     <td className="whitespace-nowrap px-6 py-4"></td>
                     <td className="whitespace-nowrap px-6 py-4">
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -113,8 +115,9 @@ export default function Flow() {
                   <tr
                     className="border-b transition duration-10 ease-in-out hover:bg-neutral-400 dark:border-neutral-500 dark:hover:bg-neutral-600">
                     <td className="whitespace-nowrap px-6 py-4 font-medium">2</td>
-                    <td className="whitespace-nowrap px-6 py-4">Handre Pollard</td>
+                    <td className="whitespace-nowrap px-6 py-4">Customer Engagement</td>
                     <td className="whitespace-nowrap px-6 py-4">65%</td>
+                    <td className="whitespace-nowrap px-6 py-4">Paused</td>
                     <td className="whitespace-nowrap px-6 py-4"></td>
                     <td className="whitespace-nowrap px-6 py-4">
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -124,8 +127,9 @@ export default function Flow() {
                   <tr
                     className="border-b transition duration-10 ease-in-out hover:bg-neutral-400 dark:border-neutral-500 dark:hover:bg-neutral-600">
                     <td className="whitespace-nowrap px-6 py-4 font-medium">3</td>
-                    <td className="whitespace-nowrap px-6 py-4">Cheslin Kolbe</td>
+                    <td className="whitespace-nowrap px-6 py-4">Document Management</td>
                     <td className="whitespace-nowrap px-6 py-4">67%</td>
+                    <td className="whitespace-nowrap px-6 py-4">Active</td>
                     <td className="whitespace-nowrap px-6 py-4"></td>
                     <td className="whitespace-nowrap px-6 py-4">
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
