@@ -110,11 +110,13 @@ export default function Conversation() {
             created_at: getDateWithUTCOffset(),
         };
 
-        systemSendMessage(parsedData);
-        setCountAgentMessages(countAgentMessages + 1);
-
-        console.error(parsedData);
-        setIsMessagePending(false);
+        // Without "this"
+        setTimeout(() => { 
+            systemSendMessage(parsedData);
+            setCountAgentMessages(countAgentMessages + 1);
+            console.error(parsedData);
+            setIsMessagePending(false);
+        }, 2000)
     }, [userMessage, conversationId, userSendMessage, systemSendMessage, setIsMessagePending, setUserMessage]);
 
     useEffect(() => {
