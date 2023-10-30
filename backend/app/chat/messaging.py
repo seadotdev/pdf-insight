@@ -108,48 +108,11 @@ class ChatCallbackHandler(BaseCallbackHandler):
     def start_trace(self, trace_id: Optional[str] = None) -> None:
         """No-op."""
 
-    def end_trace(self, trace_id: Optional[str] = None, trace_map: Optional[Dict[str, List[str]]] = None) -> None:
+    def end_trace(self,
+        trace_id: Optional[str] = None,
+        trace_map: Optional[Dict[str, List[str]]] = None,
+    ) -> None:
         """No-op."""
-
-
-async def handle_chat_message_agent(conversation: pydantic_schema.Conversation,  user_message: pydantic_schema.UserMessageCreate,
-                              send_chan: MemoryObjectSendStream,
-                              ) -> None:
-    async with send_chan:
-        chat_engine = await get_chat_engine(ChatCallbackHandler(send_chan), conversation)
-        await send_chan.send(
-            StreamedMessageSubProcess(
-                event_id=str(uuid4()),
-                has_ended=True,
-                source=MessageSubProcessSourceEnum.CONSTRUCTED_QUERY_ENGINE,
-            )
-        )
-        logger.debug("Engine received")
-        templated_message = f"""
-The following is an answer to your previous question:
-
-{user_message.content}
-        """.strip()
-
-        streaming_chat_next_question: StreamingAgentChatResponse = (
-            await chat_engine.astream_chat(templated_message)
-        )
-        response_str = ""
-        async for text in streaming_chat_next_question.async_response_gen():
-            response_str += text
-            if send_chan._closed:
-                logger.debug(
-                    "Received streamed token after send channel closed. Ignoring."
-                )
-                return
-            await send_chan.send(StreamedMessage(content=response_str))
-
-        if response_str.strip() == "":
-            await send_chan.send(
-                StreamedMessage(
-                    content="Sorry, I either wasn't able to understand your question or I don't have an answer for it."
-                )
-            )
 
 
 async def handle_chat_message(conversation: pydantic_schema.Conversation,  user_message: pydantic_schema.UserMessageCreate,
@@ -166,16 +129,15 @@ async def handle_chat_message(conversation: pydantic_schema.Conversation,  user_
         )
         logger.debug("Engine received")
         templated_message = f"""
-The following is an answer to your previous question:
+Remember - if I have asked a relevant financial question, use your tools.
 
 {user_message.content}
         """.strip()
-
-        streaming_chat_next_question: StreamingAgentChatResponse = (
+        streaming_chat_response: StreamingAgentChatResponse = (
             await chat_engine.astream_chat(templated_message)
         )
         response_str = ""
-        async for text in streaming_chat_next_question.async_response_gen():
+        async for text in streaming_chat_response.async_response_gen():
             response_str += text
             if send_chan._closed:
                 logger.debug(

@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { PdfFocusProvider } from "~/context/pdf";
+import { v4 as uuidv4 } from "uuid";
 
 import type { ChangeEvent } from "react";
 import DisplayMultiplePdfs from "~/components/pdf-viewer/DisplayMultiplePdfs";
 import { backendUrl } from "src/config";
-import { MESSAGE_STATUS, type Message } from "~/types/conversation";
+import { MESSAGE_STATUS, ROLE, type Message } from "~/types/conversation";
 import useMessages from "~/hooks/useMessages";
 import { backendClient } from "~/api/backendClient";
 import { RenderConversations as RenderConversations } from "~/components/conversations/RenderConversations";
@@ -18,6 +19,7 @@ import { useModal } from "~/hooks/utils/useModal";
 import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
 import { UnderwritingConversation } from "~/components/conversations/UnderwritingConversation";
+import { getDateWithUTCOffset } from "~/utils/timezone";
 
 export default function Conversation() {
     const router = useRouter();
@@ -28,6 +30,14 @@ export default function Conversation() {
         shutdown();
     }, [shutdown]);
 
+    const questionList: string[] = [
+        "Please tell us about your business and why you need a loan. Please also make references to the documents you've uploaded",
+        "Who are you, what is your relation to the business?",
+        "Who are the other shareholders of the business, how long have they owned the business and what is their long term plan?",
+        "What is the split of the usage of the loan between acquisition and buying out the previous owner, and has the business considered other forms of financing?",
+        "What does the business do, who are the customers of the business, who are the suppliers?",
+    ];
+
     const { isOpen: isShareModalOpen, toggleModal: toggleShareModal } = useModal();
     const { isMobile } = useIsMobile();
     const [conversationId, setConversationId] = useState<string | null>(null);
@@ -35,6 +45,7 @@ export default function Conversation() {
     const [userMessage, setUserMessage] = useState("");
     const [selectedDocuments, setSelectedDocuments] = useState<Document[]>([]);
     const { messages, userSendMessage, systemSendMessage, setMessages } = useMessages(conversationId || "");
+    const [countAgentMessages, setCountAgentMessages] = useState(1);
     const textFocusRef = useRef<HTMLTextAreaElement | null>(null);
 
     const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -45,15 +56,23 @@ export default function Conversation() {
         // router can have multiple query params which would then return string[]
         if (id && typeof id === "string") {
             setConversationId(id);
+
+            const parsedData: Message = {
+                id: String(setCountAgentMessages),
+                content: "Please tell us about your business and why you need a loan. Please also make references to the documents you've uploaded",
+                role: ROLE.ASSISTANT,
+                status: MESSAGE_STATUS.SUCCESS,
+                conversationId: id,
+                created_at: new Date(),
+            };
+
+            systemSendMessage(parsedData);
         }
     }, [id]);
 
     useEffect(() => {
         const fetchConversation = async (id: string) => {
             const result = await backendClient.fetchConversation(id);
-            if (result.messages) {
-                setMessages(result.messages);
-            }
             if (result.documents) {
                 setSelectedDocuments(result.documents);
             }
@@ -65,34 +84,37 @@ export default function Conversation() {
         }
     }, [conversationId, setMessages]);
 
+
     // Keeping this in this file for now because this will be subject to change
     const submit = useCallback(() => {
         if (!userMessage || !conversationId) {
             return;
         }
 
-        setIsMessagePending(true);
+        setIsMessagePending(false);
         userSendMessage(userMessage);
         setUserMessage("");
 
-        const messageEndpoint = backendUrl + `conversation/${conversationId}/message`;
-        const url = messageEndpoint + `?user_message=${encodeURI(userMessage)}`;
+        let content = "";
+        if(countAgentMessages < questionList.length)
+             content = questionList[countAgentMessages] as string;
+        else
+            content = "Thank you, we are processing your request and will get back to you";
 
-        const events = new EventSource(url);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
-        events.onmessage = (event: MessageEvent) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
-            const parsedData: Message = JSON.parse(event.data);
-            systemSendMessage(parsedData);
-
-            if (
-                parsedData.status === MESSAGE_STATUS.SUCCESS ||
-                parsedData.status === MESSAGE_STATUS.ERROR
-            ) {
-                events.close();
-                setIsMessagePending(false);
-            }
+        const parsedData: Message = {
+            id: uuidv4(),
+            conversationId,
+            content,
+            role: ROLE.ASSISTANT,
+            status: MESSAGE_STATUS.SUCCESS,
+            created_at: getDateWithUTCOffset(),
         };
+
+        systemSendMessage(parsedData);
+        setCountAgentMessages(countAgentMessages + 1);
+
+        console.error(parsedData);
+        setIsMessagePending(false);
     }, [userMessage, conversationId, userSendMessage, systemSendMessage, setIsMessagePending, setUserMessage]);
 
     useEffect(() => {

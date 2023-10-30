@@ -44,7 +44,6 @@ import {
     HiOutlineCloudDownload,
     HiOutlineCloudUpload
 } from 'react-icons/hi';
-import UnderwriteForm from "~/components/landing-page/UnderwriteForm";
 
 
 function Content(props: { activeItem: string; }) {
@@ -68,9 +67,6 @@ function Content(props: { activeItem: string; }) {
         case "Underwriting Tools":
             return (<Underwrite />)
 
-
-        case "Underwriting Form":
-            return (<UnderwriteForm />)
         case "Document Templates":
             return (<DocumentExplorer />)
 

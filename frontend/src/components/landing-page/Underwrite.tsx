@@ -17,7 +17,7 @@ const ListItem = (props: ComponentPropsWithRef<"tr">) => {
                 "bg-white border-b dark:bg-gray-800 dark:border-gray-700": true,
                 "hover:bg-sea-blue-light hover:cursor-pointer": true,
             })}
-            onClick={() => { router.push("/underwrite")}}
+            onClick={() => { router.push("/underwrite").catch(() => console.log("error navigating to conversation")) }}
         >
             {props.children}
         </tr>

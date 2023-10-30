@@ -37,23 +37,24 @@ async def create_conversation(payload: pydantic_schema.ConversationCreate, db: A
     """
     conversation_id = await crud.create_conversation(db, payload)
 
-    # Add initial question "Describe your company"
-    message_id = str(uuid4())
-    message = Message(
-        created_at=datetime.datetime.utcnow(),
-        updated_at=datetime.datetime.utcnow(),
-        id=message_id,
-        conversation_id=conversation_id,
-        content="Please describe your company",
-        role=MessageRoleEnum.assistant,
-        status=MessageStatusEnum.SUCCESS,
-        sub_processes=[],
-    )
+    # # Add initial question "Describe your company"
+    # message_id = str(uuid4())
+    # message = Message(
+    #     created_at=datetime.datetime.utcnow(),
+    #     updated_at=datetime.datetime.utcnow(),
+    #     id=message_id,
+    #     conversation_id=conversation_id,
+    #     content="Please describe your company",
+    #     role=MessageRoleEnum.assistant,
+    #     status=MessageStatusEnum.SUCCESS,
+    #     sub_processes=[],
+    # )
 
-    db.add(message)
-    await db.commit()
+    # db.add(message)
+    # await db.commit()
 
     return conversation_id
+
 
 @router.post("/{conversation_id}/add_agent_message")
 async def create_conversation(payload: pydantic_schema.ConversationCreate, db: AsyncSession = Depends(get_db)) -> pydantic_schema.Conversation:
@@ -146,7 +147,7 @@ async def message_conversation(conversation_id: UUID, user_message: str, db: Asy
             try:
                 async for message_obj in recv_chan:
                     if isinstance(message_obj, StreamedMessage):
-                        message.content = message_obj.content
+                        message.content = "Thanks. Can you name the shareholders of the company?"#message_obj.content
                     elif isinstance(message_obj, StreamedMessageSubProcess):
                         status = (
                             MessageSubProcessStatusEnum.FINISHED
