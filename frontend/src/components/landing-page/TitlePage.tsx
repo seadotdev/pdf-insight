@@ -201,13 +201,6 @@ export const TitlePage = () => {
                                 <Sidebar.Item href="#" icon={HiNewspaper} onClick={() => { setActiveItem("Underwriting Tools"); }} className="pl-4">Underwriting Tools</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiDocument} onClick={() => { setActiveItem("Document Templates"); }} className="pl-4">Document Templates</Sidebar.Item>
                             </Sidebar.Collapse>
-                            <Sidebar.Collapse icon={HiOutlineColorSwatch} label="Agent Control Plane">
-                                <Sidebar.Item href="#" icon={HiTerminal} onClick={() => { setActiveItem("Deployed Agents"); }} className="pl-4">Deployed Agents</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiUserGroup} onClick={() => { setActiveItem("Agent Permissions"); }} className="pl-4">Agent Permissions</Sidebar.Item>
-                                {/* <Sidebar.Item href="#" icon={HiCog} onClick={() => { setActiveItem("LLM Configration"); }} className="pl-4">LLM Configration</Sidebar.Item> */}
-                                {/* <Sidebar.Item href="#" icon={HiLockClosed} onClick={() => { setActiveItem("Security"); }} className="pl-4">Security</Sidebar.Item> */}
-                                <Sidebar.Item href="#" icon={HiChartBar} onClick={() => { setActiveItem("Observability"); }} className="pl-4">Observability</Sidebar.Item>
-                            </Sidebar.Collapse>
                             <Sidebar.Collapse icon={HiCubeTransparent} label="Semantic Layer">
                                 <Sidebar.Item href="#" icon={HiPresentationChartLine} onClick={() => { setActiveItem("Data Modelling"); }} className="pl-4">Data Modelling</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiChat} onClick={() => { setActiveItem("Data Exploration"); }} className="pl-4">Data Exploration</Sidebar.Item>
@@ -218,6 +211,13 @@ export const TitlePage = () => {
                                 <Sidebar.Item href="#" icon={HiOutlineCloudUpload} onClick={() => { setActiveItem("Targets"); }} className="pl-4">Targets</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiChartPie} onClick={() => { setActiveItem("Analytics"); }} className="pl-4">Analytics</Sidebar.Item>
                             </Sidebar.Collapse>
+                            <Sidebar.Collapse icon={HiOutlineColorSwatch} label="Agent Control Plane">
+                                <Sidebar.Item href="#" icon={HiTerminal} onClick={() => { setActiveItem("Deployed Agents"); }} className="pl-4">Deployed Agents</Sidebar.Item>
+                                <Sidebar.Item href="#" icon={HiUserGroup} onClick={() => { setActiveItem("Agent Permissions"); }} className="pl-4">Agent Permissions</Sidebar.Item>
+                                {/* <Sidebar.Item href="#" icon={HiCog} onClick={() => { setActiveItem("LLM Configration"); }} className="pl-4">LLM Configration</Sidebar.Item> */}
+                                {/* <Sidebar.Item href="#" icon={HiLockClosed} onClick={() => { setActiveItem("Security"); }} className="pl-4">Security</Sidebar.Item> */}
+                                <Sidebar.Item href="#" icon={HiChartBar} onClick={() => { setActiveItem("Observability"); }} className="pl-4">Observability</Sidebar.Item>
+                            </Sidebar.Collapse>                            
                             <Sidebar.Item href="#" icon={HiAdjustments} onClick={() => { setActiveItem("Admin"); }}>Admin</Sidebar.Item>
                         </Sidebar.ItemGroup>
                         <Sidebar.ItemGroup>
