@@ -43,3 +43,11 @@
   background-color: #5ccf963d;
   color: white;
 }
+
+.react-flow__node-selectorNode {
+  font-size: 12px;
+  background: #eee;
+  border: 1px solid #555;
+  border-radius: 5px;
+  text-align: center;
+}

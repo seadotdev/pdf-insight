@@ -17,7 +17,6 @@ import { BsArrowUpCircle } from "react-icons/bs";
 import { useModal } from "~/hooks/utils/useModal";
 import { useIntercom } from "react-use-intercom";
 import useIsMobile from "~/hooks/utils/useIsMobile";
-import { UnderwritingConversation } from "~/components/conversations/UnderwritingConversation";
 
 export default function Conversation() {
     const router = useRouter();
@@ -75,7 +74,8 @@ export default function Conversation() {
         userSendMessage(userMessage);
         setUserMessage("");
 
-        const messageEndpoint = backendUrl + `conversation/${conversationId}/message`;
+        const messageEndpoint =
+            backendUrl + `conversation/${conversationId}/message`;
         const url = messageEndpoint + `?user_message=${encodeURI(userMessage)}`;
 
         const events = new EventSource(url);
@@ -157,7 +157,7 @@ export default function Conversation() {
 
     return (
         <PdfFocusProvider>
-            <div className="flex h-[100vh] w-full items-center justify-between">
+            <div className="flex h-[100vh] w-full items-center justify-center">
                 <div className="flex h-[100vh] w-[44vw] flex-col items-center border-r-2 bg-white">
                     <div className="flex h-[44px] w-full items-center justify-between border-b-2 ">
                         <div className="flex w-full items-center justify-between">
@@ -181,7 +181,7 @@ export default function Conversation() {
                         </div>
                     </div>
                     <div className="flex max-h-[calc(100vh-114px)] w-[44vw] flex-grow flex-col overflow-scroll ">
-                        <UnderwritingConversation
+                        <RenderConversations
                             messages={messages}
                             documents={selectedDocuments}
                             setUserMessage={setSuggestedMessage}
@@ -205,8 +205,7 @@ export default function Conversation() {
                         </button>
                     </div>
                 </div>
-                <div className="h-screen w-max flex flex-col">
-                    <div></div>
+                <div className="h-[100vh] w-max">
                     <DisplayMultiplePdfs pdfs={selectedDocuments} />
                 </div>
                 <ShareLinkModal

@@ -9,11 +9,14 @@ import { Sources } from "~/components/landing-page/Sources"
 import { Targets } from "~/components/landing-page/Targets"
 import { Conversation } from "~/components/landing-page/Conversation";
 import { KnowledgeGraph } from "~/components/landing-page/KnowledgeGraph";
-import Flow from "~/components/landing-page/Flow";
+import Flow from "~/components/agents/Flow";
+import AgentPermissions from "~/components/agents/AgentPermissions";
+import Observability from "~/components/agents/Observability";
 import { Sidebar } from 'flowbite-react';
 import type { CustomFlowbiteTheme } from 'flowbite-react';
 import { Flowbite } from 'flowbite-react';
 import {
+    // https://react-icons.github.io/react-icons/icons?name=hi
     HiArrowSmRight,
     HiChartPie,
     HiTable,
@@ -29,35 +32,73 @@ import {
     HiAcademicCap,
     HiChartBar,
     HiTerminal,
-    HiPresentationChartLine
+    HiPresentationChartLine,
+    HiOutlineServer,
+    HiCubeTransparent,
+    HiDatabase,
+    HiCog,
+    HiLockClosed,
+    HiOutlineColorSwatch,
+    HiUserGroup,
+    HiBriefcase,
+    HiOutlineCloudDownload,
+    HiOutlineCloudUpload
 } from 'react-icons/hi';
+import UnderwriteForm from "~/components/landing-page/UnderwriteForm";
 
 
 function Content(props: { activeItem: string; }) {
     const activeItem = props.activeItem;
     switch (activeItem) {
         case "Home":
-            return (<div>Hi!</div>)
+            return (<div></div>)
+
+
+
+            // Agent Control Plane
+
+        case "Deployed Agents":
+            return (<Flow />)
+        case "Agent Permissions":
+            return (<AgentPermissions />)
+        case "Observability":
+            return (<Observability />)
+
+
+        case "Underwriting Tools":
+            return (<Underwrite />)
+
+
+        case "Underwriting Form":
+            return (<UnderwriteForm />)
+        case "Document Templates":
+            return (<DocumentExplorer />)
+
+
         case "Data Exploration":
             return (<Conversation />)
+
         case "Data Modelling":
             return (<KnowledgeGraph />)
         case "Template Tab":
             return (<div>Editor</div>);
+
+            // semantic layer
         case "Agent Control Plane":
             return (<Flow />)
-        case "Document Templates":
-            return (<DocumentExplorer />)
+
         case "Analytics":
             return (<Analytics />)
+
+            // Data Integration
         case "Sources":
             return (<Sources />)
         case "Targets":
             return (<Targets />)
-        case "Underwriting Tools":
-            return (<Underwrite />)
+
+        
         default:
-            return (<div>Hi!</div>);
+            return (<div></div>);
     }
 }
 
@@ -157,24 +198,29 @@ export const TitlePage = () => {
                         <p>sea.dev</p>
                     </Sidebar.Logo>
                     <Sidebar.Items>
+                            {/* <Sidebar.Item href="#" icon={HiHome} onClick={() => router.push("/").catch( e => alert("Some error occurred!")) }>Home</Sidebar.Item> */}
                         <Sidebar.ItemGroup >
-                            <Sidebar.Item href="#" icon={HiHome} onClick={() => { router.push("/").catch(() => alert("whoops!")) }}>Home</Sidebar.Item>
-                            <Sidebar.Collapse icon={HiViewBoards} label="Lending Workflows">
+
+                            <Sidebar.Collapse icon={HiBriefcase} label="Finance Workflows">
                                 <Sidebar.Item href="#" icon={HiNewspaper} onClick={() => { setActiveItem("Underwriting Tools"); }} className="pl-4">Underwriting Tools</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiDocument} onClick={() => { setActiveItem("Document Templates"); }} className="pl-4">Document Templates</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiViewBoards} onClick={() => { setActiveItem("Deployed Agents"); }} className="pl-4">Deployed Agents</Sidebar.Item>
                             </Sidebar.Collapse>
-                            <Sidebar.Collapse icon={HiChartPie} label="Semantic Layer">
+                            <Sidebar.Collapse icon={HiOutlineColorSwatch} label="Agent Control Plane">
+                                <Sidebar.Item href="#" icon={HiTerminal} onClick={() => { setActiveItem("Deployed Agents"); }} className="pl-4">Deployed Agents</Sidebar.Item>
+                                <Sidebar.Item href="#" icon={HiUserGroup} onClick={() => { setActiveItem("Agent Permissions"); }} className="pl-4">Agent Permissions</Sidebar.Item>
+                                {/* <Sidebar.Item href="#" icon={HiCog} onClick={() => { setActiveItem("LLM Configration"); }} className="pl-4">LLM Configration</Sidebar.Item> */}
+                                {/* <Sidebar.Item href="#" icon={HiLockClosed} onClick={() => { setActiveItem("Security"); }} className="pl-4">Security</Sidebar.Item> */}
+                                <Sidebar.Item href="#" icon={HiChartBar} onClick={() => { setActiveItem("Observability"); }} className="pl-4">Observability</Sidebar.Item>
+                            </Sidebar.Collapse>
+                            <Sidebar.Collapse icon={HiCubeTransparent} label="Semantic Layer">
                                 <Sidebar.Item href="#" icon={HiPresentationChartLine} onClick={() => { setActiveItem("Data Modelling"); }} className="pl-4">Data Modelling</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiChat} onClick={() => { setActiveItem("Data Exploration"); }} className="pl-4">Data Exploration</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiArrowSmRight} onClick={() => { setActiveItem("Data Activation"); }} className="pl-4">Data Activation</Sidebar.Item>
+                                {/* <Sidebar.Item href="#" icon={HiArrowSmRight} onClick={() => { setActiveItem("Data Activation"); }} className="pl-4">Data Activation</Sidebar.Item> */}
                             </Sidebar.Collapse>
-                            <Sidebar.Collapse icon={HiTable} label="Data Integration">
-                                <Sidebar.Item href="#" icon={HiTable} onClick={() => { setActiveItem("Sources"); }} className="pl-4">Sources</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiOutlineArrowCircleRight} onClick={() => { setActiveItem("Targets"); }} className="pl-4">Targets</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiAcademicCap} onClick={() => { setActiveItem("Analytics"); }} className="pl-4">Analytics</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiTerminal} onClick={() => { setActiveItem("LLM Configuration"); }} className="pl-4">LLM Configuration</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiChartBar} onClick={() => { setActiveItem("Agent Control Plane"); }} className="pl-4">Agent Control Plane</Sidebar.Item>
+                            <Sidebar.Collapse icon={HiDatabase} label="Data Integration">
+                                <Sidebar.Item href="#" icon={HiOutlineCloudDownload} onClick={() => { setActiveItem("Sources"); }} className="pl-4">Sources</Sidebar.Item>
+                                <Sidebar.Item href="#" icon={HiOutlineCloudUpload} onClick={() => { setActiveItem("Targets"); }} className="pl-4">Targets</Sidebar.Item>
+                                <Sidebar.Item href="#" icon={HiChartPie} onClick={() => { setActiveItem("Analytics"); }} className="pl-4">Analytics</Sidebar.Item>
                             </Sidebar.Collapse>
                             <Sidebar.Item href="#" icon={HiAdjustments} onClick={() => { setActiveItem("Admin"); }}>Admin</Sidebar.Item>
                         </Sidebar.ItemGroup>

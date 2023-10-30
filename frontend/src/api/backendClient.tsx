@@ -118,6 +118,16 @@ class BackendClient {
         return data.id;
     }
 
+
+    public async createUnderwrite(documentIds: string[]): Promise<string> {
+        const endpoint = "underwrite/";
+        const payload = { document_ids: documentIds };
+        const res = await this.post(endpoint, payload);
+        const data = (await res.json()) as CreateConversationPayload;
+
+        return data.id;
+    }
+
     /**
      * Fetches a conversation by ID from the backend API.
      * @param id - The ID of the conversation to fetch.

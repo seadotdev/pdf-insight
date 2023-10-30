@@ -28,6 +28,8 @@ const config = {
         fixStyle: "inline-type-imports",
       },
     ],
+    "no-extra-semi": "off",
+    "@typescript-eslint/no-extra-semi": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
   },
 };
