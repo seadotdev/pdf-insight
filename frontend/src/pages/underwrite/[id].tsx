@@ -231,7 +231,7 @@ export default function Conversation() {
                 </div>
                 <div className="h-screen w-max flex flex-col">
                     <div></div>
-                    <DisplayMultiplePdfs pdfs={selectedDocuments} />
+                    {/* <DisplayMultiplePdfs pdfs={selectedDocuments} /> */}
                 </div>
                 <ShareLinkModal
                     isOpen={isShareModalOpen}
