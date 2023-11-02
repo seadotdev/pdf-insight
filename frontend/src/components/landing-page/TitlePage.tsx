@@ -9,6 +9,7 @@ import { Sources } from "~/components/landing-page/Sources"
 import { Targets } from "~/components/landing-page/Targets"
 import { Conversation } from "~/components/landing-page/Conversation";
 import { KnowledgeGraph } from "~/components/landing-page/KnowledgeGraph";
+import { DataModel } from "~/components/landing-page/DataModel";
 import Flow from "~/components/agents/Flow";
 import AgentPermissions from "~/components/agents/AgentPermissions";
 import Observability from "~/components/agents/Observability";
@@ -42,7 +43,8 @@ import {
     HiUserGroup,
     HiBriefcase,
     HiOutlineCloudDownload,
-    HiOutlineCloudUpload
+    HiOutlineCloudUpload,
+    HiOutlineViewGridAdd
 } from 'react-icons/hi';
 
 
@@ -74,8 +76,10 @@ function Content(props: { activeItem: string; }) {
         case "Data Exploration":
             return (<Conversation />)
 
-        case "Data Modelling":
+        case "Knowledge Graph":
             return (<KnowledgeGraph />)
+        case "Data Modelling":
+            return (<DataModel />)
         case "Template Tab":
             return (<div>Editor</div>);
 
@@ -200,10 +204,11 @@ export const TitlePage = () => {
                             <Sidebar.Collapse icon={HiBriefcase} label="Finance Workflows">
                                 <Sidebar.Item href="#" icon={HiNewspaper} onClick={() => { setActiveItem("Underwriting Tools"); }} className="pl-4">Underwriting Tools</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiDocument} onClick={() => { setActiveItem("Document Templates"); }} className="pl-4">Document Templates</Sidebar.Item>
+                                <Sidebar.Item href="#" icon={HiChat} onClick={() => { setActiveItem("Data Exploration"); }} className="pl-4">Data Exploration</Sidebar.Item>
                             </Sidebar.Collapse>
                             <Sidebar.Collapse icon={HiCubeTransparent} label="Semantic Layer">
+                                <Sidebar.Item href="#" icon={HiOutlineViewGridAdd} onClick={() => { setActiveItem("Knowledge Graph"); }} className="pl-4">Knowledge Graph</Sidebar.Item>
                                 <Sidebar.Item href="#" icon={HiPresentationChartLine} onClick={() => { setActiveItem("Data Modelling"); }} className="pl-4">Data Modelling</Sidebar.Item>
-                                <Sidebar.Item href="#" icon={HiChat} onClick={() => { setActiveItem("Data Exploration"); }} className="pl-4">Data Exploration</Sidebar.Item>
                                 {/* <Sidebar.Item href="#" icon={HiArrowSmRight} onClick={() => { setActiveItem("Data Activation"); }} className="pl-4">Data Activation</Sidebar.Item> */}
                             </Sidebar.Collapse>
                             <Sidebar.Collapse icon={HiDatabase} label="Data Integration">
