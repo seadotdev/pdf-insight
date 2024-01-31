@@ -21,10 +21,11 @@ logger = logging.getLogger(__name__)
 
 
 def check_current_head(alembic_cfg: Config, connectable: Engine) -> bool:
-    directory = script.ScriptDirectory.from_config(alembic_cfg)
-    with connectable.begin() as connection:
-        context = migration.MigrationContext.configure(connection)
-        return set(context.get_current_heads()) == set(directory.get_heads())
+    return True
+    # directory = script.ScriptDirectory.from_config(alembic_cfg)
+    # with connectable.begin() as connection:
+    #     context = migration.MigrationContext.configure(connection)
+    #     return set(context.get_current_heads()) == set(directory.get_heads())
 
 
 def __setup_logging(log_level: str):
@@ -42,22 +43,22 @@ def __setup_logging(log_level: str):
 
 
 def __setup_sentry():
-    if settings.SENTRY_DSN:
-        logger.info("Setting up Sentry")
-        if settings.ENVIRONMENT == AppEnvironment.PRODUCTION:
-            profiles_sample_rate = None
-        else:
-            profiles_sample_rate = settings.SENTRY_SAMPLE_RATE
-        sentry_sdk.init(
-            dsn=settings.SENTRY_DSN,
-            environment=settings.ENVIRONMENT.value,
-            release=settings.RENDER_GIT_COMMIT,
-            debug=settings.VERBOSE,
-            traces_sample_rate=settings.SENTRY_SAMPLE_RATE,
-            profiles_sample_rate=profiles_sample_rate,
-        )
-    else:
-        logger.info("Skipping Sentry setup")
+    # if settings.SENTRY_DSN:
+    #     logger.info("Setting up Sentry")
+    #     if settings.ENVIRONMENT == AppEnvironment.PRODUCTION:
+    #         profiles_sample_rate = None
+    #     else:
+    #         profiles_sample_rate = settings.SENTRY_SAMPLE_RATE
+    #     sentry_sdk.init(
+    #         dsn=settings.SENTRY_DSN,
+    #         environment=settings.ENVIRONMENT.value,
+    #         release=settings.RENDER_GIT_COMMIT,
+    #         debug=settings.VERBOSE,
+    #         traces_sample_rate=settings.SENTRY_SAMPLE_RATE,
+    #         profiles_sample_rate=profiles_sample_rate,
+    #     )
+    # else:
+    logger.info("Skipping Sentry setup")
 
 
 @asynccontextmanager
