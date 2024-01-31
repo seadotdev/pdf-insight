@@ -52,7 +52,7 @@ def start():
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=10000,
         reload=False,
         workers=settings.UVICORN_WORKER_COUNT,
     )
