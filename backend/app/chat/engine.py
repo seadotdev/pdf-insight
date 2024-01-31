@@ -57,7 +57,7 @@ from app.chat.constants import (
     NODE_PARSER_CHUNK_SIZE,
 )
 from app.chat.kg_retriever_custom import KnowledgeGraphRAGRetriever
-from app.chat.tools import get_api_query_engine_tool, build_title_for_document
+from app.chat.tools import build_title_for_document
 from app.chat.pg_vector import get_vector_store_singleton
 from app.chat.qa_response_synth import get_custom_response_synth
 from app.api.crud import fetch_kg_index
@@ -347,17 +347,6 @@ A query engine that can answer questions about data in the knowledge graph that 
             use_async=True,
         )
 
-        api_query_engine_tools = [get_api_query_engine_tool(
-            doc, service_context) for doc in conversation.documents]
-
-        quantitative_question_engine = SubQuestionQueryEngine.from_defaults(
-            query_engine_tools=api_query_engine_tools,
-            service_context=service_context,
-            response_synthesizer=response_synth,
-            verbose=settings.VERBOSE,
-            use_async=True,
-        )
-
         top_level_sub_tools = [
             QueryEngineTool(
                 query_engine=qualitative_question_engine,
@@ -368,17 +357,7 @@ A query engine that can answer questions about data in the knowledge graph that 
     Any questions about company-related headwinds, tailwinds, risks, sentiments, or administrative information should be asked here.
     """.strip(),
                 ),
-            ),
-            QueryEngineTool(
-                query_engine=quantitative_question_engine,
-                metadata=ToolMetadata(
-                    name="quantitative_question_engine",
-                    description="""
-    A query engine that can answer quantitative questions about a set of company financial documents that the user pre-selected for the conversation.
-    Any questions about company-related financials or other metrics should be asked here.
-    """.strip(),
-                ),
-            ),
+            )
         ]
 
     chat_llm = OpenAI(

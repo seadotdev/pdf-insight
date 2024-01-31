@@ -2,13 +2,6 @@ import logging
 
 from typing import List, Iterator, cast
 
-# This is from the unofficial polygon.io client: https://polygon.readthedocs.io/
-from polygon.reference_apis import ReferenceClient
-from polygon.reference_apis.reference_api import AsyncReferenceClient
-
-# This is from the official polygon.io client: https://polygon-api-client.readthedocs.io/
-from polygon.rest.models import StockFinancial
-
 from app.schemas.pydantic_schema import (
     Document as DocumentSchema,
     DocumentTypeEnum,
@@ -95,72 +88,3 @@ def get_tool_metadata_for_document(doc: DocumentSchema) -> ToolMetadata:
     description = f"Returns basic financial data extracted from the company documents {doc_title}"
 
     return ToolMetadata(name=name, description=description)
-
-
-def get_polygion_io_sec_tool(document: DocumentSchema) -> FunctionTool:
-    sec_metadata = DocumentMetadata.parse_obj(document.metadata_map)
-    tool_metadata = get_tool_metadata_for_document(document)
-
-    async def extract_data_from_sec_document(*args, **kwargs) -> List[str]:
-        try:
-            client = ReferenceClient(
-                api_key=settings.POLYGON_IO_API_KEY,
-                connect_timeout=10,
-                read_timeout=10,
-                max_connections=20,
-                use_async=True,
-            )
-            client = cast(AsyncReferenceClient, client)
-            response_dict = await client.get_stock_financials_vx(
-                ticker=sec_metadata.company_ticker,
-                period_of_report_date=str(sec_metadata.period_of_report_date.date()),
-                limit=100,  # max limit is 100
-            )
-            stock_financials = []
-            for result_dict in response_dict["results"]:
-                stock_financials.append(StockFinancial.from_dict(result_dict))
-
-            descriptions = []
-            for stock_financial in stock_financials:
-                description = describe_financials(stock_financial)
-                logger.debug(
-                    "Built the following description for document_id=%s: %s",
-                    str(document.id),
-                    description,
-                )
-                descriptions.append(description)
-            return descriptions
-        except:
-            logger.error(
-                "Error retrieving data from polygon.io for document_id %s",
-                str(document.id),
-                exc_info=True,
-            )
-            return ["No answer found."]
-
-    def sync_func_placeholder(*args, **kwargs) -> None:
-        raise NotImplementedError("Sync function was called for document_id=" + str(document.id))
-
-    return FunctionTool.from_defaults(
-        fn=sync_func_placeholder,
-        async_fn=extract_data_from_sec_document,
-        description=tool_metadata.description,
-    )
-
-
-def get_api_query_engine_tool(document: DocumentSchema, service_context: ServiceContext) -> QueryEngineTool:
-    polygon_io_tool = get_polygion_io_sec_tool(document)
-    tool_metadata = get_tool_metadata_for_document(document)
-    doc_title = build_title_for_document(document)
-    agent = OpenAIAgent.from_tools(
-        [polygon_io_tool],
-        llm=service_context.llm,
-        callback_manager=service_context.callback_manager,
-        system_prompt=f"You are an agent that is asked quantitative questions about a company filing named {doc_title} and you answer them by using your tools.",
-    )
-
-    return QueryEngineTool.from_defaults(
-        query_engine=agent,
-        name=tool_metadata.name,
-        description=tool_metadata.description,
-    )
