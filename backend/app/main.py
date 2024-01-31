@@ -75,15 +75,15 @@ async def lifespan(app: FastAPI):
             "Database is not up to date. Please run `poetry run alembic upgrade head`"
         )
     # initialize pg vector store singleton
-    vector_store = await get_vector_store_singleton()
-    vector_store = cast(CustomPGVectorStore, vector_store)
-    await vector_store.run_setup()
+    # vector_store = await get_vector_store_singleton()
+    # vector_store = cast(CustomPGVectorStore, vector_store)
+    # await vector_store.run_setup()
 
-    # Some setup is required to initialize the llama-index sentence splitter
-    split_by_sentence_tokenizer()
-    yield
-    # This section is run on app shutdown
-    await vector_store.close()
+    # # Some setup is required to initialize the llama-index sentence splitter
+    # split_by_sentence_tokenizer()
+    # yield
+    # # This section is run on app shutdown
+    # await vector_store.close()
 
 
 app = FastAPI(
