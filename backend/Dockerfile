@@ -10,10 +10,4 @@ RUN apt-get update
 RUN apt-get install libpq-dev gcc build-essential tesseract-ocr postgresql-client wkhtmltopdf -y
 RUN poetry install
 
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-
-ARG OPENAI_API_KEY
-ENV OPENAI_API_KEY=$OPENAI_API_KEY
-
 CMD ["poetry", "run", "start"]
