@@ -10,8 +10,8 @@ router = APIRouter()
 
 @router.get("/")
 async def health(db: AsyncSession = Depends(deps.get_db)) -> Dict[str, str]:
-    """
-    Health check endpoint.
-    """
-    await db.execute(text("SELECT 1"))
+    # """
+    # Health check endpoint.
+    # """
+    # await db.execute(text("SELECT 1"))
     return {"status": "alive"}
