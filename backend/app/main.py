@@ -63,17 +63,18 @@ def __setup_sentry():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    cfg = Config("alembic.ini")
-    # Change DB URL to use psycopg2 driver for this specific check
-    db_url = settings.DATABASE_URL.replace(
-        "postgresql+asyncpg://", "postgresql+psycopg2://"
-    )
-    cfg.set_main_option("sqlalchemy.url", db_url)
-    engine = create_engine(db_url, echo=True)
-    if not check_current_head(cfg, engine):
-        raise Exception(
-            "Database is not up to date. Please run `poetry run alembic upgrade head`"
-        )
+    return
+    # cfg = Config("alembic.ini")
+    # # Change DB URL to use psycopg2 driver for this specific check
+    # db_url = settings.DATABASE_URL.replace(
+    #     "postgresql+asyncpg://", "postgresql+psycopg2://"
+    # )
+    # cfg.set_main_option("sqlalchemy.url", db_url)
+    # engine = create_engine(db_url, echo=True)
+    # if not check_current_head(cfg, engine):
+    #     raise Exception(
+    #         "Database is not up to date. Please run `poetry run alembic upgrade head`"
+    #     )
     # initialize pg vector store singleton
     # vector_store = await get_vector_store_singleton()
     # vector_store = cast(CustomPGVectorStore, vector_store)
@@ -89,7 +90,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_PREFIX}/openapi.json",
-    lifespan=lifespan,
+    # lifespan=lifespan,
 )
 
 
@@ -109,8 +110,8 @@ app.mount(f"/{settings.LOADER_IO_VERIFICATION_STR}", loader_io_router)
 
 def start():
     print("Running in AppEnvironment: " + settings.ENVIRONMENT.value)
-    __setup_logging(settings.LOG_LEVEL)
-    __setup_sentry()
+    # __setup_logging(settings.LOG_LEVEL)
+    # __setup_sentry()
     """Launched with `poetry run start` at root level"""
     # if settings.RENDER:
     #     # on render.com deployments, run migrations
