@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get("/")
-async def health(db: AsyncSession = Depends(deps.get_db)) -> Dict[str, str]:
+async def health() -> Dict[str, str]:
     # """
     # Health check endpoint.
     # """
